@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -72,7 +72,7 @@ interface ContactMsg {
   created_at: string;
 }
 
-const API = "http://127.0.0.1:8000";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 const STATUS_STYLE: Record<string, string> = {
   confirmed: "bg-emerald-100 text-emerald-700",
@@ -94,7 +94,7 @@ function fmt(d: string) {
 }
 
 function fmtStay(dateValue: string, timeValue?: string) {
-  return `${fmt(dateValue)}${timeValue ? ` • ${timeValue}` : ""}`;
+  return `${fmt(dateValue)}${timeValue ? ` � ${timeValue}` : ""}`;
 }
 
 export default function UserDashboard() {
@@ -125,7 +125,7 @@ export default function UserDashboard() {
     const token = localStorage.getItem("access_token");
     if (!token) { router.push("/"); return; }
 
-    fetch(`${API}/api/user/dashboard/user/`, {
+    fetch(`${API}/user/dashboard/user/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => { if (!res.ok) throw new Error(); return res.json(); })
@@ -137,7 +137,7 @@ export default function UserDashboard() {
     const token = localStorage.getItem("access_token");
     if (!token) return;
     setLoadingBookings(true);
-    fetch(`${API}/api/hotelroom/bookings/my/`, {
+    fetch(`${API}/hotelroom/bookings/my/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
@@ -159,7 +159,7 @@ export default function UserDashboard() {
     const token = localStorage.getItem("access_token");
     if (!token) return;
     setLoadingNotifs(true);
-    fetch(`${API}/api/user/contact/my-messages/`, {
+    fetch(`${API}/user/contact/my-messages/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.json())
@@ -191,7 +191,7 @@ export default function UserDashboard() {
     }
     setCancelling(id);
     try {
-      const res = await fetch(`${API}/api/hotelroom/bookings/${id}/`, {
+      const res = await fetch(`${API}/hotelroom/bookings/${id}/`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ action: "request_cancellation", reason: cancelReason }),
@@ -234,7 +234,7 @@ export default function UserDashboard() {
     if (!token) return;
     setEditLoading(true);
     try {
-      const res = await fetch(`${API}/api/user/profile/`, {
+      const res = await fetch(`${API}/user/profile/`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify(editForm),
@@ -255,7 +255,7 @@ export default function UserDashboard() {
 
   const handleLogout = () => {
     const refresh = localStorage.getItem("refresh_token");
-    fetch(`${API}/api/user/logout/`, {
+    fetch(`${API}/user/logout/`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("access_token")}` },
       body: JSON.stringify({ refresh_token: refresh }),
@@ -330,7 +330,7 @@ export default function UserDashboard() {
     setBookingAction({ id, action });
     setCancelMsg("");
     try {
-      const res = await fetch(`${API}/api/hotelroom/bookings/${id}/`, {
+      const res = await fetch(`${API}/hotelroom/bookings/${id}/`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify(action === "extend_stay" ? { action, extend_days: days ?? extendDays } : { action }),
@@ -450,7 +450,7 @@ export default function UserDashboard() {
           })}
         </div>
 
-        {/* â”€â”€ PROFILE TAB â”€â”€ */}
+        {/* ── PROFILE TAB ── */}
         {tab === "profile" && u && (
           <div className="grid md:grid-cols-3 gap-8">
             {/* Avatar card */}
@@ -488,12 +488,12 @@ export default function UserDashboard() {
                   {[
                     ["First Name",   u.first_name],
                     ["Last Name",    u.last_name],
-                    ["Middle Name",  u.middle_name || "â€”"],
+                    ["Middle Name",  u.middle_name || "—"],
                     ["Username",     u.username],
                     ["Email",        u.email],
-                    ["Contact",      u.contact || "â€”"],
-                    ["Address",      u.address || "â€”"],
-                    ["Gender",       u.gender || "â€”"],
+                    ["Contact",      u.contact || "—"],
+                    ["Address",      u.address || "—"],
+                    ["Gender",       u.gender || "—"],
                   ].map(([label, value]) => (
                     <div key={label} className="border-b border-[#f0ede6] pb-3">
                       <p className="text-[10px] tracking-[0.3em] uppercase text-[#71867e] mb-1">{label}</p>
@@ -551,7 +551,7 @@ export default function UserDashboard() {
           </div>
         )}
 
-        {/* â”€â”€ BOOKINGS TAB â”€â”€ */}
+        {/* ── BOOKINGS TAB ── */}
         {tab === "bookings" && (
           <div>
             {cancelMsg && (
@@ -614,7 +614,7 @@ export default function UserDashboard() {
                             <p className="text-xs text-[#71867e] tracking-widest mb-0.5">Booking #{b.id}</p>
                             <p className="font-semibold tracking-wide">{b.room_name}</p>
                             <p className="text-xs text-[#71867e]">
-                              Room {b.room_number} · Check-in {b.check_in_time || CHECK_IN_TIME} · Check-out {b.check_out_time || CHECK_OUT_TIME}
+                              Room {b.room_number} � Check-in {b.check_in_time || CHECK_IN_TIME} � Check-out {b.check_out_time || CHECK_OUT_TIME}
                             </p>
                           </div>
                           <span className={`text-[10px] px-3 py-1 rounded-full font-semibold tracking-widest uppercase ${STATUS_STYLE[getBookingBadge(b).key] || "bg-gray-100 text-gray-600"}`}>
@@ -641,7 +641,7 @@ export default function UserDashboard() {
                           </div>
                           <div>
                             <p className="text-[10px] tracking-widest text-[#71867e] uppercase mb-0.5">Total</p>
-                            <p className="font-semibold text-[#1c352c]">â‚±{Number(b.total_price).toLocaleString()}</p>
+                            <p className="font-semibold text-[#1c352c]">₱{Number(b.total_price).toLocaleString()}</p>
                           </div>
                           <div>
                             <p className="text-[10px] tracking-widest text-[#71867e] uppercase mb-0.5">Free Food</p>
@@ -650,7 +650,7 @@ export default function UserDashboard() {
                           {Number(b.extra_guest_fee_total) > 0 && (
                             <div>
                               <p className="text-[10px] tracking-widest text-[#71867e] uppercase mb-0.5">Extra Guest Fee</p>
-                              <p className="font-semibold text-[#1c352c]">â‚±{Number(b.extra_guest_fee_total).toLocaleString()}</p>
+                              <p className="font-semibold text-[#1c352c]">₱{Number(b.extra_guest_fee_total).toLocaleString()}</p>
                             </div>
                           )}
                         </div>
@@ -689,7 +689,7 @@ export default function UserDashboard() {
           </div>
         )}
 
-        {/* â”€â”€ NOTIFICATIONS TAB â”€â”€ */}
+        {/* ── NOTIFICATIONS TAB ── */}
         {tab === "notifications" && (
           <div>
             {loadingNotifs && <p className="text-center text-[#71867e] py-20 tracking-widest text-sm">Loading...</p>}
@@ -712,7 +712,7 @@ export default function UserDashboard() {
                     <div className="flex justify-between items-center pt-1">
                       <p className="text-xs text-[#71867e]">
                         {n.replied_by_name ? `By ${n.replied_by_name}` : "Admin"}
-                        {n.replied_at ? ` Â· ${fmt(n.replied_at)}` : ""}
+                        {n.replied_at ? ` · ${fmt(n.replied_at)}` : ""}
                       </p>
                       <button
                         onClick={() => {
@@ -731,7 +731,7 @@ export default function UserDashboard() {
           </div>
         )}
 
-        {/* â”€â”€ NOTIFICATION THREAD MODAL â”€â”€ */}
+        {/* ── NOTIFICATION THREAD MODAL ── */}
         {selectedNotif && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.7)" }}>
             <div className="w-full max-w-lg bg-[#faf9f6] overflow-hidden shadow-2xl">
@@ -740,7 +740,7 @@ export default function UserDashboard() {
                   <p className="text-[10px] tracking-[0.4em] uppercase text-[#71867e]">Admin Reply</p>
                   <p className="text-white font-light tracking-[0.15em]">{selectedNotif.subject}</p>
                 </div>
-                <button onClick={() => setSelectedNotif(null)} className="text-[#71867e] hover:text-white text-xl transition">âœ•</button>
+                <button onClick={() => setSelectedNotif(null)} className="text-[#71867e] hover:text-white text-xl transition">✕</button>
               </div>
               <div className="p-6 flex flex-col gap-5">
                 <div>
@@ -768,7 +768,7 @@ export default function UserDashboard() {
           </div>
         )}
 
-        {/* â”€â”€ BOOKING DETAIL MODAL â”€â”€ */}
+        {/* ── BOOKING DETAIL MODAL ── */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.7)" }}>
           <div className="w-full max-w-lg bg-[#faf9f6] overflow-hidden shadow-2xl">
@@ -783,13 +783,13 @@ export default function UserDashboard() {
               <button
                 onClick={() => setSelected(null)}
                 className="absolute top-4 right-4 text-white text-xl leading-none hover:opacity-70 transition"
-              >âœ•</button>
+              >✕</button>
             </div>
 
             <div className="p-6 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <p className="text-xs text-[#71867e] tracking-widest">
-                  Room {selected.room_number} • Check-in {selected.check_in_time || CHECK_IN_TIME} • Check-out {selected.check_out_time || CHECK_OUT_TIME}
+                  Room {selected.room_number} � Check-in {selected.check_in_time || CHECK_IN_TIME} � Check-out {selected.check_out_time || CHECK_OUT_TIME}
                 </p>
                 <span className={`text-[10px] px-3 py-1 rounded-full font-semibold tracking-widest uppercase ${STATUS_STYLE[getBookingBadge(selected).key] || "bg-gray-100 text-gray-600"}`}>
                   {getBookingBadge(selected).label}
@@ -887,7 +887,7 @@ export default function UserDashboard() {
 
               <div className="flex justify-between items-center pt-1">
                 <p className="text-xs tracking-widest text-[#71867e]">TOTAL AMOUNT</p>
-                <p className="text-2xl font-light">â‚±{Number(selected.total_price).toLocaleString()}</p>
+                <p className="text-2xl font-light">₱{Number(selected.total_price).toLocaleString()}</p>
               </div>
 
               {canReviewBooking(selected) && (
@@ -933,7 +933,7 @@ export default function UserDashboard() {
         </div>
       )}
 
-      {/* â”€â”€ CANCEL CONFIRM MODAL â”€â”€ */}
+      {/* ── CANCEL CONFIRM MODAL ── */}
       {cancelConfirm !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.7)" }}>
           <div className="w-full max-w-lg bg-[#faf9f6] p-8 shadow-2xl">

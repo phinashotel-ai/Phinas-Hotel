@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
+
 interface Room {
   id: number;
   name: string;
@@ -112,7 +114,7 @@ export default function Home() {
 
   const handleNavLogout = () => {
     const refresh = localStorage.getItem("refresh_token");
-    fetch(`${API}/api/user/logout/`, {
+    fetch(`${API}/user/logout/`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("access_token")}` },
       body: JSON.stringify({ refresh_token: refresh }),
@@ -147,15 +149,13 @@ export default function Home() {
     setShowConfirmPassword(false);
   };
 
-  const API = "http://127.0.0.1:8000";
-
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError("");
     setAuthLoading(true);
     try {
       if (isLogin) {
-        const res = await fetch(`${API}/api/user/login/`, {
+        const res = await fetch(`${API}/user/login/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
@@ -188,7 +188,7 @@ export default function Home() {
           setAuthLoading(false);
           return;
         }
-        const res = await fetch(`${API}/api/user/register/`, {
+        const res = await fetch(`${API}/user/register/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -215,7 +215,7 @@ export default function Home() {
   const [featuredRooms, setFeaturedRooms] = useState<Room[]>([]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/hotelroom/rooms/?status=available")
+    fetch(`${API}/hotelroom/rooms/?status=available`)
       .then(res => res.json())
       .then(data => setFeaturedRooms(Array.isArray(data) ? data.slice(0, 4) : []))
       .catch(() => {});

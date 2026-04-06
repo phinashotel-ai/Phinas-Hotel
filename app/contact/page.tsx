@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import SiteHeader from "../components/site-header";
 
-const API = "http://127.0.0.1:8000";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 const subjects = [
   "General Inquiry",
@@ -57,7 +57,7 @@ export default function ContactPage() {
     setError("");
     setSuccess("");
     try {
-      const res = await fetch(`${API}/api/user/contact/`, {
+      const res = await fetch(`${API}/user/contact/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

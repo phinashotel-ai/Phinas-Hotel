@@ -1,20 +1,16 @@
 import type { NextConfig } from "next";
 
+const backendUrl = new URL(process.env.BACKEND_URL || "http://127.0.0.1:8000");
+
 const nextConfig: NextConfig = {
   trailingSlash: false,
   skipTrailingSlashRedirect: true,
   images: {
     remotePatterns: [
       {
-        protocol: "http",
-        hostname: "127.0.0.1",
-        port: "8000",
-        pathname: "/media/**",
-      },
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "8000",
+        protocol: backendUrl.protocol.replace(":", "") as "http" | "https",
+        hostname: backendUrl.hostname,
+        port: backendUrl.port,
         pathname: "/media/**",
       },
     ],
@@ -23,11 +19,11 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*/',
-        destination: 'http://127.0.0.1:8000/api/:path*/',
+        destination: `${backendUrl.origin}/api/:path*/`,
       },
       {
         source: '/api/:path*',
-        destination: 'http://127.0.0.1:8000/api/:path*',
+        destination: `${backendUrl.origin}/api/:path*`,
       },
     ];
   },

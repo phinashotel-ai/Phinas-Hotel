@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import SiteHeader from "../../components/site-header";
 
-const API = "http://127.0.0.1:8000";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 const ROOM_IMAGES: Record<string, string> = {
   standard: "/che.jpg",
@@ -71,7 +71,7 @@ export default function RoomDetailsPage() {
     if (!id) return;
 
     const loadRoom = () => {
-      fetch(`${API}/api/hotelroom/rooms/${id}/`)
+      fetch(`${API}/hotelroom/rooms/${id}/`)
         .then((res) => {
           if (!res.ok) throw new Error("Room not found.");
           return res.json();

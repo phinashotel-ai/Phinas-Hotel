@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const API = "http://127.0.0.1:8000";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 const CATEGORIES = ["All", "Grills", "Mains", "Burgers", "Ribs & BBQ", "Seafood", "Sides", "Drinks"] as const;
 type Category = typeof CATEGORIES[number];
@@ -99,7 +99,7 @@ export default function MenFoodPage() {
     if (!token || !bookingId) return;
 
     setLoadingBenefit(true);
-    fetch(`${API}/api/hotelroom/bookings/${bookingId}/`, {
+    fetch(`${API}/hotelroom/bookings/${bookingId}/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => {
@@ -154,7 +154,7 @@ export default function MenFoodPage() {
 
     setSubmitting(true);
     try {
-      const res = await fetch(`${API}/api/dining/bookings/`, {
+      const res = await fetch(`${API}/dining/bookings/`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({

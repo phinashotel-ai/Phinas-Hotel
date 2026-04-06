@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SiteHeader from "../components/site-header";
 
-const API = "http://127.0.0.1:8000";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 const TYPE_IMAGES: Record<string, string> = {
   standard: "/c1.jpg",
@@ -88,8 +88,8 @@ export default function RoomSearchPage() {
     if (checkOut)   params.append("check_out", checkOut);
 
     const url = searched
-      ? `${API}/api/hotelroom/rooms/?${params}`
-      : `${API}/api/hotelroom/rooms/?status=available`;
+      ? `${API}/hotelroom/rooms/?${params}`
+      : `${API}/hotelroom/rooms/?status=available`;
 
     fetch(url)
       .then(r => r.json())
@@ -138,7 +138,7 @@ export default function RoomSearchPage() {
     if (checkIn)    params.append("check_in", checkIn);
     if (checkOut)   params.append("check_out", checkOut);
 
-    fetch(`${API}/api/hotelroom/rooms/?${params}`)
+    fetch(`${API}/hotelroom/rooms/?${params}`)
       .then(r => r.json())
       .then((data: Room[]) => {
         let filtered = Array.isArray(data) ? data : [];
@@ -295,7 +295,7 @@ export default function RoomSearchPage() {
                 setRoomType(""); setPriceRange(""); setGuests(1);
                 setCheckIn(""); setCheckOut(""); setSearched(false);
                 setLoading(true);
-                fetch(`${API}/api/hotelroom/rooms/?status=available`)
+                fetch(`${API}/hotelroom/rooms/?status=available`)
                   .then(r => r.json())
                   .then(d => { setRooms(Array.isArray(d) ? d : []); setLoading(false); })
                   .catch(() => setLoading(false));

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const API = "http://127.0.0.1:8000";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 const MSG_STATUS_STYLE: Record<string, string> = {
   unread:  "bg-yellow-100 text-yellow-700",
@@ -299,7 +299,7 @@ export default function AdminDashboard() {
       return;
     }
 
-    fetch(`${API}/api/user/dashboard/admin/`, {
+    fetch(`${API}/user/dashboard/admin/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => {
@@ -313,7 +313,7 @@ export default function AdminDashboard() {
   const refreshAdminData = async () => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
-    const res = await fetch(`${API}/api/user/dashboard/admin/`, {
+    const res = await fetch(`${API}/user/dashboard/admin/`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();
@@ -326,7 +326,7 @@ export default function AdminDashboard() {
     if (!token) return;
     setBookingLoadError("");
     setLoadingBookings(true);
-    fetch(`${API}/api/hotelroom/bookings/admin/`, {
+    fetch(`${API}/hotelroom/bookings/admin/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async res => {
@@ -354,7 +354,7 @@ export default function AdminDashboard() {
     const token = localStorage.getItem("access_token");
     if (!token) return;
     setLoadingRatings(true);
-    fetch(`${API}/api/hotelroom/ratings/admin/`, {
+    fetch(`${API}/hotelroom/ratings/admin/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
@@ -366,7 +366,7 @@ export default function AdminDashboard() {
     const token = localStorage.getItem("access_token");
     if (!token) return;
     setLoadingRooms(true);
-    fetch(`${API}/api/hotelroom/rooms/admin/`, {
+    fetch(`${API}/hotelroom/rooms/admin/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
@@ -397,7 +397,7 @@ export default function AdminDashboard() {
 
     setBookingLoadError("");
     setLoadingBookings(true);
-    fetch(`${API}/api/hotelroom/bookings/admin/`, {
+    fetch(`${API}/hotelroom/bookings/admin/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async res => {
@@ -439,7 +439,7 @@ export default function AdminDashboard() {
     const token = localStorage.getItem("access_token");
     if (!token) return;
     setLoadingMsgs(true);
-    fetch(`${API}/api/user/contact/messages/`, {
+    fetch(`${API}/user/contact/messages/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.json())
@@ -450,7 +450,7 @@ export default function AdminDashboard() {
   const handleMsgStatus = async (id: number, status: string) => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
-    const res = await fetch(`${API}/api/user/contact/messages/${id}/`, {
+    const res = await fetch(`${API}/user/contact/messages/${id}/`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
@@ -468,7 +468,7 @@ export default function AdminDashboard() {
     if (!token || !selectedMsg || !replyText.trim()) return;
     setReplySaving(true);
     try {
-      const res = await fetch(`${API}/api/user/contact/messages/${selectedMsg.id}/`, {
+      const res = await fetch(`${API}/user/contact/messages/${selectedMsg.id}/`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ reply: replyText.trim() }),
@@ -488,7 +488,7 @@ export default function AdminDashboard() {
   const handleDeleteMsg = async (id: number) => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
-    await fetch(`${API}/api/user/contact/messages/${id}/`, {
+    await fetch(`${API}/user/contact/messages/${id}/`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -629,7 +629,7 @@ export default function AdminDashboard() {
             };
 
       const res = await fetch(
-        userModalMode === "create" ? `${API}/api/user/users/` : `${API}/api/user/users/${editingUser?.id}/`,
+        userModalMode === "create" ? `${API}/user/users/` : `${API}/user/users/${editingUser?.id}/`,
         {
           method: userModalMode === "create" ? "POST" : "PATCH",
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -666,7 +666,7 @@ export default function AdminDashboard() {
     try {
       const payload = buildRoomPayload();
       const res = await fetch(
-        roomModalMode === "create" ? `${API}/api/hotelroom/rooms/admin/` : `${API}/api/hotelroom/rooms/admin/${editingRoom?.id}/`,
+        roomModalMode === "create" ? `${API}/hotelroom/rooms/admin/` : `${API}/hotelroom/rooms/admin/${editingRoom?.id}/`,
         {
           method: roomModalMode === "create" ? "POST" : "PATCH",
           headers: { Authorization: `Bearer ${token}` },
@@ -693,7 +693,7 @@ export default function AdminDashboard() {
     if (!token) return;
     setRoomActionId(id);
     try {
-      const res = await fetch(`${API}/api/hotelroom/rooms/admin/${id}/`, {
+      const res = await fetch(`${API}/hotelroom/rooms/admin/${id}/`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -717,7 +717,7 @@ export default function AdminDashboard() {
     if (!window.confirm(`Delete room #${id}?`)) return;
     setRoomActionId(id);
     try {
-      const res = await fetch(`${API}/api/hotelroom/rooms/admin/${id}/`, {
+      const res = await fetch(`${API}/hotelroom/rooms/admin/${id}/`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -740,7 +740,7 @@ export default function AdminDashboard() {
     if (!window.confirm(`Delete user #${id}?`)) return;
     setUserActionId(id);
     try {
-      const res = await fetch(`${API}/api/user/users/${id}/`, {
+      const res = await fetch(`${API}/user/users/${id}/`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -766,7 +766,7 @@ export default function AdminDashboard() {
     if (pwdForm.new_password !== pwdForm.confirm_password) { setPwdError("Passwords do not match."); return; }
     setPwdLoading(true);
     try {
-      const res = await fetch(`${API}/api/user/users/${pwdUser.id}/set-password/`, {
+      const res = await fetch(`${API}/user/users/${pwdUser.id}/set-password/`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify(pwdForm),
@@ -786,7 +786,7 @@ export default function AdminDashboard() {
     if (!token) return;
     setCancelling(id);
     try {
-      const res = await fetch(`${API}/api/hotelroom/bookings/admin/${id}/`, {
+      const res = await fetch(`${API}/hotelroom/bookings/admin/${id}/`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -805,7 +805,7 @@ export default function AdminDashboard() {
   const handleBookingStatus = async (id: number, status: string) => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
-    const res = await fetch(`${API}/api/hotelroom/bookings/admin/${id}/`, {
+    const res = await fetch(`${API}/hotelroom/bookings/admin/${id}/`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
@@ -824,7 +824,7 @@ export default function AdminDashboard() {
   const handleCancellationDecision = async (id: number, decision: "approve" | "reject") => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
-    const res = await fetch(`${API}/api/hotelroom/bookings/admin/${id}/`, {
+    const res = await fetch(`${API}/hotelroom/bookings/admin/${id}/`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ cancel_action: decision }),
@@ -842,7 +842,7 @@ export default function AdminDashboard() {
 
   const handleLogout = () => {
     const refresh = localStorage.getItem("refresh_token");
-    fetch(`${API}/api/user/logout/`, {
+    fetch(`${API}/user/logout/`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("access_token")}` },
       body: JSON.stringify({ refresh_token: refresh }),

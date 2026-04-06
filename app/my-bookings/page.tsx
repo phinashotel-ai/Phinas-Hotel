@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import SiteHeader from "../components/site-header";
 
-const API = "http://127.0.0.1:8000";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 const ROOM_IMAGES: Record<string, string> = {
   standard: "/che.jpg",
@@ -138,7 +138,7 @@ export default function MyBookingsPage() {
       return;
     }
 
-    fetch(`${API}/api/hotelroom/bookings/my/`, {
+    fetch(`${API}/hotelroom/bookings/my/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async res => {
@@ -157,13 +157,13 @@ export default function MyBookingsPage() {
               message = raw || message;
             }
           } else if (raw) {
-            message = raw.includes("<!DOCTYPE") ? "The bookings API returned an HTML error page. Make sure the backend is running on http://127.0.0.1:8000." : raw;
+            message = raw.includes("<!DOCTYPE") ? "The bookings API returned an HTML error page. Make sure the backend API is running." : raw;
           }
           throw new Error(message);
         }
 
         if (!contentType.includes("application/json")) {
-          throw new Error("The bookings API returned HTML instead of JSON. Check the backend server at http://127.0.0.1:8000.");
+          throw new Error("The bookings API returned HTML instead of JSON. Check the backend API server.");
         }
 
         return JSON.parse(raw);
@@ -194,7 +194,7 @@ export default function MyBookingsPage() {
     setActionMsg("");
 
     try {
-      const res = await fetch(`${API}/api/hotelroom/bookings/${bookingId}/`, {
+      const res = await fetch(`${API}/hotelroom/bookings/${bookingId}/`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,

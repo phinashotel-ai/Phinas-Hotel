@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import SiteHeader from "../components/site-header";
 
-const API = "http://127.0.0.1:8000";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 const CHECK_IN_TIME = "2:00 PM";
 const CHECK_OUT_TIME = "12:00 PM";
 const REVIEWABLE_STATUSES = new Set([
@@ -136,7 +136,7 @@ export default function MyRatesPage() {
       setRatingsLoading(true);
       setRatingsError("");
       try {
-        const res = await fetch(`${API}/api/hotelroom/ratings/my/`, { headers });
+        const res = await fetch(`${API}/hotelroom/ratings/my/`, { headers });
         const raw = await res.text();
         if (!res.ok) throw new Error(parseApiError(raw, "Failed to load your ratings."));
         const data = raw ? JSON.parse(raw) : [];
@@ -155,7 +155,7 @@ export default function MyRatesPage() {
       setBookingsLoading(true);
       setBookingsError("");
       try {
-        const res = await fetch(`${API}/api/hotelroom/bookings/my/`, { headers });
+        const res = await fetch(`${API}/hotelroom/bookings/my/`, { headers });
         const raw = await res.text();
         if (!res.ok) throw new Error(parseApiError(raw, "Failed to load your bookings."));
         const data = raw ? JSON.parse(raw) : [];
@@ -272,7 +272,7 @@ export default function MyRatesPage() {
     setSubmitLoading(true);
     setSubmitMsg("");
     try {
-      const res = await fetch(`${API}/api/hotelroom/rooms/${selectedBooking.room}/ratings/`, {
+      const res = await fetch(`${API}/hotelroom/rooms/${selectedBooking.room}/ratings/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

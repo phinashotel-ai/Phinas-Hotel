@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
+
 const TYPE_IMAGES: Record<string, string> = {
   standard: "/che.jpg",
   regular:  "/che1.jpg",
@@ -37,13 +39,18 @@ export default function RoomsComponent() {
   const fetchRooms = (type: string) => {
     setLoading(true);
     const query = type ? `&type=${type}` : "";
-    fetch(`http://127.0.0.1:8000/api/hotelroom/rooms/?status=available${query}`)
+    fetch(`${API}/hotelroom/rooms/?status=available${query}`)
       .then(res => res.json())
       .then(data => { setRooms(data); setLoading(false); })
       .catch(() => { setError("Failed to load rooms."); setLoading(false); });
   };
 
-  useEffect(() => { fetchRooms(""); }, []);
+  useEffect(() => {
+    fetch(`${API}/hotelroom/rooms/?status=available`)
+      .then(res => res.json())
+      .then(data => { setRooms(data); setLoading(false); })
+      .catch(() => { setError("Failed to load rooms."); setLoading(false); });
+  }, []);
 
   const handleFilter = (value: string) => {
     setActiveFilter(value);

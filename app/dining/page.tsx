@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import SiteHeader from "../components/site-header";
 
-const API = "http://127.0.0.1:8000";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 const menuTabs = ["Breakfast", "Lunch", "Dinner", "Drinks"] as const;
 type MenuTab = typeof menuTabs[number];
@@ -83,7 +83,7 @@ export default function DiningPage() {
     const token = localStorage.getItem("access_token");
     if (!token) return;
 
-    fetch(`${API}/api/user/dashboard/user/`, {
+    fetch(`${API}/user/dashboard/user/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => {
@@ -116,7 +116,7 @@ export default function DiningPage() {
       return;
     }
     try {
-      const res = await fetch(`${API}/api/dining/reservations/`, {
+      const res = await fetch(`${API}/dining/reservations/`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({

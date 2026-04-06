@@ -13,7 +13,7 @@ const ROOM_IMAGES: Record<string, string> = {
   suite:    "/che4.jpg",
 };
 
-const API = "http://127.0.0.1:8000";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 const GCASH_COMPANY_NAME = "PHINAS HOTEL";
 const GCASH_COMPANY_NUMBER = "0917 000 0000";
 const CHECK_IN_TIME = "2:00 PM";
@@ -107,7 +107,7 @@ export default function BookingPage() {
     if (!token) { router.push("/"); return; }
     if (!id) return;
 
-    fetch(`${API}/api/hotelroom/rooms/${id}/`)
+    fetch(`${API}/hotelroom/rooms/${id}/`)
       .then(async res => {
         const result = await readApiResponse(res, "Room not found.");
         if (!result.ok) throw new Error(result.error);
@@ -165,7 +165,7 @@ export default function BookingPage() {
     if (!token) { router.push("/"); return; }
 
     try {
-      const res = await fetch(`${API}/api/hotelroom/bookings/`, {
+      const res = await fetch(`${API}/hotelroom/bookings/`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({

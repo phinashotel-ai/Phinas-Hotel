@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const API = "http://127.0.0.1:8000";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 const MSG_STATUS_STYLE: Record<string, string> = {
   unread:  "bg-yellow-100 text-yellow-700",
@@ -256,7 +256,7 @@ export default function StaffDashboard() {
     const role  = localStorage.getItem("user_role");
     if (!token || role !== "staff") { router.push("/"); return; }
 
-    fetch(`${API}/api/user/dashboard/staff/`, {
+    fetch(`${API}/user/dashboard/staff/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => {
@@ -271,7 +271,7 @@ export default function StaffDashboard() {
     const token = localStorage.getItem("access_token");
     if (!token) return;
     setLoadingBookings(true);
-    fetch(`${API}/api/hotelroom/bookings/admin/`, {
+    fetch(`${API}/hotelroom/bookings/admin/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
@@ -283,7 +283,7 @@ export default function StaffDashboard() {
     const token = localStorage.getItem("access_token");
     if (!token) return;
     setLoadingMsgs(true);
-    fetch(`${API}/api/user/contact/messages/`, {
+    fetch(`${API}/user/contact/messages/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.json())
@@ -295,7 +295,7 @@ export default function StaffDashboard() {
     const token = localStorage.getItem("access_token");
     if (!token) return;
     setLoadingRatings(true);
-    fetch(`${API}/api/hotelroom/ratings/admin/`, {
+    fetch(`${API}/hotelroom/ratings/admin/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.json())
@@ -307,7 +307,7 @@ export default function StaffDashboard() {
     const token = localStorage.getItem("access_token");
     if (!token) return;
     setLoadingRooms(true);
-    fetch(`${API}/api/hotelroom/rooms/admin/`, {
+    fetch(`${API}/hotelroom/rooms/admin/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
@@ -328,10 +328,10 @@ export default function StaffDashboard() {
     if (!token) return;
     setLoadingDining(true);
     Promise.all([
-      fetch(`${API}/api/dining/reservations/admin/`, {
+      fetch(`${API}/dining/reservations/admin/`, {
         headers: { Authorization: `Bearer ${token}` },
       }).then(r => r.json()),
-      fetch(`${API}/api/dining/bookings/admin/`, {
+      fetch(`${API}/dining/bookings/admin/`, {
         headers: { Authorization: `Bearer ${token}` },
       }).then(r => r.json()),
     ])
@@ -433,7 +433,7 @@ export default function StaffDashboard() {
     try {
       const payload = buildRoomPayload();
       const res = await fetch(
-        roomModalMode === "create" ? `${API}/api/hotelroom/rooms/admin/` : `${API}/api/hotelroom/rooms/admin/${editingRoom?.id}/`,
+        roomModalMode === "create" ? `${API}/hotelroom/rooms/admin/` : `${API}/hotelroom/rooms/admin/${editingRoom?.id}/`,
         {
           method: roomModalMode === "create" ? "POST" : "PATCH",
           headers: { Authorization: `Bearer ${token}` },
@@ -459,7 +459,7 @@ export default function StaffDashboard() {
     if (!token) return;
     setRoomActionId(id);
     try {
-      const res = await fetch(`${API}/api/hotelroom/rooms/admin/${id}/`, {
+      const res = await fetch(`${API}/hotelroom/rooms/admin/${id}/`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -480,7 +480,7 @@ export default function StaffDashboard() {
   const handleBookingStatus = async (id: number, status: string) => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
-    const res = await fetch(`${API}/api/hotelroom/bookings/admin/${id}/`, {
+    const res = await fetch(`${API}/hotelroom/bookings/admin/${id}/`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
@@ -496,7 +496,7 @@ export default function StaffDashboard() {
   const handleCancellationDecision = async (id: number, decision: "approve" | "reject") => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
-    const res = await fetch(`${API}/api/hotelroom/bookings/admin/${id}/`, {
+    const res = await fetch(`${API}/hotelroom/bookings/admin/${id}/`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ cancel_action: decision }),
@@ -512,7 +512,7 @@ export default function StaffDashboard() {
   const handleMsgStatus = async (id: number, status: string) => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
-    const res = await fetch(`${API}/api/user/contact/messages/${id}/`, {
+    const res = await fetch(`${API}/user/contact/messages/${id}/`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
@@ -527,7 +527,7 @@ export default function StaffDashboard() {
     if (!token || !selectedMsg) return;
     const reply = window.prompt("Enter reply", selectedMsg.reply || "");
     if (reply === null || !reply.trim()) return;
-    const res = await fetch(`${API}/api/user/contact/messages/${selectedMsg.id}/`, {
+    const res = await fetch(`${API}/user/contact/messages/${selectedMsg.id}/`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ reply: reply.trim() }),
@@ -542,7 +542,7 @@ export default function StaffDashboard() {
 
   const handleLogout = () => {
     const refresh = localStorage.getItem("refresh_token");
-    fetch(`${API}/api/user/logout/`, {
+    fetch(`${API}/user/logout/`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("access_token")}` },
       body: JSON.stringify({ refresh_token: refresh }),
