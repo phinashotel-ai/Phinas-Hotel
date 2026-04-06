@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
@@ -65,7 +65,7 @@ const MENU: FoodItem[] = [
   { id: 34, name: "Espresso",            desc: "Double shot, locally sourced beans",                      price: 120,  category: "Drinks",    emoji: "☕" },
 ];
 
-export default function MenFoodPage() {
+function MenFoodPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const shouldReturnToDashboard = searchParams.get("next") === "user-dashboard";
@@ -451,5 +451,13 @@ export default function MenFoodPage() {
         <p className="text-xs tracking-[0.4em]" style={{ color: "#d4d7c7" }}>© 2024 PHINAS HOTEL · MEN&apos;S MENU</p>
       </footer>
     </div>
+  );
+}
+
+export default function MenFoodPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#faf9f6]" />}>
+      <MenFoodPageContent />
+    </Suspense>
   );
 }

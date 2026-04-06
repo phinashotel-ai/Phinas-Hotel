@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function Home() {
   const [showAuth, setShowAuth] = useState(false);
@@ -11,31 +11,15 @@ export default function Home() {
   const pricePerNight = 4500;
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [available, setAvailable] = useState<boolean | null>(null);
   const [confirmation, setConfirmation] = useState("");
   const [referenceNumber, setReferenceNumber] = useState("");
 
-  // Calculate Nights & Price Automatically
-  useEffect(() => {
-    if (checkIn && checkOut) {
-      const start = new Date(checkIn);
-      const end = new Date(checkOut);
-      const diffTime = end.getTime() - start.getTime();
-      const nights = diffTime / (1000 * 3600 * 24);
-
-      if (nights > 0) {
-        setTotalPrice(nights * pricePerNight);
-
-        // Simulated Real-time Availability Check
-        const randomAvailability = Math.random() > 0.3;
-        setAvailable(randomAvailability);
-      } else {
-        setTotalPrice(0);
-        setAvailable(null);
-      }
-    }
-  }, [checkIn, checkOut]);
+  const start = checkIn ? new Date(checkIn) : null;
+  const end = checkOut ? new Date(checkOut) : null;
+  const diffTime = start && end ? end.getTime() - start.getTime() : 0;
+  const nights = diffTime > 0 ? diffTime / (1000 * 3600 * 24) : 0;
+  const totalPrice = nights > 0 ? nights * pricePerNight : 0;
+  const available = nights > 0 ? true : null;
 
   // Generate Booking Reference
   const generateReference = () => {

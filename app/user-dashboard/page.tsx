@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const ROOM_IMAGES: Record<string, string> = {
@@ -94,10 +94,10 @@ function fmt(d: string) {
 }
 
 function fmtStay(dateValue: string, timeValue?: string) {
-  return `${fmt(dateValue)}${timeValue ? ` � ${timeValue}` : ""}`;
+  return `${fmt(dateValue)}${timeValue ? ` • ${timeValue}` : ""}`;
 }
 
-export default function UserDashboard() {
+function UserDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const requestedTab = searchParams.get("tab");
@@ -450,7 +450,7 @@ export default function UserDashboard() {
           })}
         </div>
 
-        {/* ── PROFILE TAB ── */}
+        {/* â”€â”€ PROFILE TAB â”€â”€ */}
         {tab === "profile" && u && (
           <div className="grid md:grid-cols-3 gap-8">
             {/* Avatar card */}
@@ -488,12 +488,12 @@ export default function UserDashboard() {
                   {[
                     ["First Name",   u.first_name],
                     ["Last Name",    u.last_name],
-                    ["Middle Name",  u.middle_name || "—"],
+                    ["Middle Name",  u.middle_name || "â€”"],
                     ["Username",     u.username],
                     ["Email",        u.email],
-                    ["Contact",      u.contact || "—"],
-                    ["Address",      u.address || "—"],
-                    ["Gender",       u.gender || "—"],
+                    ["Contact",      u.contact || "â€”"],
+                    ["Address",      u.address || "â€”"],
+                    ["Gender",       u.gender || "â€”"],
                   ].map(([label, value]) => (
                     <div key={label} className="border-b border-[#f0ede6] pb-3">
                       <p className="text-[10px] tracking-[0.3em] uppercase text-[#71867e] mb-1">{label}</p>
@@ -551,7 +551,7 @@ export default function UserDashboard() {
           </div>
         )}
 
-        {/* ── BOOKINGS TAB ── */}
+        {/* â”€â”€ BOOKINGS TAB â”€â”€ */}
         {tab === "bookings" && (
           <div>
             {cancelMsg && (
@@ -614,7 +614,7 @@ export default function UserDashboard() {
                             <p className="text-xs text-[#71867e] tracking-widest mb-0.5">Booking #{b.id}</p>
                             <p className="font-semibold tracking-wide">{b.room_name}</p>
                             <p className="text-xs text-[#71867e]">
-                              Room {b.room_number} � Check-in {b.check_in_time || CHECK_IN_TIME} � Check-out {b.check_out_time || CHECK_OUT_TIME}
+                              Room {b.room_number} · Check-in {b.check_in_time || CHECK_IN_TIME} · Check-out {b.check_out_time || CHECK_OUT_TIME}
                             </p>
                           </div>
                           <span className={`text-[10px] px-3 py-1 rounded-full font-semibold tracking-widest uppercase ${STATUS_STYLE[getBookingBadge(b).key] || "bg-gray-100 text-gray-600"}`}>
@@ -641,7 +641,7 @@ export default function UserDashboard() {
                           </div>
                           <div>
                             <p className="text-[10px] tracking-widest text-[#71867e] uppercase mb-0.5">Total</p>
-                            <p className="font-semibold text-[#1c352c]">₱{Number(b.total_price).toLocaleString()}</p>
+                            <p className="font-semibold text-[#1c352c]">â‚±{Number(b.total_price).toLocaleString()}</p>
                           </div>
                           <div>
                             <p className="text-[10px] tracking-widest text-[#71867e] uppercase mb-0.5">Free Food</p>
@@ -650,7 +650,7 @@ export default function UserDashboard() {
                           {Number(b.extra_guest_fee_total) > 0 && (
                             <div>
                               <p className="text-[10px] tracking-widest text-[#71867e] uppercase mb-0.5">Extra Guest Fee</p>
-                              <p className="font-semibold text-[#1c352c]">₱{Number(b.extra_guest_fee_total).toLocaleString()}</p>
+                              <p className="font-semibold text-[#1c352c]">â‚±{Number(b.extra_guest_fee_total).toLocaleString()}</p>
                             </div>
                           )}
                         </div>
@@ -689,7 +689,7 @@ export default function UserDashboard() {
           </div>
         )}
 
-        {/* ── NOTIFICATIONS TAB ── */}
+        {/* â”€â”€ NOTIFICATIONS TAB â”€â”€ */}
         {tab === "notifications" && (
           <div>
             {loadingNotifs && <p className="text-center text-[#71867e] py-20 tracking-widest text-sm">Loading...</p>}
@@ -712,7 +712,7 @@ export default function UserDashboard() {
                     <div className="flex justify-between items-center pt-1">
                       <p className="text-xs text-[#71867e]">
                         {n.replied_by_name ? `By ${n.replied_by_name}` : "Admin"}
-                        {n.replied_at ? ` · ${fmt(n.replied_at)}` : ""}
+                        {n.replied_at ? ` Â· ${fmt(n.replied_at)}` : ""}
                       </p>
                       <button
                         onClick={() => {
@@ -731,7 +731,7 @@ export default function UserDashboard() {
           </div>
         )}
 
-        {/* ── NOTIFICATION THREAD MODAL ── */}
+        {/* â”€â”€ NOTIFICATION THREAD MODAL â”€â”€ */}
         {selectedNotif && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.7)" }}>
             <div className="w-full max-w-lg bg-[#faf9f6] overflow-hidden shadow-2xl">
@@ -740,7 +740,7 @@ export default function UserDashboard() {
                   <p className="text-[10px] tracking-[0.4em] uppercase text-[#71867e]">Admin Reply</p>
                   <p className="text-white font-light tracking-[0.15em]">{selectedNotif.subject}</p>
                 </div>
-                <button onClick={() => setSelectedNotif(null)} className="text-[#71867e] hover:text-white text-xl transition">✕</button>
+                <button onClick={() => setSelectedNotif(null)} className="text-[#71867e] hover:text-white text-xl transition">âœ•</button>
               </div>
               <div className="p-6 flex flex-col gap-5">
                 <div>
@@ -768,7 +768,7 @@ export default function UserDashboard() {
           </div>
         )}
 
-        {/* ── BOOKING DETAIL MODAL ── */}
+        {/* â”€â”€ BOOKING DETAIL MODAL â”€â”€ */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.7)" }}>
           <div className="w-full max-w-lg bg-[#faf9f6] overflow-hidden shadow-2xl">
@@ -783,13 +783,13 @@ export default function UserDashboard() {
               <button
                 onClick={() => setSelected(null)}
                 className="absolute top-4 right-4 text-white text-xl leading-none hover:opacity-70 transition"
-              >✕</button>
+              >âœ•</button>
             </div>
 
             <div className="p-6 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <p className="text-xs text-[#71867e] tracking-widest">
-                  Room {selected.room_number} � Check-in {selected.check_in_time || CHECK_IN_TIME} � Check-out {selected.check_out_time || CHECK_OUT_TIME}
+                  Room {selected.room_number} • Check-in {selected.check_in_time || CHECK_IN_TIME} • Check-out {selected.check_out_time || CHECK_OUT_TIME}
                 </p>
                 <span className={`text-[10px] px-3 py-1 rounded-full font-semibold tracking-widest uppercase ${STATUS_STYLE[getBookingBadge(selected).key] || "bg-gray-100 text-gray-600"}`}>
                   {getBookingBadge(selected).label}
@@ -887,7 +887,7 @@ export default function UserDashboard() {
 
               <div className="flex justify-between items-center pt-1">
                 <p className="text-xs tracking-widest text-[#71867e]">TOTAL AMOUNT</p>
-                <p className="text-2xl font-light">₱{Number(selected.total_price).toLocaleString()}</p>
+                <p className="text-2xl font-light">â‚±{Number(selected.total_price).toLocaleString()}</p>
               </div>
 
               {canReviewBooking(selected) && (
@@ -933,7 +933,7 @@ export default function UserDashboard() {
         </div>
       )}
 
-      {/* ── CANCEL CONFIRM MODAL ── */}
+      {/* â”€â”€ CANCEL CONFIRM MODAL â”€â”€ */}
       {cancelConfirm !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.7)" }}>
           <div className="w-full max-w-lg bg-[#faf9f6] p-8 shadow-2xl">
@@ -1011,6 +1011,14 @@ export default function UserDashboard() {
       )}
     </div>
   </div>
+  );
+}
+
+export default function UserDashboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#faf9f6]" />}>
+      <UserDashboardContent />
+    </Suspense>
   );
 }
 

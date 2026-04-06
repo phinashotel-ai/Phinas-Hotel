@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import SiteHeader from "../components/site-header";
 
@@ -105,7 +105,7 @@ function dedupeRatingsByRoom(items: RoomRating[]) {
   return Array.from(latestByRoom.values());
 }
 
-export default function MyRatesPage() {
+function MyRatesPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const requestedBookingId = Number(searchParams.get("booking"));
@@ -553,5 +553,13 @@ export default function MyRatesPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MyRatesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#faf9f6]" />}>
+      <MyRatesPageContent />
+    </Suspense>
   );
 }

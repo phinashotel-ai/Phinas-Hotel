@@ -127,6 +127,35 @@ interface RoomRating {
   created_at: string;
 }
 
+interface DiningReservation {
+  id: number;
+  user_name: string;
+  name: string;
+  email: string;
+  phone: string;
+  date: string;
+  time: string;
+  guests: number;
+  notes: string;
+  status: string;
+  created_at: string;
+}
+
+interface DiningOrder {
+  id: number;
+  user_name: string;
+  booking_room_name?: string;
+  booking_room_number?: string;
+  date: string;
+  time: string;
+  guests: number;
+  notes: string;
+  total: string;
+  payable_total: string;
+  status: string;
+  created_at: string;
+}
+
 interface Room {
   id: number;
   name: string;
@@ -239,16 +268,20 @@ const EMPTY_ROOM_FORM: RoomFormState = {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [tab, setTab]           = useState<"overview" | "users" | "rooms" | "bookings" | "messages" | "ratings">("overview");
+  const [tab, setTab]           = useState<"overview" | "users" | "rooms" | "bookings" | "messages" | "ratings" | "dining">("overview");
   const [userSectionTab, setUserSectionTab] = useState<"users" | "staff">("users");
   const [adminData, setAdminData] = useState<AdminData | null>(null);
   const [users, setUsers]         = useState<User[]>([]);
   const [rooms, setRooms]         = useState<Room[]>([]);
   const [bookings, setBookings]   = useState<Booking[]>([]);
+  const [diningReservations, setDiningReservations] = useState<DiningReservation[]>([]);
+  const [diningOrders, setDiningOrders] = useState<DiningOrder[]>([]);
+  const [diningView, setDiningView] = useState<"reservation" | "order">("reservation");
   const [ratings, setRatings]     = useState<RoomRating[]>([]);
   const [loading, setLoading]     = useState(true);
   const [loadingRooms, setLoadingRooms] = useState(false);
   const [loadingBookings, setLoadingBookings] = useState(false);
+  const [loadingDining, setLoadingDining] = useState(false);
   const [loadingRatings, setLoadingRatings] = useState(false);
   const [bookingLoadError, setBookingLoadError] = useState("");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
@@ -362,6 +395,26 @@ export default function AdminDashboard() {
       .catch(() => setLoadingRatings(false));
   };
 
+  const fetchDiningData = () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+    setLoadingDining(true);
+    Promise.all([
+      fetch(`${API}/dining/reservations/admin/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then(r => r.json()),
+      fetch(`${API}/dining/bookings/admin/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then(r => r.json()),
+    ])
+      .then(([reservations, orders]) => {
+        setDiningReservations(Array.isArray(reservations) ? reservations : []);
+        setDiningOrders(Array.isArray(orders) ? orders : []);
+        setLoadingDining(false);
+      })
+      .catch(() => setLoadingDining(false));
+  };
+
   const fetchRooms = () => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
@@ -382,8 +435,9 @@ export default function AdminDashboard() {
     return () => window.removeEventListener("room-ratings-updated", refreshRooms);
   }, [tab]);
 
-  const handleTabChange = (nextTab: "overview" | "users" | "rooms" | "bookings" | "messages" | "ratings") => {
+  const handleTabChange = (nextTab: "overview" | "users" | "rooms" | "bookings" | "messages" | "ratings" | "dining") => {
     setTab(nextTab);
+    if (nextTab === "dining") fetchDiningData();
     if (nextTab === "rooms") fetchRooms();
     if (nextTab === "bookings") fetchBookings();
     if (nextTab === "messages") fetchMessages();
