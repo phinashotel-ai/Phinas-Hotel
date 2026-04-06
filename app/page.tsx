@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL
 
 interface Room {
   id: number;
