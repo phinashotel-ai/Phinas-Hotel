@@ -40,6 +40,21 @@ function isStrongPassword(value: string) {
   return value.length >= 8 && /[A-Z]/.test(value) && /[a-z]/.test(value) && /[^A-Za-z0-9]/.test(value);
 }
 
+function parseApiResponse(raw: string, fallback: string) {
+  if (!raw.trim()) {
+    throw new Error(fallback);
+  }
+
+  try {
+    return JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    if (raw.includes("<!DOCTYPE") || raw.includes("<html")) {
+      throw new Error("The server returned an HTML page instead of JSON. Check the frontend API base URL and backend route.");
+    }
+    throw new Error(raw.trim() || fallback);
+  }
+}
+
 function EyeIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
@@ -161,8 +176,7 @@ export default function Home() {
           body: JSON.stringify({ email, password }),
         });
         const text = await res.text();
-        let data: Record<string, unknown> = {};
-        try { data = JSON.parse(text); } catch { throw new Error("Server error. Is Django running?"); }
+        const data = parseApiResponse(text, "Login failed.");
         if (!res.ok) throw new Error((data.detail || data.error || "Login failed") as string);
         const role = (data.user as Record<string, string>)?.role;
         localStorage.setItem("access_token", data.access_token as string);
@@ -198,8 +212,7 @@ export default function Home() {
           }),
         });
         const text = await res.text();
-        let data: Record<string, unknown> = {};
-        try { data = JSON.parse(text); } catch { throw new Error("Server error. Is Django running?"); }
+        const data = parseApiResponse(text, "Signup failed.");
         if (!res.ok) throw new Error((Object.values(data).flat().join(" ")) || "Signup failed");
         resetAuthFields();
         setIsLogin(true);
