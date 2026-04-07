@@ -18,23 +18,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing booking email payload." }, { status: 400 });
     }
 
-    const host = getRequiredEnv("SMTP_HOST");
-    const port = Number(process.env.SMTP_PORT || 587);
-    const user = getRequiredEnv("SMTP_USER");
-    const pass = getRequiredEnv("SMTP_PASS");
-    const from = process.env.SMTP_FROM || user;
+    const user = getRequiredEnv("MAILER_GMAIL_USER");
+    const pass = getRequiredEnv("MAILER_GMAIL_APP_PASSWORD");
+    const fromEmail = process.env.MAILER_FROM_EMAIL || user;
+    const fromName = process.env.MAILER_FROM_NAME || "Phinas Hotel";
 
     const transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465,
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: { user, pass },
     });
 
     const message = getBookingEmailContent(payload);
 
     await transporter.sendMail({
-      from,
+      from: `"${fromName}" <${fromEmail}>`,
       to: payload.booking.user_email,
       subject: message.subject,
       text: message.text,
