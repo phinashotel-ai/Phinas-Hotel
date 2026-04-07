@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import SiteHeader from "../../components/site-header";
+import { sendBookingEmail } from "../../../lib/send-booking-email";
 
 const ROOM_IMAGES: Record<string, string> = {
   standard: "/che.jpg",
@@ -37,6 +38,35 @@ interface Room {
   dinner_price_per_guest?: string;
   extra_guest_lunch_price_per_guest?: string;
   extra_guest_dinner_price_per_guest?: string;
+}
+
+interface BookingResponse {
+  id: number;
+  user_name?: string;
+  user_first_name?: string;
+  user_email: string;
+  room_name: string;
+  room_number: string;
+  reference_number?: string | null;
+  check_in: string;
+  check_out: string;
+  check_in_time?: string;
+  check_out_time?: string;
+  guests: number;
+  meal_category: string;
+  total_price: string;
+  status: string;
+  free_food_guests?: number;
+  meal_addon_total?: string;
+  promo_code?: string;
+  discount_amount?: string;
+  payment?: {
+    method?: string;
+    reference_number?: string | null;
+    sent_amount?: string | null;
+    amount?: string;
+    status?: string;
+  } | null;
 }
 
 async function readApiResponse(res: Response, fallback: string) {
@@ -191,7 +221,11 @@ export default function BookingPage() {
           : result.error;
         throw new Error(msgs || "Booking failed.");
       }
-      const data = result.data;
+      const data = result.data as BookingResponse;
+      await sendBookingEmail({
+        status: "pending",
+        booking: data,
+      });
       setSuccess(`Booking request submitted! #${data.id} is pending staff confirmation. Reference Number: ${data.reference_number || data.payment?.reference_number || "None"}. A pending confirmation email has been sent, and the full booking details will be emailed after staff/admin approval. ${String(data.meal_category || mealCategory).replace(/^./, (c: string) => c.toUpperCase())} meal selected. Total: PHP ${Number(data.total_price).toLocaleString()}. First ${data.free_food_guests ?? freeFoodGuests} guest(s) get free food.`);
       sessionStorage.setItem("recent_booking_room_id", String(id));
       sessionStorage.setItem("recent_booking_id", String(data.id));

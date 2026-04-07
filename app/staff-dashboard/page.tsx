@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { sendBookingEmail } from "../../lib/send-booking-email";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
@@ -45,6 +46,8 @@ interface Booking {
   id: number;
   reference_number?: string | null;
   user_name: string;
+  user_first_name?: string;
+  user_email: string;
   room_name: string;
   room_number: string;
   check_in: string;
@@ -487,6 +490,12 @@ export default function StaffDashboard() {
     });
     const data = await res.json();
     if (!res.ok) { alert(data.error || "Failed to update booking."); return; }
+    if (status === "confirmed") {
+      await sendBookingEmail({
+        status: "confirmed",
+        booking: data,
+      });
+    }
     setBookings(prev => prev.map(b => b.id === id ? data : b));
     if (selectedBooking?.id === id) setSelectedBooking(data);
     setActionMsg(`Booking marked as ${status}.`);
