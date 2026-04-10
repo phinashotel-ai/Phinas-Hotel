@@ -45,15 +45,15 @@ function getRoomTypeLabel(roomType: string) {
   return ROOM_TYPE_LABELS[roomType] || roomType;
 }
 
-function getFiveStarRating(avgRating?: number | null) {
+function getDisplayRating(avgRating?: number | null) {
   const normalized = Number(avgRating);
   if (!Number.isFinite(normalized) || normalized <= 0) return 0;
-  return Math.max(0, Math.min(5, normalized));
+  return Math.max(0, Math.min(5, normalized > 5 ? normalized / 2 : normalized));
 }
 
 function renderStars(avgRating?: number | null) {
-  const fiveStarRating = Math.round(getFiveStarRating(avgRating));
-  return `${"★".repeat(fiveStarRating)}${"☆".repeat(5 - fiveStarRating)}`;
+  const fiveStarRating = Math.round(getDisplayRating(avgRating));
+  return `${"\u2605".repeat(fiveStarRating)}${"\u2606".repeat(5 - fiveStarRating)}`;
 }
 
 export default function RoomDetailsPage() {
@@ -68,10 +68,12 @@ export default function RoomDetailsPage() {
   useEffect(() => {
     if (!id) return;
 
+    const controller = new AbortController();
+
     const loadRoom = () => {
       setLoading(true);
       setError("");
-      fetch(`${API}/hotelroom/rooms/${id}/`)
+      fetch(`${API}/hotelroom/rooms/${id}/`, { signal: controller.signal })
         .then((res) => {
           if (!res.ok) throw new Error("Room not found.");
           return res.json();
@@ -81,6 +83,7 @@ export default function RoomDetailsPage() {
           setLoading(false);
         })
         .catch((err: unknown) => {
+          if (err instanceof Error && err.name === "AbortError") return;
           setError(err instanceof Error ? err.message : "Failed to load room details.");
           setLoading(false);
         });
@@ -89,13 +92,19 @@ export default function RoomDetailsPage() {
     loadRoom();
 
     const refreshRoom = () => loadRoom();
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") {
+        refreshRoom();
+      }
+    };
     window.addEventListener("room-ratings-updated", refreshRoom);
     window.addEventListener("focus", refreshRoom);
-    document.addEventListener("visibilitychange", refreshRoom);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
     return () => {
+      controller.abort();
       window.removeEventListener("room-ratings-updated", refreshRoom);
       window.removeEventListener("focus", refreshRoom);
-      document.removeEventListener("visibilitychange", refreshRoom);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
     };
   }, [id]);
 
@@ -114,7 +123,7 @@ export default function RoomDetailsPage() {
 
   const imageSrc = room ? room.image_url || ROOM_IMAGES[room.room_type] || "/che.jpg" : "/che.jpg";
   const imageGallery = [imageSrc, imageSrc, imageSrc];
-  const ratingOutOfFive = hasRoomRating(room) ? getFiveStarRating(room?.avg_rating) : 0;
+  const ratingOutOfFive = hasRoomRating(room) ? getDisplayRating(room?.avg_rating) : 0;
 
   return (
     <div className="min-h-screen font-sans" style={{ backgroundColor: "#faf9f6", color: "#1c352c" }}>
@@ -174,7 +183,7 @@ export default function RoomDetailsPage() {
                     <p className="mb-1 text-[10px] uppercase tracking-[0.35em] text-[#8e6d2e]">Guest Rating</p>
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-lg tracking-[0.18em]" style={{ color: "#c48a3a" }}>
-                        {hasRoomRating(room) ? renderStars(getFiveStarRating(room.avg_rating)) : "☆☆☆☆☆"}
+                        {hasRoomRating(room) ? renderStars(room.avg_rating) : "\u2606\u2606\u2606\u2606\u2606"}
                       </p>
                       <p className="text-sm font-medium text-[#1c352c]">
                         {hasRoomRating(room) ? `${ratingOutOfFive.toFixed(1)}/5` : "New"}
@@ -198,7 +207,11 @@ export default function RoomDetailsPage() {
               <div className="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 {imageGallery.map((img, index) => (
                   <div key={`${img}-${index}`} className="relative h-52 overflow-hidden border border-[#d4d7c7]">
-                    <img src={img} alt={`${room.name} preview ${index + 1}`} className="absolute inset-0 h-full w-full object-cover" />
+                    <img
+                      src={img}
+                      alt={`${room.name} preview ${index + 1}`}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
                   </div>
                 ))}
               </div>
@@ -230,4 +243,3 @@ export default function RoomDetailsPage() {
     </div>
   );
 }
-
