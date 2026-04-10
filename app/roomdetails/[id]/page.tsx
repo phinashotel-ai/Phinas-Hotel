@@ -266,6 +266,18 @@ export default function RoomDetailsPage() {
                     <img
                       src={img}
                       alt={`${room.name} preview ${index + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+} 1}`}
                       className="absolute inset-0 h-full w-full object-cover"
                     />
                   </div>
