@@ -21,8 +21,25 @@ const ROOM_TYPE_LABELS: Record<string, string> = {
   suite: "Suite Room",
 };
 
+const ROOM_TYPE_DESCRIPTIONS: Record<string, string> = {
+  standard:
+    "A standard room is the hotel's most economical accommodation, usually around 200 to 400 square feet. It is ideal for budget-conscious travelers and includes essential amenities such as a comfortable king, queen, or twin bed.",
+  family:
+    "A family room is designed for relaxation, gathering, and entertainment. It offers a more spacious shared setup that works well for families or groups who want to stay together comfortably.",
+  deluxe:
+    "A deluxe room is a premium hotel room category with more space, better views, and higher-quality amenities than a standard room. It often includes a king-size bed, a seating area, and an upgraded bathroom for enhanced comfort.",
+  suite:
+    "A suite room is a premium accommodation with more space than a standard room, usually featuring a separate bedroom and living area. It is ideal for longer stays, families, or business travelers who want added comfort and functionality.",
+};
+
 function getRoomTypeLabel(roomType: string) {
   return ROOM_TYPE_LABELS[roomType] || roomType;
+}
+
+function getRoomDescription(room: Room) {
+  const customDescription = room.description?.trim();
+  if (customDescription) return customDescription;
+  return ROOM_TYPE_DESCRIPTIONS[room.room_type] || "Comfortable accommodation with essential hotel amenities.";
 }
 
 function renderStars(avgRating?: number | null) {
@@ -190,6 +207,7 @@ export default function RoomsPage() {
                     <span className="text-xs text-[#71867e]">Room {room.room_number}</span>
                   </div>
                   <p className="text-xs text-[#71867e] mb-3">{getRoomTypeLabel(room.room_type)} · Floor {room.floor} · Up to {room.capacity} guests</p>
+                  <p className="mb-3 text-sm leading-6 text-[#4a6358]">{getRoomDescription(room)}</p>
                   <div className="mb-3">
                     <p className="text-base tracking-[0.15em]" style={{ color: "#c48a3a" }}>{hasRoomRating(room) ? renderStars(getDisplayRating(room.avg_rating)) : "☆☆☆☆☆"}</p>
                     <p className="text-xs text-[#4a6358]">

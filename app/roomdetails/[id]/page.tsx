@@ -21,6 +21,17 @@ const ROOM_TYPE_LABELS: Record<string, string> = {
   suite: "Suite Room",
 };
 
+const ROOM_TYPE_DESCRIPTIONS: Record<string, string> = {
+  standard:
+    "A standard room is the hotel's baseline and most economical accommodation, usually around 200 to 400 square feet. It is a practical choice for budget-conscious travelers and includes essential amenities such as a comfortable king, queen, or twin bed.",
+  family:
+    "A family room is designed as a relaxed shared space for gathering, comfort, and entertainment. It offers a welcoming layout for families or groups who want to stay together comfortably.",
+  deluxe:
+    "A deluxe room is a premium hotel room category that offers more space, better views, and higher-quality amenities than a standard room. It often includes a king-size bed, a comfortable seating area, and a well-appointed bathroom for enhanced comfort.",
+  suite:
+    "A suite room is a premium hotel accommodation with more space than a standard room, usually featuring a separate bedroom and living area. It is ideal for longer stays, families, or business travelers seeking extra comfort, luxury, and functionality.",
+};
+
 interface Room {
   id: number;
   name: string;
@@ -37,12 +48,56 @@ interface Room {
   rating_count?: number;
 }
 
+async function readApiResponse(res: Response, fallback: string) {
+  const contentType = res.headers.get("content-type") || "";
+  const raw = await res.text();
+
+  if (!res.ok) {
+    if (contentType.includes("application/json")) {
+      try {
+        const parsed = raw ? JSON.parse(raw) : {};
+        return { ok: false, data: parsed, error: parsed.error || parsed.detail || fallback };
+      } catch {
+        return { ok: false, data: null, error: raw || fallback };
+      }
+    }
+
+    return {
+      ok: false,
+      data: null,
+      error: raw.includes("<!DOCTYPE")
+        ? `${fallback} The server returned an HTML page instead of JSON. Check the Vercel API environment variables and rewrite config.`
+        : (raw || fallback),
+    };
+  }
+
+  if (!contentType.includes("application/json")) {
+    return {
+      ok: false,
+      data: null,
+      error: "The server returned HTML instead of JSON. Check NEXT_PUBLIC_API_BASE_URL or the /api rewrite on Vercel.",
+    };
+  }
+
+  try {
+    return { ok: true, data: raw ? JSON.parse(raw) : null, error: "" };
+  } catch {
+    return { ok: false, data: null, error: "The backend returned invalid JSON." };
+  }
+}
+
 function hasRoomRating(room: Room | null) {
   return !!room && (room.rating_count || 0) > 0 && Number.isFinite(Number(room.avg_rating));
 }
 
 function getRoomTypeLabel(roomType: string) {
   return ROOM_TYPE_LABELS[roomType] || roomType;
+}
+
+function getRoomDescription(room: Room) {
+  const customDescription = room.description?.trim();
+  if (customDescription) return customDescription;
+  return ROOM_TYPE_DESCRIPTIONS[room.room_type] || "Comfortable accommodation with essential hotel amenities.";
 }
 
 function getDisplayRating(avgRating?: number | null) {
@@ -74,9 +129,10 @@ export default function RoomDetailsPage() {
       setLoading(true);
       setError("");
       fetch(`${API}/hotelroom/rooms/${id}/`, { signal: controller.signal })
-        .then((res) => {
-          if (!res.ok) throw new Error("Room not found.");
-          return res.json();
+        .then(async (res) => {
+          const result = await readApiResponse(res, "Room not found.");
+          if (!result.ok) throw new Error(result.error);
+          return result.data;
         })
         .then((data: Room) => {
           setRoom(data);
@@ -156,7 +212,7 @@ export default function RoomDetailsPage() {
                 <div className="border border-[#d4d7c7] bg-white p-8 shadow-sm">
                   <p className="mb-2 text-xs uppercase tracking-[0.35em] text-[#71867e]">Room Details</p>
                   <h1 className="mb-3 text-3xl font-thin tracking-[0.18em]">{room.name}</h1>
-                  <p className="mb-6 text-sm leading-7 text-[#4a6358]">{room.description}</p>
+                  <p className="mb-6 text-sm leading-7 text-[#4a6358]">{getRoomDescription(room)}</p>
 
                   <div className="mb-6 grid grid-cols-2 gap-4 border-y border-[#d4d7c7] py-5 text-sm">
                     <div>
@@ -219,7 +275,7 @@ export default function RoomDetailsPage() {
               <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr]">
                 <div className="border border-[#d4d7c7] bg-white p-8 shadow-sm">
                   <p className="mb-4 text-xs uppercase tracking-[0.35em] text-[#71867e]">About This Room</p>
-                  <p className="text-sm leading-8 text-[#4a6358]">{room.description}</p>
+                  <p className="text-sm leading-8 text-[#4a6358]">{getRoomDescription(room)}</p>
                 </div>
 
                 <div className="border border-[#d4d7c7] bg-white p-8 shadow-sm">
