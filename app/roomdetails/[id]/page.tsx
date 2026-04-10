@@ -188,10 +188,7 @@ export default function RoomDetailsPage() {
 
                   <button
                     onClick={handleBookNow}
-                    className="w-full border px-6 py-4 text-sm tracking-[0.3em] transition"
-                    style={{ borderColor: "#1c352c", backgroundColor: "#1c352c", color: "#fff" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0e2419")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1c352c")}
+                    className="w-full border border-[#1c352c] bg-[#1c352c] px-6 py-4 text-sm tracking-[0.3em] text-white transition hover:bg-[#0e2419]"
                   >
                     BOOK THIS ROOM
                   </button>
