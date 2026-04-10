@@ -302,7 +302,7 @@ export default function Home() {
             href="/roomsearch"
             className="inline-flex rounded-full bg-[#d4d7c7] px-8 py-3 text-sm font-semibold text-[#132222] transition hover:bg-white"
           >
-            LEARN MORE
+            SEARCH
           </Link>
         </div>
       </section>

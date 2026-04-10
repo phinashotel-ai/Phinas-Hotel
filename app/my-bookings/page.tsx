@@ -10,7 +10,6 @@ const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 const ROOM_IMAGES: Record<string, string> = {
   standard: "/che.jpg",
-  regular: "/che1.jpg",
   deluxe: "/che2.jpg",
   family: "/che3.jpg",
   suite: "/che4.jpg",

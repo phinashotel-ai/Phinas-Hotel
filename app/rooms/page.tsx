@@ -9,14 +9,12 @@ const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 const TYPE_IMAGES: Record<string, string> = {
   standard: "/c1.jpg",
-  regular:  "/che1.jpg",
   deluxe:   "/che2.jpg",
   family:   "/che3.jpg",
   suite:    "/che4.jpg",
 };
 
 const ROOM_TYPE_LABELS: Record<string, string> = {
-  regular: "Regular Room",
   standard: "Standard Room",
   family: "Family Room",
   deluxe: "Deluxe Room",
@@ -116,7 +114,6 @@ export default function RoomsPage() {
 
   const filters = [
     { label: "All",         value: "" },
-    { label: "Regular",     value: "regular" },
     { label: "Standard",    value: "standard" },
     { label: "Family Room", value: "family" },
     { label: "Deluxe",      value: "deluxe" },

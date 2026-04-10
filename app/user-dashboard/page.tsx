@@ -7,7 +7,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const ROOM_IMAGES: Record<string, string> = {
   standard: "/che.jpg",
-  regular:  "/che1.jpg",
   deluxe:   "/che2.jpg",
   family:   "/che3.jpg",
   suite:    "/che4.jpg",

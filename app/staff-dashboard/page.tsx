@@ -29,7 +29,7 @@ const PANEL_STYLE = {
   backdropFilter: "blur(10px)",
 };
 
-const ROOM_TYPE_OPTIONS = ["regular", "standard", "deluxe", "suite", "family"] as const;
+const ROOM_TYPE_OPTIONS = ["standard", "deluxe", "suite", "family"] as const;
 const ROOM_STATUS_OPTIONS = ["available", "occupied", "maintenance"] as const;
 
 interface StaffStats {
