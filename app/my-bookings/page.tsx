@@ -227,8 +227,7 @@ export default function MyBookingsPage() {
       if (action === "check_in") {
         setActionMsg("Check-in saved successfully.");
       } else if (action === "check_out") {
-        setActionMsg("Check-out saved successfully. You can rate this stay now or skip it for later.");
-        setTimeout(() => router.push(`/my-rates?booking=${bookingId}`), 500);
+        setActionMsg("Check-out saved successfully.");
       } else {
         setActionMsg("Stay extended successfully.");
       }
@@ -424,21 +423,6 @@ export default function MyBookingsPage() {
                     <Line label="Meal Rate" value={`₱${money(selected.meal_addon_rate)} per guest`} />
                     <Line label="Extra Guest Fee/Night" value={`₱${money(selected.extra_guest_fee_per_night)}`} />
                   </div>
-
-                  {canReviewBooking(selected) && (
-                    <div className="mt-6 border border-emerald-200 bg-emerald-50 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.35em] text-emerald-700">Checkout Complete</p>
-                      <p className="mt-2 text-sm text-emerald-900">
-                        Your stay is finished. You can now rate the room with stars and write a comment about your experience.
-                      </p>
-                      <Link
-                        href={`/my-rates?booking=${selected.id}`}
-                        className="mt-4 inline-flex rounded-full bg-[#1c352c] px-5 py-3 text-[10px] uppercase tracking-[0.3em] text-white transition hover:bg-[#0e2419]"
-                      >
-                        Rate This Room
-                      </Link>
-                    </div>
-                  )}
 
                   {selected.payment && (
                     <div className="mt-6 border border-[#d4d7c7] bg-[#faf9f6] p-4">

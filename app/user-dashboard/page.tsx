@@ -360,8 +360,7 @@ function UserDashboardContent() {
       if (action === "check_in") {
         setCancelMsg("Check-in saved successfully.");
       } else if (action === "check_out") {
-        setCancelMsg("Check-out saved successfully. You can rate this stay now or skip it for later.");
-        setTimeout(() => router.push(`/my-rates?booking=${id}`), 500);
+        setCancelMsg("Check-out saved successfully.");
       } else {
         setCancelMsg("Stay extended successfully.");
       }
@@ -407,15 +406,6 @@ function UserDashboardContent() {
             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1c352c")}
           >
             + NEW BOOKING
-          </Link>
-          <Link
-            href="/my-rates"
-            className="inline-block text-center px-8 py-3 text-xs tracking-[0.3em] font-semibold transition border border-[#d4d7c7]"
-            style={{ backgroundColor: "#faf9f6", color: "#1c352c" }}
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#eef0e8"; }}
-            onMouseLeave={e => { e.currentTarget.style.backgroundColor = "#faf9f6"; }}
-          >
-            MY RATES
           </Link>
         </div>
 
@@ -661,14 +651,6 @@ function UserDashboardContent() {
                           >
                             VIEW DETAILS
                           </button>
-                          {b.status === "completed" && (
-                            <Link
-                              href={`/my-rates?booking=${b.id}`}
-                              className="text-[10px] tracking-[0.25em] px-4 py-2 border border-emerald-500 text-emerald-700 hover:bg-emerald-500 hover:text-white transition"
-                            >
-                              REVIEW
-                            </Link>
-                          )}
                           {b.status !== "cancelled" && b.status !== "completed" && b.status !== "checked_in" && b.status !== "checked_out" && (
                             <button
                               onClick={() => { setCancelReason(""); setCancelConfirm(b.id); }}
@@ -908,14 +890,6 @@ function UserDashboardContent() {
                   <div className="flex-1 py-3 text-center text-xs tracking-[0.25em] border border-amber-400 text-amber-700 bg-amber-50">
                     CANCELLATION PENDING APPROVAL
                   </div>
-                )}
-                {canReviewBooking(selected) && (
-                  <Link
-                    href={`/my-rates?booking=${selected.id}`}
-                    className="flex-1 py-3 text-center text-xs tracking-[0.25em] border border-emerald-500 text-emerald-700 hover:bg-emerald-500 hover:text-white transition"
-                  >
-                    REVIEW NOW
-                  </Link>
                 )}
                 <button
                   onClick={() => setSelected(null)}
