@@ -59,9 +59,9 @@ function renderStars(avgRating?: number | null) {
 }
 
 export default function RoomDetailsPage() {
-  const params = useParams();
+  const params = useParams<{ id: string }>();
   const router = useRouter();
-  const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,6 +71,8 @@ export default function RoomDetailsPage() {
     if (!id) return;
 
     const loadRoom = () => {
+      setLoading(true);
+      setError("");
       fetch(`${API}/hotelroom/rooms/${id}/`)
         .then((res) => {
           if (!res.ok) throw new Error("Room not found.");
