@@ -120,13 +120,7 @@ export default function RoomsPage() {
   };
 
   const handleViewDetails = (roomId: number) => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      sessionStorage.setItem("redirect_after_login", `/roomdetails/${roomId}`);
-      router.push("/");
-    } else {
-      router.push(`/roomdetails/${roomId}`);
-    }
+    router.push(`/roomdetails/${roomId}`);
   };
 
   const filters = [

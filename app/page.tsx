@@ -377,13 +377,7 @@ export default function Home() {
                     </div>
                     <button
                       onClick={() => {
-                        const token = localStorage.getItem("access_token");
-                        if (!token) {
-                          sessionStorage.setItem("redirect_after_login", `/roomdetails/${room.id}`);
-                          setShowAuth(true); setIsLogin(true);
-                        } else {
-                          window.location.href = `/roomdetails/${room.id}`;
-                        }
+                        router.push(`/roomdetails/${room.id}`);
                       }}
                       className="w-full rounded-full border border-[#1c352c] py-3 text-xs font-semibold tracking-[0.2em] text-[#1c352c] transition hover:bg-[#1c352c] hover:text-white"
                     >
