@@ -135,10 +135,6 @@ export default function Home() {
       body: JSON.stringify({ refresh_token: refresh }),
     }).finally(() => { localStorage.clear(); setLoggedInUser(null); });
   };
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
-  const [guests, setGuests] = useState(1);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -234,13 +230,6 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    window.location.href = `/roomsearch?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`;
-  };
-
-
-
   const inputCls = "w-full px-4 py-3 bg-transparent border-b border-[#71867e] text-white placeholder-[#a0b0a8] focus:outline-none focus:border-white transition text-sm";
   const passwordInputCls = `${inputCls} pr-12`;
   const selectCls = "w-full px-4 py-3 bg-[#1c352c] border-b border-[#71867e] text-white focus:outline-none focus:border-white transition text-sm";
@@ -313,38 +302,11 @@ export default function Home() {
             href="/roomsearch"
             className="inline-flex rounded-full bg-[#d4d7c7] px-8 py-3 text-sm font-semibold text-[#132222] transition hover:bg-white"
           >
-            BOOK NOW
+            LEARN MORE
           </Link>
         </div>
       </section>
 
-      {/* ── BOOKING BAR ── */}
-      <section className="px-6 py-10">
-        <form onSubmit={handleSearch} className="mx-auto grid max-w-5xl gap-4 rounded-3xl bg-[#1c352c] p-6 shadow-lg md:grid-cols-[1fr_1fr_180px_160px] md:items-end">
-          <div>
-            <label className="mb-2 block text-xs tracking-[0.2em] text-[#a0b0a8]">CHECK-IN</label>
-            <input type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)}
-              className="w-full rounded-xl border border-[#426055] bg-[#203b31] px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#d4d7c7]" required />
-          </div>
-          <div>
-            <label className="mb-2 block text-xs tracking-[0.2em] text-[#a0b0a8]">CHECK-OUT</label>
-            <input type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)}
-              className="w-full rounded-xl border border-[#426055] bg-[#203b31] px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#d4d7c7]" required />
-          </div>
-          <div>
-            <label className="mb-2 block text-xs tracking-[0.2em] text-[#a0b0a8]">GUESTS</label>
-            <select value={guests} onChange={e => setGuests(Number(e.target.value))}
-              className="w-full rounded-xl border border-[#426055] bg-[#203b31] px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#d4d7c7]">
-              {[1,2,3,4,5,6].map(n => <option key={n} value={n} className="bg-[#1c352c]">{n} Guest{n > 1 ? "s" : ""}</option>)}
-            </select>
-          </div>
-          <button type="submit"
-            className="rounded-full bg-[#d4d7c7] px-6 py-3 text-sm font-semibold text-[#132222] transition hover:bg-[#c5c8b8]"
-          >
-            SEARCH
-          </button>
-        </form>
-      </section>
 
       {/* ── WELCOME ── */}
       <section className="px-6 py-16 text-center">
@@ -473,10 +435,6 @@ export default function Home() {
             Ready to experience <span className="font-semibold">Phinas?</span>
           </h2>
           <p className="mb-8 text-sm leading-7 text-[#d4d7c7] md:text-base">Book your stay today and get 20% off your first visit.</p>
-          <Link href="/roomsearch"
-            className="inline-flex rounded-full bg-white px-8 py-3 text-sm font-semibold text-[#132222] transition hover:bg-[#d4d7c7]">
-            BOOK NOW
-          </Link>
         </div>
         </div>
       </section>

@@ -16,29 +16,6 @@ const subjects = [
   "Other",
 ];
 
-const info = [
-  {
-    icon: "📍",
-    label: "Address",
-    lines: ["123 Hotel Street"," Philippines"],
-  },
-  {
-    icon: "📞",
-    label: "Phone",
-    lines: ["+63 123 456 7890"],
-  },
-  {
-    icon: "✉️",
-    label: "Email",
-    lines: ["phinashotel@gmail.com"],
-  },
-  {
-    icon: "🕐",
-    label: "Front Desk",
-    lines: ["Open 24 hours", "7 days a week"],
-  },
-];
-
 export default function ContactPage() {
   const [form, setForm] = useState({
     name: "", email: "", phone: "", subject: "", message: "",
@@ -93,20 +70,6 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* ── INFO CARDS ── */}
-      <section className="py-16 px-6" style={{ backgroundColor: "#132222" }}>
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-1">
-          {info.map((item, i) => (
-            <div key={i} className="px-8 py-10 text-center" style={{ backgroundColor: i % 2 === 0 ? "#1c352c" : "#132222" }}>
-              <div className="text-3xl mb-4">{item.icon}</div>
-              <p className="text-[#71867e] tracking-[0.3em] text-xs uppercase mb-3">{item.label}</p>
-              {item.lines.map((l, j) => (
-                <p key={j} className="text-[#d4d7c7] text-sm leading-relaxed">{l}</p>
-              ))}
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* ── FORM + MAP ── */}
       <section className="py-24 px-6">
@@ -114,7 +77,6 @@ export default function ContactPage() {
 
           {/* Form */}
           <div>
-            <p className="text-[#71867e] tracking-[0.4em] text-xs uppercase mb-3">Send a Message</p>
             <h2 className="text-3xl font-thin tracking-[0.15em] mb-8">
               GET IN <span className="font-semibold">TOUCH</span>
             </h2>
@@ -199,7 +161,7 @@ export default function ContactPage() {
             <div>
               <p className="text-[#71867e] tracking-[0.4em] text-xs uppercase mb-3">Find Us</p>
               <h2 className="text-3xl font-thin tracking-[0.15em] mb-6">
-                OUR <span className="font-semibold">LOCATION</span>
+                OUR <span className="font-semibold">ROOM</span>
               </h2>
             </div>
 
@@ -207,9 +169,6 @@ export default function ContactPage() {
             <div className="relative h-72 overflow-hidden border border-[#d4d7c7]">
               <Image src="/che4.jpg" alt="Hotel Location" fill className="object-cover" style={{ filter: "brightness(0.6)" }} />
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <div className="text-4xl mb-2">📍</div>
-                <p className="text-white text-sm tracking-widest font-light">123 Hotel Street</p>
-                <p className="text-[#d4d7c7] text-xs tracking-widest"> Philippines</p>
               </div>
             </div>
 
@@ -233,42 +192,6 @@ export default function ContactPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="py-14 px-8" style={{ backgroundColor: "#132222" }}>
-        <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-10">
-          <div>
-            <h3 className="text-[#fff8ed] tracking-[0.3em] text-sm font-light mb-4">PHINAS HOTEL</h3>
-            <p className="text-[#71867e] text-xs leading-relaxed">Experience PHINAS like never before.</p>
-          </div>
-          <div>
-            <h4 className="text-[#fff8ed] tracking-widest text-xs mb-4">QUICK LINKS</h4>
-            <ul className="space-y-2 text-[#71867e] text-xs">
-              <li><Link href="/rooms"      className="hover:text-[#d4d7c7] transition">Our Rooms</Link></li>
-              <li><Link href="/about"      className="hover:text-[#d4d7c7] transition">About Us</Link></li>
-              <li><Link href="/dining"     className="hover:text-[#d4d7c7] transition">Dining</Link></li>
-              <li><Link href="/contact"    className="hover:text-[#d4d7c7] transition">Contact</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-[#fff8ed] tracking-widest text-xs mb-4">CONTACT</h4>
-            <ul className="space-y-2 text-[#71867e] text-xs">
-              <li>📍 123 Hotel Street, Philippines</li>
-              <li>📞 +63 123 456 7890</li>
-              <li>✉️ phinashotel@gmail.com</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-[#fff8ed] tracking-widest text-xs mb-4">FOLLOW US</h4>
-            <div className="flex gap-4 text-[#71867e] text-xl">
-              <a href="#" className="hover:text-[#d4d7c7] transition">📘</a>
-              <a href="#" className="hover:text-[#d4d7c7] transition">📸</a>
-              <a href="#" className="hover:text-[#d4d7c7] transition">🐦</a>
-            </div>
-          </div>
-        </div>
-        <div className="text-center mt-10 pt-8 border-t border-[#1c352c] text-[#71867e] text-xs tracking-widest">
-          © PHINAS HOTEL. ALL RIGHTS RESERVED.
-        </div>
-      </footer>
     </div>
   );
 }
