@@ -271,18 +271,6 @@ export default function RoomDetailsPage() {
                   </div>
                 ))}
               </div>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-} 1}`}
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
 
               <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr]">
                 <div className="border border-[#d4d7c7] bg-white p-8 shadow-sm">
