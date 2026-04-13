@@ -177,7 +177,8 @@ export default function RoomDetailsPage() {
     router.push(`/booking/${room.id}`);
   };
 
-  const imageSrc = room ? room.image_url || ROOM_IMAGES[room.room_type] || "/che.jpg" : "/che.jpg";
+  const normalizedImageUrl = room?.image_url?.trim();
+  const imageSrc = normalizedImageUrl || (room ? ROOM_IMAGES[room.room_type] : "") || "/che.jpg";
   const imageGallery = [imageSrc, imageSrc, imageSrc];
   const ratingOutOfFive = hasRoomRating(room) ? getDisplayRating(room?.avg_rating) : 0;
 
