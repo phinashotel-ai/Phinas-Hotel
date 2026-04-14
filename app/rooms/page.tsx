@@ -141,7 +141,7 @@ export default function RoomsPage() {
       }}
     >
 
-      <SiteHeader />
+      <SiteHeader activeHref="/rooms" />
 
       {/* Header */}
       <div className="pt-28 pb-8 text-center px-4">

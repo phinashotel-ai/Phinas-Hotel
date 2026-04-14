@@ -18,13 +18,6 @@ const highlights = [
   },
 ];
 
-const values = [
-  "Comfort without clutter",
-  "Warm, dependable service",
-  "Easy booking and check-in",
-  "Spaces designed for rest",
-];
-
 const missionPoints = [
   "Deliver a smooth and welcoming stay for every guest.",
   "Provide comfortable rooms with thoughtful service.",

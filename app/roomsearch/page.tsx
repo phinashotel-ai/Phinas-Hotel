@@ -170,7 +170,7 @@ export default function RoomSearchPage() {
       }}
     >
 
-      <SiteHeader  />
+      <SiteHeader activeHref="/roomsearch" />
 
       {/* Hero Search */}
       <div className="relative pt-20">

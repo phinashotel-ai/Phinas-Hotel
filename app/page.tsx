@@ -3,7 +3,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import SiteHeader from "./components/site-header";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -116,6 +117,7 @@ function PasswordField({
 
 export default function Home() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showAuth, setShowAuth] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [loggedInUser, setLoggedInUser] = useState<{ name: string; role: string } | null>(null);
@@ -127,13 +129,28 @@ export default function Home() {
     if (token && role) setLoggedInUser({ name: name || "", role });
   }, []);
 
+  useEffect(() => {
+    const authMode = searchParams.get("auth");
+    if (authMode === "login") {
+      setIsLogin(true);
+      setShowAuth(true);
+    } else if (authMode === "signup") {
+      setIsLogin(false);
+      setShowAuth(true);
+    }
+  }, [searchParams]);
+
   const handleNavLogout = () => {
     const refresh = localStorage.getItem("refresh_token");
     fetch(`${API}/user/logout/`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("access_token")}` },
       body: JSON.stringify({ refresh_token: refresh }),
-    }).finally(() => { localStorage.clear(); setLoggedInUser(null); });
+    }).finally(() => {
+      localStorage.clear();
+      setLoggedInUser(null);
+      window.dispatchEvent(new Event("auth-changed"));
+    });
   };
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -181,6 +198,7 @@ export default function Home() {
         const userName = `${(data.user as Record<string, string>)?.first_name || ""} ${(data.user as Record<string, string>)?.last_name || ""}`.trim();
         localStorage.setItem("user_name", userName);
         setLoggedInUser({ name: userName, role: role || "user" });
+        window.dispatchEvent(new Event("auth-changed"));
         setShowAuth(false);
         const redirectTo = sessionStorage.getItem("redirect_after_login") || "/";
         sessionStorage.removeItem("redirect_after_login");
@@ -238,53 +256,18 @@ export default function Home() {
     <div className="min-h-screen bg-[#f7f4ee] font-sans text-[#1c352c]">
 
       {/* ── NAVBAR ── */}
-      <nav className="fixed top-0 left-0 z-50 w-full border-b border-white/10 bg-[#132222]/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-8">
-        <Link href="/" className="text-base font-medium tracking-[0.18em] text-white">
-          PHINAS HOTEL
-        </Link>
-
-        <div className="hidden items-center gap-6 text-sm text-[#fff8ed] md:flex">
-          <Link href="/rooms" className="transition hover:text-[#d4d7c7]">Rooms</Link>
-          <Link href="/about" className="transition hover:text-[#d4d7c7]">About</Link>
-          <Link href="/contact" className="transition hover:text-[#d4d7c7]">Contact</Link>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {loggedInUser ? (
-            <>
-              <Link
-                href={loggedInUser.role === "admin" ? "/admin-dashboard" : loggedInUser.role === "staff" ? "/staff-dashboard" : "/user-dashboard"}
-                className="rounded-full border border-[#71867e] px-4 py-2 text-sm text-[#fff8ed] transition hover:bg-[#203b31]"
-              >
-                {loggedInUser.name || "MY ACCOUNT"}
-              </Link>
-              <button
-                onClick={handleNavLogout}
-                className="rounded-full bg-[#d4d7c7] px-4 py-2 text-sm font-semibold text-[#132222] transition hover:bg-[#c5c8b8]"
-              >
-                LOGOUT
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => { setShowAuth(true); setIsLogin(true); }}
-                className="rounded-full border border-[#71867e] px-4 py-2 text-sm text-[#fff8ed] transition hover:bg-[#203b31]"
-              >
-                LOGIN
-              </button>
-              <button
-                onClick={() => { setShowAuth(true); setIsLogin(false); }}
-                className="rounded-full bg-[#d4d7c7] px-4 py-2 text-sm font-semibold text-[#132222] transition hover:bg-[#c5c8b8]"
-              >
-                SIGN UP
-              </button>
-            </>
-          )}
-        </div>
-        </div>
-      </nav>
+      <SiteHeader
+        authUser={loggedInUser}
+        onLogout={handleNavLogout}
+        onLoginClick={() => {
+          setIsLogin(true);
+          setShowAuth(true);
+        }}
+        onSignupClick={() => {
+          setIsLogin(false);
+          setShowAuth(true);
+        }}
+      />
 
       {/* ── HERO ── */}
       <section className="relative flex min-h-[88vh] items-center justify-center px-6 pt-24">
