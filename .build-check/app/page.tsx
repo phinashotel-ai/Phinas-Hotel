@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import SiteHeader from "./components/site-header";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL
@@ -117,6 +117,7 @@ function PasswordField({
 
 export default function Home() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showAuth, setShowAuth] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [loggedInUser, setLoggedInUser] = useState<{ name: string; role: string } | null>(null);
@@ -129,7 +130,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const authMode = new URLSearchParams(window.location.search).get("auth");
+    const authMode = searchParams.get("auth");
     if (authMode === "login") {
       setIsLogin(true);
       setShowAuth(true);
@@ -137,7 +138,7 @@ export default function Home() {
       setIsLogin(false);
       setShowAuth(true);
     }
-  }, []);
+  }, [searchParams]);
 
   const handleNavLogout = () => {
     const refresh = localStorage.getItem("refresh_token");

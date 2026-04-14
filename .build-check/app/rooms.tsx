@@ -1,0 +1,160 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
+
+const TYPE_IMAGES: Record<string, string> = {
+  standard: "/che.jpg",
+  deluxe:   "/che2.jpg",
+  family:   "/che3.jpg",
+  suite:    "/che4.jpg",
+};
+
+interface Room {
+  id: number;
+  name: string;
+  room_number: string;
+  room_type: string;
+  price_per_night: string;
+  capacity: number;
+  description: string;
+  amenities: string[];
+  image_url: string;
+  status: string;
+  floor: number;
+}
+
+export default function RoomsComponent() {
+  const router = useRouter();
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [activeFilter, setActiveFilter] = useState("");
+
+  const fetchRooms = (type: string) => {
+    setLoading(true);
+    const query = type ? `&type=${type}` : "";
+    fetch(`${API}/hotelroom/rooms/?status=available${query}`)
+      .then(res => res.json())
+      .then(data => { setRooms(data); setLoading(false); })
+      .catch(() => { setError("Failed to load rooms."); setLoading(false); });
+  };
+
+  useEffect(() => {
+    fetch(`${API}/hotelroom/rooms/?status=available`)
+      .then(res => res.json())
+      .then(data => { setRooms(data); setLoading(false); })
+      .catch(() => { setError("Failed to load rooms."); setLoading(false); });
+  }, []);
+
+  const handleFilter = (value: string) => {
+    setActiveFilter(value);
+    fetchRooms(value);
+  };
+
+  const handleViewDetails = (roomId: number) => {
+    router.push(`/roomdetails/${roomId}`);
+  };
+
+  const filters = [
+    { label: "All",         value: "" },
+    { label: "Regular",     value: "standard" },
+    { label: "Standard",    value: "standard" },
+    { label: "Family Room", value: "family" },
+    { label: "Deluxe",      value: "deluxe" },
+  ];
+
+  return (
+    <div className="min-h-screen font-sans" style={{ backgroundColor: "#faf9f6", color: "#1c352c" }}>
+
+      {/* Navbar */}
+      <nav className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-8 md:px-16 py-5" style={{ backgroundColor: "#132222" }}>
+        <Link href="/" className="text-white tracking-[0.3em] text-lg font-light">PHINAS HOTEL</Link>
+        <Link href="/roomsearch" className="text-[#d4d7c7] text-sm tracking-widest hover:text-white transition">BOOK A ROOM</Link>
+      </nav>
+
+      {/* Header */}
+      <div className="pt-28 pb-8 text-center px-4">
+        <p className="text-[#71867e] tracking-[0.4em] text-xs uppercase mb-2">Our Accommodations</p>
+        <h1 className="text-4xl md:text-5xl font-thin tracking-[0.2em]">ROOMS & SUITES</h1>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex justify-center gap-3 flex-wrap px-6 pb-10">
+        {filters.map((f, i) => {
+          const isActive = f.label === "All" ? activeFilter === "" : activeFilter === f.value;
+          return (
+            <button
+              key={i}
+              onClick={() => handleFilter(f.value)}
+              className="px-6 py-2 text-xs tracking-[0.3em] border transition"
+              style={{
+                borderColor: "#1c352c",
+                backgroundColor: isActive ? "#1c352c" : "transparent",
+                color: isActive ? "#fff" : "#1c352c",
+              }}
+            >
+              {f.label.toUpperCase()}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Room Grid */}
+      <div className="max-w-6xl mx-auto px-6 pb-20">
+        {loading && <p className="text-center text-[#71867e] py-20">Loading rooms...</p>}
+        {error && <p className="text-center text-red-500 py-20">{error}</p>}
+        {!loading && !error && rooms.length === 0 && (
+          <p className="text-center text-[#71867e] py-20">No rooms found for this category.</p>
+        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {rooms.map(room => {
+            const img = room.image_url || TYPE_IMAGES[room.room_type] || "/che.jpg";
+            return (
+              <div key={room.id} className="overflow-hidden shadow-md hover:shadow-xl transition-shadow" style={{ backgroundColor: "#fff" }}>
+
+                {/* Main image */}
+                <div className="relative h-52 overflow-hidden">
+                  <Image src={img} alt={room.name} fill className="object-cover transition-all duration-500" />
+                  <div className="absolute top-3 right-3 px-3 py-1 text-xs tracking-widest font-semibold" style={{ backgroundColor: "#132222", color: "#fff8ed" }}>
+                    ₱{Number(room.price_per_night).toLocaleString()}/night
+                  </div>
+                  <div className="absolute top-3 left-3 px-2 py-1 text-xs font-semibold tracking-wide capitalize bg-[#1c352c] text-white">
+                    {room.room_type}
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div className="p-5">
+                  <div className="flex justify-between items-start mb-1">
+                    <h2 className="text-base font-light tracking-widest uppercase">{room.name}</h2>
+                    <span className="text-xs text-[#71867e]">Room {room.room_number}</span>
+                  </div>
+                  <p className="text-xs text-[#71867e] mb-3 capitalize">{room.room_type} · Floor {room.floor} · Up to {room.capacity} guests</p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {(room.amenities || []).slice(0, 3).map((a, i) => (
+                      <span key={i} className="text-xs px-2 py-1 tracking-wide" style={{ backgroundColor: "#d4d7c7", color: "#1c352c" }}>{a}</span>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => handleViewDetails(room.id)}
+                    className="w-full text-center py-2 text-xs tracking-[0.3em] border transition"
+                    style={{ borderColor: "#1c352c", color: "#1c352c", backgroundColor: "transparent" }}
+                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#1c352c"; e.currentTarget.style.color = "#fff"; }}
+                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#1c352c"; }}
+                  >
+                    VIEW DETAILS
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
