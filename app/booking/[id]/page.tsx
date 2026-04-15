@@ -525,8 +525,8 @@ export default function BookingPage() {
                       setCheckIn(""); setCheckOut(""); setGuests(1); setMealCategory("breakfast"); setSpecial("");
                       setPayReference(""); setPayAmount(""); setAgreeExtraFee(false);
                       
-                      // Navigate to bookings page
-                      setTimeout(() => router.push('/my-bookings'), 1500);
+                      // Navigate to rooms page
+                      setTimeout(() => router.push('/rooms'), 1500);
                     } catch (error) {
                       console.error('Failed to create booking:', error);
                       alert(`Failed to create booking: ${error instanceof Error ? error.message : 'Unknown error'}`);
