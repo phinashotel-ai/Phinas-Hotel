@@ -225,7 +225,7 @@ export default function BookingPage() {
         status: "pending",
         booking: data,
       });
-      setSuccess(`Booking request submitted! #${data.id} is pending staff confirmation. Reference Number: ${data.reference_number || data.payment?.reference_number || "None"}. A pending confirmation email has been sent, and the full booking details will be emailed after staff/admin approval. ${String(data.meal_category || mealCategory).replace(/^./, (c: string) => c.toUpperCase())} meal selected. Total: PHP ${Number(data.total_price).toLocaleString()}. First ${data.free_food_guests ?? freeFoodGuests} guest(s) get free food.`);
+      setSuccess(`Booking request submitted! #${data.id} is pending staff confirmation. Reference Number: ${data.reference_number || data.payment?.reference_number || "None"}. A confirmation email has been sent to your email address with booking details. The admin will review and send final confirmation after approval. ${String(data.meal_category || mealCategory).replace(/^./, (c: string) => c.toUpperCase())} meal selected. Total: PHP ${Number(data.total_price).toLocaleString()}. First ${data.free_food_guests ?? freeFoodGuests} guest(s) get free food.`);
       sessionStorage.setItem("recent_booking_room_id", String(id));
       sessionStorage.setItem("recent_booking_id", String(data.id));
       setCheckIn(""); setCheckOut(""); setGuests(1); setMealCategory("breakfast"); setSpecial("");
@@ -528,6 +528,16 @@ export default function BookingPage() {
 
                       const booking = await response.json();
 
+                      // Send immediate confirmation email to customer
+                      try {
+                        await sendBookingEmail({
+                          status: "pending",
+                          booking: booking,
+                        });
+                      } catch (emailError) {
+                        console.error('Failed to send confirmation email:', emailError);
+                      }
+
                       // Send frontend nodemailer notification to admin
                       await fetch('/api/send-booking-notification', {
                         method: 'POST',
@@ -540,7 +550,7 @@ export default function BookingPage() {
                         })
                       });
 
-                      alert(`Booking created successfully! Booking ID: ${booking.id}. Admin has been notified and will confirm your booking soon.`);
+                      alert(`Booking created successfully! Booking ID: ${booking.id}. A confirmation email has been sent to your email address. Admin will review and confirm your booking soon.`);
                       
                       // Reset form
                       setCheckIn(""); setCheckOut(""); setGuests(1); setMealCategory("breakfast"); setSpecial("");
