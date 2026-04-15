@@ -249,6 +249,7 @@ export default function MyBookingsPage() {
   return (
     <div className="min-h-screen bg-[#faf9f6] text-[#1c352c] font-sans">
       <SiteHeader
+        navLinks={[]} // Remove navigation links (Rooms, About, Contact)
         rightLinks={[
           { label: "ROOMS", href: "/rooms" },
           { label: "USER", href: "/user-dashboard?tab=bookings" },
