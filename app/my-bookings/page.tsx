@@ -250,10 +250,7 @@ export default function MyBookingsPage() {
     <div className="min-h-screen bg-[#faf9f6] text-[#1c352c] font-sans">
       <SiteHeader
         navLinks={[]} // Remove navigation links (Rooms, About, Contact)
-        rightLinks={[
-          { label: "ROOMS", href: "/rooms" },
-          { label: "USER", href: "/user-dashboard?tab=bookings" },
-        ]}
+        rightLinks={[]} // Remove right links (ROOMS, USER)
       />
 
       <div className="pt-28 pb-20 px-6">
