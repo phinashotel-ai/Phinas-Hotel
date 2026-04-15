@@ -458,7 +458,27 @@ export default function BookingPage() {
                 {/* Confirm Booking Button */}
                 <button
                   type="button"
-                  onClick={() => router.push('/booking/3')}
+                  onClick={async () => {
+                    try {
+                      // Send frontend nodemailer notification
+                      await fetch('/api/send-booking-notification', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          type: 'user_confirmation',
+                          message: 'User has confirmed their booking request from booking page',
+                          roomId: id
+                        })
+                      });
+                      
+                      // Navigate to booking page
+                      router.push('/booking/3');
+                    } catch (error) {
+                      console.error('Failed to send notification:', error);
+                      // Still navigate even if email fails
+                      router.push('/booking/3');
+                    }
+                  }}
                   className="w-full py-4 text-xs font-semibold tracking-[0.2em] text-white bg-[#1c352c] hover:bg-[#132222] transition"
                 >
                   CONFIRM BOOKING
