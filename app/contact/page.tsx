@@ -58,7 +58,7 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen font-sans" style={{ backgroundColor: "#faf9f6", color: "#1c352c" }}>
 
-      <SiteHeader activeHref="/contact" cta={{ label: "BOOK NOW", href: "/roomsearch" }} />
+      <SiteHeader activeHref="/contact" />
 
       {/* ── HERO ── */}
       <section className="relative h-[60vh] flex items-end justify-center pb-20">
