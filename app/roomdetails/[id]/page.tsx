@@ -185,7 +185,7 @@ export default function RoomDetailsPage() {
         const availabilityData = await response.json();
         if (availabilityData.has_active_bookings) {
           setToast({
-            message: "This room already has an active booking. Please choose another room or different dates.",
+            message: "This room already has a ticket.",
             type: 'warning'
           });
           setTimeout(() => setToast(null), 5000);
