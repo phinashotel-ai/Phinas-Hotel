@@ -260,6 +260,17 @@ export default function RoomSearchPage() {
                 />
               </div>
             </div>
+
+            {/* Confirm Booking Button */}
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={() => router.push('/booking/3')}
+                className="w-full py-3 text-xs font-semibold tracking-[0.2em] text-white bg-[#1c352c] hover:bg-[#132222] transition"
+              >
+                CONFIRM BOOKING
+              </button>
+            </div>
           </form>
         </div>
       </div>
