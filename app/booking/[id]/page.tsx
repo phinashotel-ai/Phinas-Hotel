@@ -455,8 +455,6 @@ export default function BookingPage() {
                 {error && <p className="text-xs text-red-500 tracking-wide">{error}</p>}
                 {success && <p className="text-xs text-green-600 tracking-wide">{success}</p>}
 
-
-
                 {success && (
                   <p className="text-center text-xs text-[#71867e] tracking-widest">Redirecting to Men Food...</p>
                 )}

@@ -260,8 +260,6 @@ export default function RoomSearchPage() {
                 />
               </div>
             </div>
-
-
           </form>
         </div>
       </div>
