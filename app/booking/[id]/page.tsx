@@ -114,6 +114,7 @@ export default function BookingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]         = useState("");
   const [success, setSuccess]     = useState("");
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
 
   const [checkIn, setCheckIn]   = useState("");
   const [checkOut, setCheckOut] = useState("");
@@ -180,9 +181,33 @@ export default function BookingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(""); setSuccess("");
-    if (nights <= 0) { setError("Check-out must be after check-in."); return; }
-    if (room && guests > room.capacity) { setError(`Max capacity is ${room.capacity} guests.`); return; }
-    if (extraGuestCount > 0 && !agreeExtraFee) { setError("Please confirm the additional guest fee before booking."); return; }
+    if (nights <= 0) { 
+      setToast({
+        message: "Check-out date must be after check-in date.",
+        type: 'error'
+      });
+      setTimeout(() => setToast(null), 4000);
+      setError("Check-out must be after check-in."); 
+      return; 
+    }
+    if (room && guests > room.capacity) { 
+      setToast({
+        message: `Maximum capacity for this room is ${room.capacity} guests.`,
+        type: 'error'
+      });
+      setTimeout(() => setToast(null), 4000);
+      setError(`Max capacity is ${room.capacity} guests.`); 
+      return; 
+    }
+    if (extraGuestCount > 0 && !agreeExtraFee) { 
+      setToast({
+        message: "Please confirm the additional guest fee before proceeding.",
+        type: 'warning'
+      });
+      setTimeout(() => setToast(null), 4000);
+      setError("Please confirm the additional guest fee before booking."); 
+      return; 
+    }
     if (payMethod === "gcash" && !payReference.trim()) { setError("Please enter your GCash reference number."); return; }
     if (payMethod === "gcash" && (!payAmount.trim() || Number(payAmount) <= 0)) {
       setError("Please enter the amount you sent via GCash.");
@@ -249,6 +274,33 @@ export default function BookingPage() {
     <div className="min-h-screen font-sans" style={{ backgroundColor: "#faf9f6", color: "#1c352c" }}>
 
       <SiteHeader/>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed top-24 right-6 z-50 max-w-md">
+          <div className={`px-6 py-4 rounded-lg shadow-lg border-l-4 ${
+            toast.type === 'error' ? 'bg-red-50 border-red-500 text-red-800' :
+            toast.type === 'warning' ? 'bg-yellow-50 border-yellow-500 text-yellow-800' :
+            'bg-green-50 border-green-500 text-green-800'
+          }`}>
+            <div className="flex items-start">
+              <div className="flex-1">
+                <p className="text-sm font-medium">
+                  {toast.type === 'warning' ? '⚠️ Room Not Available' : 
+                   toast.type === 'error' ? '❌ Booking Failed' : '✅ Booking Success'}
+                </p>
+                <p className="text-sm mt-1">{toast.message}</p>
+              </div>
+              <button
+                onClick={() => setToast(null)}
+                className="ml-4 text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="pt-28 pb-20 max-w-5xl mx-auto px-6">
         <div className="text-center mb-12">
@@ -493,7 +545,11 @@ export default function BookingPage() {
                       if (conflictResponse.ok) {
                         const conflictData = await conflictResponse.json();
                         if (conflictData.has_conflict) {
-                          alert("This room already has a ticket for the selected dates. Please choose different dates.");
+                          setToast({
+                            message: "This room already has a booking for the selected dates. Please choose different dates or select another room.",
+                            type: 'warning'
+                          });
+                          setTimeout(() => setToast(null), 5000);
                           return;
                         }
                       }
@@ -552,6 +608,12 @@ export default function BookingPage() {
 
                       alert(`Booking created successfully! Booking ID: ${booking.id}. A confirmation email has been sent to your email address. Admin will review and confirm your booking soon.`);
                       
+                      setToast({
+                        message: `Booking created successfully! Booking ID: ${booking.id}. Confirmation email sent.`,
+                        type: 'success'
+                      });
+                      setTimeout(() => setToast(null), 5000);
+                      
                       // Reset form
                       setCheckIn(""); setCheckOut(""); setGuests(1); setMealCategory("breakfast"); setSpecial("");
                       setPayReference(""); setPayAmount(""); setAgreeExtraFee(false);
@@ -560,7 +622,11 @@ export default function BookingPage() {
                       setTimeout(() => router.push('/rooms'), 1500);
                     } catch (error) {
                       console.error('Failed to create booking:', error);
-                      alert(`Failed to create booking: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                      setToast({
+                        message: `Failed to create booking: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                        type: 'error'
+                      });
+                      setTimeout(() => setToast(null), 5000);
                     }
                   }}
                   className="w-full py-4 text-xs font-semibold tracking-[0.2em] text-white bg-[#1c352c] hover:bg-[#132222] transition"

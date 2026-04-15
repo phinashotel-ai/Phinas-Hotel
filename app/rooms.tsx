@@ -34,6 +34,7 @@ export default function RoomsComponent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
 
   const fetchRooms = (type: string) => {
     setLoading(true);
@@ -56,7 +57,31 @@ export default function RoomsComponent() {
     fetchRooms(value);
   };
 
-  const handleViewDetails = (roomId: number) => {
+  const handleViewDetails = async (roomId: number) => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      router.push("/");
+      return;
+    }
+    
+    // Check if user has any recent booking attempts for this room type
+    const recentBookingRoomId = sessionStorage.getItem("recent_booking_room_id");
+    const recentBookingId = sessionStorage.getItem("recent_booking_id");
+    
+    if (recentBookingRoomId && recentBookingId) {
+      const room = rooms.find(r => r.id === roomId);
+      const recentRoom = rooms.find(r => r.id === Number(recentBookingRoomId));
+      
+      if (room && recentRoom && room.room_type === recentRoom.room_type && roomId !== Number(recentBookingRoomId)) {
+        setToast({
+          message: `You already have a pending booking for a ${room.room_type} room (Booking #${recentBookingId}). Please wait for admin confirmation before booking another ${room.room_type} room.`,
+          type: 'warning'
+        });
+        setTimeout(() => setToast(null), 6000);
+        return;
+      }
+    }
+    
     router.push(`/roomdetails/${roomId}`);
   };
 
@@ -76,6 +101,33 @@ export default function RoomsComponent() {
         <Link href="/" className="text-white tracking-[0.3em] text-lg font-light">PHINAS HOTEL</Link>
         <Link href="/roomsearch" className="text-[#d4d7c7] text-sm tracking-widest hover:text-white transition">BOOK A ROOM</Link>
       </nav>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed top-24 right-6 z-50 max-w-md">
+          <div className={`px-6 py-4 rounded-lg shadow-lg border-l-4 ${
+            toast.type === 'error' ? 'bg-red-50 border-red-500 text-red-800' :
+            toast.type === 'warning' ? 'bg-yellow-50 border-yellow-500 text-yellow-800' :
+            'bg-green-50 border-green-500 text-green-800'
+          }`}>
+            <div className="flex items-start">
+              <div className="flex-1">
+                <p className="text-sm font-medium">
+                  {toast.type === 'warning' ? '⚠️ Booking Conflict' : 
+                   toast.type === 'error' ? '❌ Error' : '✅ Success'}
+                </p>
+                <p className="text-sm mt-1">{toast.message}</p>
+              </div>
+              <button
+                onClick={() => setToast(null)}
+                className="ml-4 text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="pt-28 pb-8 text-center px-4">
