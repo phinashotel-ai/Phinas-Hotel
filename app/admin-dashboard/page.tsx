@@ -841,18 +841,32 @@ export default function AdminDashboard() {
   const handleCancelBooking = async (id: number) => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
+    
     setCancelling(id);
     try {
       const res = await fetch(`${API}/hotelroom/bookings/admin/${id}/`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
+      
       if (res.ok) {
+        // Remove from bookings list
         setBookings(prev => prev.filter(b => b.id !== id));
-        if (selectedBooking?.id === id) setSelectedBooking(null);
+        
+        // Close modal if this booking was selected
+        if (selectedBooking?.id === id) {
+          setSelectedBooking(null);
+        }
+        
         setActionMsg("Booking deleted successfully.");
         setTimeout(() => setActionMsg(""), 3000);
+      } else {
+        const errorData = await res.json().catch(() => null);
+        alert(parseError(errorData, "Failed to delete booking."));
       }
+    } catch (error) {
+      console.error('Error deleting booking:', error);
+      alert('Failed to delete booking. Please try again.');
     } finally {
       setCancelling(null);
       setCancelConfirm(null);
@@ -862,26 +876,45 @@ export default function AdminDashboard() {
   const handleBookingStatus = async (id: number, status: string) => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
-    const res = await fetch(`${API}/hotelroom/bookings/admin/${id}/`, {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      alert(parseError(data, "Failed to update booking."));
-      return;
-    }
-    if (status === "confirmed") {
-      await sendBookingEmail({
-        status: "confirmed",
-        booking: data,
+    
+    setSelectedBooking(prev => prev?.id === id ? { ...prev, status: 'updating...' } : prev);
+    
+    try {
+      const res = await fetch(`${API}/hotelroom/bookings/admin/${id}/`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
       });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(parseError(data, "Failed to update booking."));
+        return;
+      }
+      
+      // Send confirmation email if status is confirmed
+      if (status === "confirmed") {
+        try {
+          await sendBookingEmail({
+            status: "confirmed",
+            booking: data,
+          });
+        } catch (emailError) {
+          console.error('Failed to send confirmation email:', emailError);
+        }
+      }
+      
+      // Update bookings list
+      setBookings(prev => prev.map(b => b.id === id ? data : b));
+      if (selectedBooking?.id === id) setSelectedBooking(data);
+      
+      setActionMsg(`Booking ${status === 'confirmed' ? 'confirmed and email sent to customer' : `marked as ${status}`}.`);
+      setTimeout(() => setActionMsg(""), 3000);
+    } catch (error) {
+      console.error('Error updating booking:', error);
+      alert('Failed to update booking. Please try again.');
+    } finally {
+      setSelectedBooking(prev => prev?.id === id ? { ...prev, status: status } : prev);
     }
-    setBookings(prev => prev.map(b => b.id === id ? data : b));
-    if (selectedBooking?.id === id) setSelectedBooking(data);
-    setActionMsg(`Booking marked as ${status}.`);
-    setTimeout(() => setActionMsg(""), 3000);
   };
 
   const handleCancellationDecision = async (id: number, decision: "approve" | "reject") => {
@@ -1647,38 +1680,43 @@ export default function AdminDashboard() {
                               ) : b.status === "pending" ? (
                                 <button
                                   onClick={() => handleBookingStatus(b.id, "confirmed")}
-                                  className="text-[10px] tracking-widest px-3 py-1 border border-blue-400 text-blue-600 hover:bg-blue-500 hover:text-white transition whitespace-nowrap"
+                                  disabled={cancelling === b.id}
+                                  className="text-[10px] tracking-widest px-3 py-1 border border-blue-400 text-blue-600 hover:bg-blue-500 hover:text-white transition whitespace-nowrap disabled:opacity-50"
                                 >
-                                  CONFIRM
+                                  {cancelling === b.id ? "UPDATING..." : "CONFIRM"}
                                 </button>
                               ) : b.status === "confirmed" ? (
                                 <button
                                   onClick={() => handleBookingStatus(b.id, "checked_in")}
-                                  className="text-[10px] tracking-widest px-3 py-1 border border-sky-400 text-sky-600 hover:bg-sky-500 hover:text-white transition whitespace-nowrap"
+                                  disabled={cancelling === b.id}
+                                  className="text-[10px] tracking-widest px-3 py-1 border border-sky-400 text-sky-600 hover:bg-sky-500 hover:text-white transition whitespace-nowrap disabled:opacity-50"
                                 >
-                                  CHECK IN
+                                  {cancelling === b.id ? "UPDATING..." : "CHECK IN"}
                                 </button>
                               ) : b.status === "checked_in" ? (
                                 <button
                                   onClick={() => handleBookingStatus(b.id, "checked_out")}
-                                  className="text-[10px] tracking-widest px-3 py-1 border border-indigo-400 text-indigo-600 hover:bg-indigo-500 hover:text-white transition whitespace-nowrap"
+                                  disabled={cancelling === b.id}
+                                  className="text-[10px] tracking-widest px-3 py-1 border border-indigo-400 text-indigo-600 hover:bg-indigo-500 hover:text-white transition whitespace-nowrap disabled:opacity-50"
                                 >
-                                  CHECK OUT
+                                  {cancelling === b.id ? "UPDATING..." : "CHECK OUT"}
                                 </button>
                               ) : b.status === "checked_out" ? (
                                 <button
                                   onClick={() => handleBookingStatus(b.id, "completed")}
-                                  className="text-[10px] tracking-widest px-3 py-1 border border-emerald-400 text-emerald-600 hover:bg-emerald-500 hover:text-white transition whitespace-nowrap"
+                                  disabled={cancelling === b.id}
+                                  className="text-[10px] tracking-widest px-3 py-1 border border-emerald-400 text-emerald-600 hover:bg-emerald-500 hover:text-white transition whitespace-nowrap disabled:opacity-50"
                                 >
-                                  COMPLETE
+                                  {cancelling === b.id ? "UPDATING..." : "COMPLETE"}
                                 </button>
                               ) : null}
                               {b.status !== "cancelled" && b.cancel_request_status !== "requested" && (
                                 <button
                                   onClick={() => setCancelConfirm(b.id)}
-                                  className="text-[10px] tracking-widest px-3 py-1 border border-red-400 text-red-500 hover:bg-red-500 hover:text-white transition whitespace-nowrap"
+                                  disabled={cancelling === b.id}
+                                  className="text-[10px] tracking-widest px-3 py-1 border border-red-400 text-red-500 hover:bg-red-500 hover:text-white transition whitespace-nowrap disabled:opacity-50"
                                 >
-                                  DELETE
+                                  {cancelling === b.id ? "DELETING..." : "DELETE"}
                                 </button>
                               )}
                             </div>
