@@ -30,7 +30,6 @@ interface SiteHeaderProps {
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 const DEFAULT_NAV_LINKS: HeaderLink[] = [
-  { label: "Search", href: "/roomsearch" },
   { label: "Rooms", href: "/rooms" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },

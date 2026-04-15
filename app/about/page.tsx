@@ -33,7 +33,7 @@ const visionPoints = [
 export default function AboutPage() {
   return (
     <div className="min-h-screen font-sans" style={{ backgroundColor: "#faf9f6", color: "#1c352c" }}>
-      <SiteHeader activeHref="/about" />
+      <SiteHeader activeHref="/about us" />
 
       <section className="relative flex min-h-[70vh] items-end justify-center overflow-hidden px-6 pb-20 pt-28">
         <Image
