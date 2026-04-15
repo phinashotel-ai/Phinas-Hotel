@@ -455,15 +455,6 @@ export default function BookingPage() {
                 {error && <p className="text-xs text-red-500 tracking-wide">{error}</p>}
                 {success && <p className="text-xs text-green-600 tracking-wide">{success}</p>}
 
-                {/* Book Now Button */}
-                <button
-                  type="submit"
-                  disabled={submitting || nights <= 0 || (extraGuestCount > 0 && !agreeExtraFee)}
-                  className="w-full py-4 text-xs font-semibold tracking-[0.2em] text-white bg-[#1c352c] hover:bg-[#132222] disabled:opacity-50 disabled:cursor-not-allowed transition"
-                >
-                  {submitting ? "BOOKING..." : "BOOK NOW"}
-                </button>
-
                 {success && (
                   <p className="text-center text-xs text-[#71867e] tracking-widest">Redirecting to Men Food...</p>
                 )}

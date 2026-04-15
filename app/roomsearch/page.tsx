@@ -260,17 +260,6 @@ export default function RoomSearchPage() {
                 />
               </div>
             </div>
-
-            {/* Search Button */}
-            <div className="mt-6">
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 text-xs font-semibold tracking-[0.2em] text-white bg-[#1c352c] hover:bg-[#132222] disabled:opacity-50 transition"
-              >
-                {loading ? "SEARCHING..." : "SEARCH ROOMS"}
-              </button>
-            </div>
           </form>
         </div>
       </div>
