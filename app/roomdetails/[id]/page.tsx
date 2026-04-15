@@ -119,6 +119,7 @@ export default function RoomDetailsPage() {
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -164,7 +165,7 @@ export default function RoomDetailsPage() {
     };
   }, [id]);
 
-  const handleBookNow = () => {
+  const handleBookNow = async () => {
     if (!room) return;
 
     const token = localStorage.getItem("access_token");
@@ -172,6 +173,28 @@ export default function RoomDetailsPage() {
       sessionStorage.setItem("redirect_after_login", `/roomdetails/${room.id}`);
       router.push("/");
       return;
+    }
+
+    // Check if room has any active bookings
+    try {
+      const response = await fetch(`${API}/hotelroom/rooms/${room.id}/availability/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (response.ok) {
+        const availabilityData = await response.json();
+        if (availabilityData.has_active_bookings) {
+          setToast({
+            message: "This room already has an active booking. Please choose another room or different dates.",
+            type: 'warning'
+          });
+          setTimeout(() => setToast(null), 5000);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking room availability:', error);
+      // Continue to booking page if availability check fails
     }
 
     router.push(`/booking/${room.id}`);
@@ -191,6 +214,33 @@ export default function RoomDetailsPage() {
           ...(room ? [{ label: "BOOK NOW", href: `/booking/${room.id}` }] : []),
         ]}
       />
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed top-24 right-6 z-50 max-w-md">
+          <div className={`px-6 py-4 rounded-lg shadow-lg border-l-4 ${
+            toast.type === 'error' ? 'bg-red-50 border-red-500 text-red-800' :
+            toast.type === 'warning' ? 'bg-yellow-50 border-yellow-500 text-yellow-800' :
+            'bg-green-50 border-green-500 text-green-800'
+          }`}>
+            <div className="flex items-start">
+              <div className="flex-1">
+                <p className="text-sm font-medium">
+                  {toast.type === 'warning' ? '⚠️ Room Not Available' : 
+                   toast.type === 'error' ? '❌ Error' : '✅ Success'}
+                </p>
+                <p className="text-sm mt-1">{toast.message}</p>
+              </div>
+              <button
+                onClick={() => setToast(null)}
+                className="ml-4 text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="pt-28 pb-20">
         <div className="mx-auto max-w-6xl px-6">
