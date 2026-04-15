@@ -261,17 +261,7 @@ export default function RoomSearchPage() {
               </div>
             </div>
 
-            <div className="mt-5 flex justify-end">
-              <button
-                type="submit"
-                className="px-10 py-3 text-xs tracking-[0.3em] uppercase transition"
-                style={{ backgroundColor: "#1c352c", color: "#fff" }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#0e2419")}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1c352c")}
-              >
-                Search Rooms
-              </button>
-            </div>
+
           </form>
         </div>
       </div>
@@ -361,15 +351,7 @@ export default function RoomSearchPage() {
                       <span key={i} className="text-xs px-2 py-1 tracking-wide" style={{ backgroundColor: "#d4d7c7", color: "#1c352c" }}>{a}</span>
                     ))}
                   </div>
-                  <button
-                    onClick={() => handleViewDetails(room.id)}
-                    className="w-full text-center py-2 text-xs tracking-[0.3em] border transition"
-                    style={{ borderColor: "#1c352c", color: "#1c352c", backgroundColor: "transparent" }}
-                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#1c352c"; e.currentTarget.style.color = "#fff"; }}
-                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#1c352c"; }}
-                  >
-                    VIEW DETAILS
-                  </button>
+
                 </div>
               </div>
             );

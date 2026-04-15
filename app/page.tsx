@@ -280,12 +280,6 @@ export default function Home() {
           <p className="mx-auto mb-8 max-w-2xl text-base leading-7 text-[#eef0e8] md:text-lg">
             Stay in a calm, elegant space designed for travelers who want comfort, convenience, and a smooth booking experience.
           </p>
-          <Link
-            href="/roomsearch"
-            className="inline-flex rounded-full bg-[#d4d7c7] px-8 py-3 text-sm font-semibold text-[#132222] transition hover:bg-white"
-          >
-            SEARCH
-          </Link>
         </div>
       </section>
 
@@ -369,13 +363,6 @@ export default function Home() {
                 </div>
               );
             })}
-          </div>
-          <div className="mt-10 text-center">
-            <Link href="/roomsearch"
-              className="inline-flex rounded-full border border-[#1c352c] px-8 py-3 text-xs font-semibold tracking-[0.2em] text-[#1c352c] transition hover:bg-[#1c352c] hover:text-white"
-            >
-              VIEW ALL ROOMS
-            </Link>
           </div>
         </div>
       </section>

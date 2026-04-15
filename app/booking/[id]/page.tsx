@@ -455,13 +455,7 @@ export default function BookingPage() {
                 {error && <p className="text-xs text-red-500 tracking-wide">{error}</p>}
                 {success && <p className="text-xs text-green-600 tracking-wide">{success}</p>}
 
-                <button type="submit" disabled={submitting}
-                  className="py-4 text-sm tracking-[0.3em] font-semibold transition disabled:opacity-50"
-                  style={{ backgroundColor: "#1c352c", color: "#fff" }}
-                  onMouseEnter={e => !submitting && (e.currentTarget.style.backgroundColor = "#0e2419")}
-                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1c352c")}>
-                  {submitting ? "PROCESSING..." : "CONFIRM BOOKING"}
-                </button>
+
 
                 {success && (
                   <p className="text-center text-xs text-[#71867e] tracking-widest">Redirecting to Men Food...</p>
