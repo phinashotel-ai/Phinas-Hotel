@@ -186,13 +186,7 @@ export default function RoomDetailsPage() {
 
   return (
     <div className="min-h-screen font-sans" style={{ backgroundColor: "#faf9f6", color: "#1c352c" }}>
-      <SiteHeader
-        activeHref="/rooms"
-        rightLinks={[
-          { label: "ALL ROOMS", href: "/rooms" },
-          ...(room ? [{ label: "BOOK NOW", href: `/booking/${room.id}` }] : []),
-        ]}
-      />
+      <SiteHeader />
 
       {/* Toast Notification */}
       {toast && (
