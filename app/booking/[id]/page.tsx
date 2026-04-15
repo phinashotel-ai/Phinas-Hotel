@@ -460,23 +460,76 @@ export default function BookingPage() {
                   type="button"
                   onClick={async () => {
                     try {
-                      // Send frontend nodemailer notification
+                      const token = localStorage.getItem("access_token");
+                      if (!token) {
+                        alert("Please login to make a booking");
+                        return;
+                      }
+
+                      // Validate required fields
+                      if (!checkIn || !checkOut || nights <= 0) {
+                        alert("Please select valid check-in and check-out dates");
+                        return;
+                      }
+
+                      if (extraGuestCount > 0 && !agreeExtraFee) {
+                        alert("Please confirm the additional guest fee before booking");
+                        return;
+                      }
+
+                      // Create booking with current form data
+                      const bookingData = {
+                        room: Number(id),
+                        check_in: checkIn,
+                        check_out: checkOut,
+                        guests: Number(guests),
+                        meal_category: mealCategory,
+                        special_requests: special || "Booking confirmed from booking page",
+                        payment_method: payMethod,
+                        payment_reference: payReference,
+                        payment_amount: payAmount
+                      };
+
+                      // Create booking in database
+                      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/hotelroom/bookings/`, {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify(bookingData)
+                      });
+
+                      if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || "Failed to create booking");
+                      }
+
+                      const booking = await response.json();
+
+                      // Send frontend nodemailer notification to admin
                       await fetch('/api/send-booking-notification', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                           type: 'user_confirmation',
-                          message: 'User has confirmed their booking request from booking page',
+                          message: `New booking created from booking page - Booking ID: ${booking.id}, Room: ${room?.name}`,
+                          bookingId: booking.id,
                           roomId: id
                         })
                       });
+
+                      alert(`Booking created successfully! Booking ID: ${booking.id}. Admin has been notified and will confirm your booking soon.`);
                       
-                      // Navigate to booking page
-                      router.push('/booking/3');
+                      // Reset form
+                      setCheckIn(""); setCheckOut(""); setGuests(1); setMealCategory("breakfast"); setSpecial("");
+                      setPayReference(""); setPayAmount(""); setAgreeExtraFee(false);
+                      
+                      // Navigate to bookings page
+                      setTimeout(() => router.push('/my-bookings'), 1500);
                     } catch (error) {
-                      console.error('Failed to send notification:', error);
-                      // Still navigate even if email fails
-                      router.push('/booking/3');
+                      console.error('Failed to create booking:', error);
+                      alert(`Failed to create booking: ${error instanceof Error ? error.message : 'Unknown error'}`);
                     }
                   }}
                   className="w-full py-4 text-xs font-semibold tracking-[0.2em] text-white bg-[#1c352c] hover:bg-[#132222] transition"

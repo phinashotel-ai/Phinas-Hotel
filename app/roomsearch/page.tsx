@@ -267,22 +267,59 @@ export default function RoomSearchPage() {
                 type="button"
                 onClick={async () => {
                   try {
-                    // Send frontend nodemailer notification
+                    const token = localStorage.getItem("access_token");
+                    if (!token) {
+                      alert("Please login to make a booking");
+                      return;
+                    }
+
+                    // Create a sample booking with room ID 3
+                    const bookingData = {
+                      room: 3,
+                      check_in: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Tomorrow
+                      check_out: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Day after tomorrow
+                      guests: 2,
+                      meal_category: "breakfast",
+                      special_requests: "Booking confirmed from search page",
+                      payment_method: "cash"
+                    };
+
+                    // Create booking in database
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/hotelroom/bookings/`, {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                      },
+                      body: JSON.stringify(bookingData)
+                    });
+
+                    if (!response.ok) {
+                      const errorData = await response.json();
+                      throw new Error(errorData.detail || "Failed to create booking");
+                    }
+
+                    const booking = await response.json();
+
+                    // Send frontend nodemailer notification to admin
                     await fetch('/api/send-booking-notification', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
                         type: 'user_confirmation',
-                        message: 'User has confirmed their booking request from search page'
+                        message: `New booking created from search page - Booking ID: ${booking.id}`,
+                        bookingId: booking.id,
+                        roomId: 3
                       })
                     });
+
+                    alert(`Booking created successfully! Booking ID: ${booking.id}. Admin has been notified.`);
                     
-                    // Navigate to booking page
-                    router.push('/booking/3');
+                    // Navigate to bookings page to see the created booking
+                    router.push('/my-bookings');
                   } catch (error) {
-                    console.error('Failed to send notification:', error);
-                    // Still navigate even if email fails
-                    router.push('/booking/3');
+                    console.error('Failed to create booking:', error);
+                    alert(`Failed to create booking: ${error instanceof Error ? error.message : 'Unknown error'}`);
                   }
                 }}
                 className="w-full py-3 text-xs font-semibold tracking-[0.2em] text-white bg-[#1c352c] hover:bg-[#132222] transition"
