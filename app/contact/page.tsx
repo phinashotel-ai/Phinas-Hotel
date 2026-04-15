@@ -177,20 +177,6 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section className="py-20 px-6 text-center" style={{ backgroundColor: "#1c352c" }}>
-        <p className="text-[#71867e] tracking-[0.5em] text-xs uppercase mb-3">Ready to Stay?</p>
-        <h2 className="text-white text-3xl md:text-4xl font-thin tracking-[0.2em] mb-6">
-          BOOK YOUR <span className="font-semibold">STAY TODAY</span>
-        </h2>
-        <Link
-          href="/roomsearch"
-          className="inline-block px-10 py-3 text-xs tracking-[0.3em] border border-[#d4d7c7] text-[#d4d7c7] hover:bg-[#d4d7c7] hover:text-[#132222] transition"
-        >
-          EXPLORE ROOMS
-        </Link>
-      </section>
-
       {/* ── FOOTER ── */}
     </div>
   );
