@@ -477,6 +477,27 @@ export default function BookingPage() {
                         return;
                       }
 
+                      // Check for date conflicts before creating booking
+                      const conflictResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/hotelroom/rooms/${id}/check-availability/`, {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                          check_in: checkIn,
+                          check_out: checkOut
+                        })
+                      });
+
+                      if (conflictResponse.ok) {
+                        const conflictData = await conflictResponse.json();
+                        if (conflictData.has_conflict) {
+                          alert("This room already has a ticket for the selected dates. Please choose different dates.");
+                          return;
+                        }
+                      }
+
                       // Create booking with current form data
                       const bookingData = {
                         room: Number(id),

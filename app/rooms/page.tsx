@@ -98,30 +98,9 @@ export default function RoomsPage() {
       const response = await fetch(`${API}/hotelroom/rooms/?status=available${query}`);
       const roomsData = await response.json();
       
-      // Check availability for each room if user is logged in
-      const token = localStorage.getItem("access_token");
-      if (token && Array.isArray(roomsData)) {
-        const roomsWithAvailability = await Promise.all(
-          roomsData.map(async (room: Room) => {
-            try {
-              const availResponse = await fetch(`${API}/hotelroom/rooms/${room.id}/availability/`, {
-                headers: { Authorization: `Bearer ${token}` },
-              });
-              if (availResponse.ok) {
-                const availData = await availResponse.json();
-                return { ...room, has_active_bookings: availData.has_active_bookings };
-              }
-            } catch (error) {
-              console.error(`Error checking availability for room ${room.id}:`, error);
-            }
-            return { ...room, has_active_bookings: false };
-          })
-        );
-        setRooms(roomsWithAvailability);
-      } else {
-        setRooms(Array.isArray(roomsData) ? roomsData : []);
-      }
-      
+      // Don't check availability here - rooms should always be visible
+      // Availability will be checked only when user tries to book with specific dates
+      setRooms(Array.isArray(roomsData) ? roomsData : []);
       setLoading(false);
     } catch (error) {
       setError("Failed to load rooms.");
@@ -151,47 +130,9 @@ export default function RoomsPage() {
     fetchRooms(value);
   };
 
-  const handleViewDetails = async (roomId: number, hasActiveBookings?: boolean) => {
-    const token = localStorage.getItem("access_token");
-    
-    // If user is not logged in, proceed to room details
-    if (!token) {
-      router.push(`/roomdetails/${roomId}`);
-      return;
-    }
-
-    // If we already know the room has active bookings, show toast immediately
-    if (hasActiveBookings) {
-      setToast({
-        message: "This room already has a ticket.",
-        type: 'warning'
-      });
-      setTimeout(() => setToast(null), 5000);
-      return;
-    }
-
-    // Double-check availability if not already checked
-    try {
-      const response = await fetch(`${API}/hotelroom/rooms/${roomId}/availability/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      
-      if (response.ok) {
-        const availabilityData = await response.json();
-        if (availabilityData.has_active_bookings) {
-          setToast({
-            message: "This room already has a ticket.",
-            type: 'warning'
-          });
-          setTimeout(() => setToast(null), 5000);
-          return;
-        }
-      }
-    } catch (error) {
-      console.error('Error checking room availability:', error);
-      // Continue to room details if availability check fails
-    }
-
+  const handleViewDetails = (roomId: number) => {
+    // Always allow viewing room details
+    // Availability check will happen in the booking page with specific dates
     router.push(`/roomdetails/${roomId}`);
   };
 
@@ -279,28 +220,18 @@ export default function RoomsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {rooms.map(room => {
             const img = room.image_url || TYPE_IMAGES[room.room_type] || "/che.jpg";
-            const isOccupied = room.has_active_bookings;
             return (
-              <div key={room.id} className={`overflow-hidden shadow-md hover:shadow-xl transition-shadow border ${
-                isOccupied ? 'border-red-300 opacity-75' : 'border-[rgba(212,215,199,0.7)]'
-              }`} style={panelStyle}>
+              <div key={room.id} className="overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-[rgba(212,215,199,0.7)]" style={panelStyle}>
 
                 {/* Main image */}
                 <div className="relative h-52 overflow-hidden">
-                  <img src={img} alt={room.name} className={`absolute inset-0 h-full w-full object-cover transition-all duration-500 ${
-                    isOccupied ? 'grayscale-[0.3]' : ''
-                  }`} />
+                  <img src={img} alt={room.name} className="absolute inset-0 h-full w-full object-cover transition-all duration-500" />
                   <div className="absolute top-3 right-3 px-3 py-1 text-xs tracking-widest font-semibold" style={{ backgroundColor: "#132222", color: "#fff8ed" }}>
                     ₱{Number(room.price_per_night).toLocaleString()}/night
                   </div>
                   <div className="absolute top-3 left-3 px-2 py-1 text-xs font-semibold tracking-wide capitalize bg-[#1c352c] text-white">
                     {getRoomTypeLabel(room.room_type)}
                   </div>
-                  {isOccupied && (
-                    <div className="absolute bottom-3 left-3 px-3 py-1 text-xs font-semibold tracking-wide bg-red-500 text-white rounded">
-                      OCCUPIED
-                    </div>
-                  )}
                 </div>
 
                 {/* Info */}
@@ -324,15 +255,13 @@ export default function RoomsPage() {
                     ))}
                   </div>
                   <button
-                    onClick={() => handleViewDetails(room.id, room.has_active_bookings)}
-                    className={`w-full text-center py-2 text-xs tracking-[0.3em] border transition ${
-                      isOccupied 
-                        ? 'border-red-400 text-red-600 bg-red-50 cursor-not-allowed'
-                        : 'border-[#1c352c] text-[#1c352c] bg-transparent hover:bg-[#1c352c] hover:text-white'
-                    }`}
-                    disabled={isOccupied}
+                    onClick={() => handleViewDetails(room.id)}
+                    className="w-full text-center py-2 text-xs tracking-[0.3em] border transition"
+                    style={{ borderColor: "#1c352c", color: "#1c352c", backgroundColor: "transparent" }}
+                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#1c352c"; e.currentTarget.style.color = "#fff"; }}
+                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#1c352c"; }}
                   >
-                    {isOccupied ? 'OCCUPIED' : 'VIEW DETAILS'}
+                    VIEW DETAILS
                   </button>
                 </div>
               </div>

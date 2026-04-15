@@ -175,28 +175,7 @@ export default function RoomDetailsPage() {
       return;
     }
 
-    // Check if room has any active bookings
-    try {
-      const response = await fetch(`${API}/hotelroom/rooms/${room.id}/availability/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      
-      if (response.ok) {
-        const availabilityData = await response.json();
-        if (availabilityData.has_active_bookings) {
-          setToast({
-            message: "This room already has a ticket.",
-            type: 'warning'
-          });
-          setTimeout(() => setToast(null), 5000);
-          return;
-        }
-      }
-    } catch (error) {
-      console.error('Error checking room availability:', error);
-      // Continue to booking page if availability check fails
-    }
-
+    // Simply proceed to booking page - date conflict check will happen there
     router.push(`/booking/${room.id}`);
   };
 
