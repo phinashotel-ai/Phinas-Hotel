@@ -71,6 +71,9 @@ interface Room {
   avg_rating?: number | null;
   rating_count?: number;
   has_active_bookings?: boolean;
+  current_bookings?: number;
+  max_bookings?: number;
+  is_fully_booked?: boolean;
 }
 
 function hasRoomRating(room: Room) {
@@ -95,14 +98,14 @@ export default function RoomsPage() {
     const query = type ? `&type=${type}` : "";
     
     try {
-      const response = await fetch(`${API}/hotelroom/rooms/?status=available${query}`);
+      const response = await fetch(`${API}/hotelroom/rooms/?${query.replace(/^&/, "")}`);
       const roomsData = await response.json();
       
       // Don't check availability here - rooms should always be visible
       // Availability will be checked only when user tries to book with specific dates
       setRooms(Array.isArray(roomsData) ? roomsData : []);
       setLoading(false);
-    } catch (error) {
+    } catch {
       setError("Failed to load rooms.");
       setLoading(false);
     }
@@ -220,6 +223,10 @@ export default function RoomsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {rooms.map(room => {
             const img = room.image_url || TYPE_IMAGES[room.room_type] || "/che.jpg";
+            const currentBookings = room.current_bookings || 0;
+            const maxBookings = room.max_bookings || room.capacity || 1;
+            const isFullyBooked = room.is_fully_booked || currentBookings >= maxBookings;
+            const availableSpots = Math.max(0, maxBookings - currentBookings);
             return (
               <div key={room.id} className="overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-[rgba(212,215,199,0.7)]" style={panelStyle}>
 
@@ -232,6 +239,16 @@ export default function RoomsPage() {
                   <div className="absolute top-3 left-3 px-2 py-1 text-xs font-semibold tracking-wide capitalize bg-[#1c352c] text-white">
                     {getRoomTypeLabel(room.room_type)}
                   </div>
+                  {isFullyBooked && (
+                    <div className="absolute bottom-3 left-3 bg-red-600 px-3 py-1 text-xs font-semibold text-white">
+                      FULLY BOOKED
+                    </div>
+                  )}
+                  {!isFullyBooked && availableSpots > 0 && availableSpots <= 2 && (
+                    <div className="absolute bottom-3 left-3 bg-orange-500 px-3 py-1 text-xs font-semibold text-white">
+                      {availableSpots} slot{availableSpots > 1 ? "s" : ""} left
+                    </div>
+                  )}
                 </div>
 
                 {/* Info */}
@@ -242,6 +259,20 @@ export default function RoomsPage() {
                   </div>
                   <p className="text-xs text-[#71867e] mb-3">{getRoomTypeLabel(room.room_type)} · Floor {room.floor} · Up to {room.capacity} guests</p>
                   <p className="mb-3 text-sm leading-6 text-[#4a6358]">{getRoomDescription(room)}</p>
+                  <div className="mb-3">
+                    <div className="mb-1 flex items-center justify-between text-xs text-[#71867e]">
+                      <span>Availability</span>
+                      <span>{currentBookings}/{maxBookings} booked</span>
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-gray-200">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          isFullyBooked ? "bg-red-500" : availableSpots <= 2 ? "bg-orange-500" : "bg-green-500"
+                        }`}
+                        style={{ width: `${Math.min(100, (currentBookings / maxBookings) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
                   <div className="mb-3">
                     <p className="text-base tracking-[0.15em]" style={{ color: "#c48a3a" }}>{hasRoomRating(room) ? renderStars(getDisplayRating(room.avg_rating)) : "☆☆☆☆☆"}</p>
                     <p className="text-xs text-[#4a6358]">

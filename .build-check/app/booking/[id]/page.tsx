@@ -304,7 +304,7 @@ export default function BookingPage() {
                       <span>
                         Extra guest fee (PHP {extraGuestFeePerNight.toLocaleString()} x {extraGuestCount} guest{extraGuestCount > 1 ? "s" : ""} x {nights} night{nights > 1 ? "s" : ""})
                       </span>
-                      <span>â‚±{extraGuestFeeTotal.toLocaleString()}</span>
+                      <span>{extraGuestFeeTotal.toLocaleString()}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm mb-1 text-[#4a6358]">

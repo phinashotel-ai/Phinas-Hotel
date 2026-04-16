@@ -257,9 +257,20 @@ export default function BookingPage() {
       setPayReference("");
       setPayAmount("");
       setAgreeExtraFee(false);
+      setToast({
+        message: `Booking request submitted successfully. Booking ID: ${data.id}.`,
+        type: "success",
+      });
+      setTimeout(() => setToast(null), 5000);
       setTimeout(() => router.push(`/rooms`), 1200);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      const message = err instanceof Error ? err.message : "Something went wrong.";
+      setError(message);
+      setToast({
+        message,
+        type: "error",
+      });
+      setTimeout(() => setToast(null), 5000);
     } finally {
       setSubmitting(false);
     }
@@ -355,7 +366,7 @@ export default function BookingPage() {
                       <span>
                         Extra guest fee (PHP {extraGuestFeePerNight.toLocaleString()} x {extraGuestCount} guest{extraGuestCount > 1 ? "s" : ""} x {nights} night{nights > 1 ? "s" : ""})
                       </span>
-                      <span>â‚±{extraGuestFeeTotal.toLocaleString()}</span>
+                      <span>{extraGuestFeeTotal.toLocaleString()}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm mb-1 text-[#4a6358]">
@@ -501,129 +512,11 @@ export default function BookingPage() {
 
                 {/* Confirm Booking Button */}
                 <button
-                  type="button"
-                  onClick={async () => {
-                    try {
-                      const token = localStorage.getItem("access_token");
-                      if (!token) {
-                        alert("Please login to make a booking");
-                        return;
-                      }
-
-                      // Validate required fields
-                      if (!checkIn || !checkOut || nights <= 0) {
-                        alert("Please select valid check-in and check-out dates");
-                        return;
-                      }
-
-                      if (extraGuestCount > 0 && !agreeExtraFee) {
-                        alert("Please confirm the additional guest fee before booking");
-                        return;
-                      }
-
-                      // Check for date conflicts before creating booking
-                      const conflictResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/hotelroom/rooms/${id}/check-availability/`, {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                          "Authorization": `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                          check_in: checkIn,
-                          check_out: checkOut
-                        })
-                      });
-
-                      if (conflictResponse.ok) {
-                        const conflictData = await conflictResponse.json();
-                        if (conflictData.has_conflict) {
-                          setToast({
-                            message: "This room already has a booking for the selected dates. Please choose different dates or select another room.",
-                            type: 'warning'
-                          });
-                          setTimeout(() => setToast(null), 5000);
-                          return;
-                        }
-                      }
-
-                      // Create booking with current form data
-                      const bookingData = {
-                        room: Number(id),
-                        check_in: checkIn,
-                        check_out: checkOut,
-                        guests: Number(guests),
-                        meal_category: mealCategory,
-                        special_requests: "Booking confirmed from booking page",
-                        payment_method: payMethod,
-                        payment_reference: payReference,
-                        payment_amount: payAmount
-                      };
-
-                      // Create booking in database
-                      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/hotelroom/bookings/`, {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                          "Authorization": `Bearer ${token}`
-                        },
-                        body: JSON.stringify(bookingData)
-                      });
-
-                      if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.detail || "Failed to create booking");
-                      }
-
-                      const booking = await response.json();
-
-                      // Send immediate confirmation email to customer
-                      try {
-                        await sendBookingEmail({
-                          status: "pending",
-                          booking: booking,
-                        });
-                      } catch (emailError) {
-                        console.error('Failed to send confirmation email:', emailError);
-                      }
-
-                      // Send frontend nodemailer notification to admin
-                      await fetch('/api/send-booking-notification', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          type: 'user_confirmation',
-                          message: `New booking created from booking page - Booking ID: ${booking.id}, Room: ${room?.name}`,
-                          bookingId: booking.id,
-                          roomId: id
-                        })
-                      });
-
-                      alert(`Booking created successfully! Booking ID: ${booking.id}. A confirmation email has been sent to your email address. Admin will review and confirm your booking soon.`);
-                      
-                      setToast({
-                        message: `Booking created successfully! Booking ID: ${booking.id}. Confirmation email sent.`,
-                        type: 'success'
-                      });
-                      setTimeout(() => setToast(null), 5000);
-                      
-                      // Reset form
-                      setCheckIn(""); setCheckOut(""); setGuests(1); setMealCategory("breakfast");
-                      setPayReference(""); setPayAmount(""); setAgreeExtraFee(false);
-                      
-                      // Navigate to rooms page
-                      setTimeout(() => router.push('/rooms'), 1500);
-                    } catch (error) {
-                      console.error('Failed to create booking:', error);
-                      setToast({
-                        message: `Failed to create booking: ${error instanceof Error ? error.message : 'Unknown error'}`,
-                        type: 'error'
-                      });
-                      setTimeout(() => setToast(null), 5000);
-                    }
-                  }}
-                  className="w-full py-4 text-xs font-semibold tracking-[0.2em] text-white bg-[#1c352c] hover:bg-[#132222] transition"
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full py-4 text-xs font-semibold tracking-[0.2em] text-white bg-[#1c352c] transition hover:bg-[#132222] disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  CONFIRM BOOKING
+                  {submitting ? "SUBMITTING..." : "CONFIRM BOOKING"}
                 </button>
 
                 {success && (

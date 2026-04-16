@@ -630,7 +630,7 @@ function UserDashboardContent() {
                           </div>
                           <div>
                             <p className="text-[10px] tracking-widest text-[#71867e] uppercase mb-0.5">Total</p>
-                            <p className="font-semibold text-[#1c352c]">â‚±{Number(b.total_price).toLocaleString()}</p>
+                            <p className="font-semibold text-[#1c352c]">{Number(b.total_price).toLocaleString()}</p>
                           </div>
                           <div>
                             <p className="text-[10px] tracking-widest text-[#71867e] uppercase mb-0.5">Free Food</p>
@@ -639,7 +639,7 @@ function UserDashboardContent() {
                           {Number(b.extra_guest_fee_total) > 0 && (
                             <div>
                               <p className="text-[10px] tracking-widest text-[#71867e] uppercase mb-0.5">Extra Guest Fee</p>
-                              <p className="font-semibold text-[#1c352c]">â‚±{Number(b.extra_guest_fee_total).toLocaleString()}</p>
+                              <p className="font-semibold text-[#1c352c]">{Number(b.extra_guest_fee_total).toLocaleString()}</p>
                             </div>
                           )}
                         </div>
@@ -868,7 +868,7 @@ function UserDashboardContent() {
 
               <div className="flex justify-between items-center pt-1">
                 <p className="text-xs tracking-widest text-[#71867e]">TOTAL AMOUNT</p>
-                <p className="text-2xl font-light">â‚±{Number(selected.total_price).toLocaleString()}</p>
+                <p className="text-2xl font-light">{Number(selected.total_price).toLocaleString()}</p>
               </div>
 
               {canReviewBooking(selected) && (
