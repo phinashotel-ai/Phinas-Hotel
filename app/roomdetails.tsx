@@ -417,6 +417,7 @@ export default function Home() {
           setGuests={setGuests}
           isCheckingAvailability={isCheckingAvailability}
           availabilityResult={availabilityResult}
+          setAvailabilityResult={setAvailabilityResult}
           bookingConfirmation={bookingConfirmation}
           calculateTotal={calculateTotal}
           getTodayDate={getTodayDate}
@@ -511,7 +512,7 @@ function AuthModal({ isLogin, onClose, onLogin, onSignUp }: {
 // Booking Modal Component
 function BookingModal({ 
   room, bookingStep, checkIn, setCheckIn, checkOut, setCheckOut, 
-  guests, setGuests, isCheckingAvailability, availabilityResult, 
+  guests, setGuests, isCheckingAvailability, availabilityResult, setAvailabilityResult,
   bookingConfirmation, calculateTotal, getTodayDate, getTomorrowDate,
   onClose, onCheckAvailability, onProceedToPayment, onProcessPayment,
   isLoggedIn, user
@@ -526,6 +527,7 @@ function BookingModal({
   setGuests: (value: number) => void;
   isCheckingAvailability: boolean;
   availabilityResult: {available: boolean; message: string; nextAvailableDate?: string; conflictingBooking?: any} | null;
+  setAvailabilityResult: (value: {available: boolean; message: string; nextAvailableDate?: string; conflictingBooking?: any} | null) => void;
   bookingConfirmation: any;
   calculateTotal: () => any;
   getTodayDate: () => string;
