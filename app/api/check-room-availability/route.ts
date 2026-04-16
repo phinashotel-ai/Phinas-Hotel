@@ -1,52 +1,71 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-const API = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.BACKEND_URL;
+const DJANGO_API_URL = process.env.DJANGO_API_URL || 'http://localhost:8000';
 
-export async function POST(request: Request) {
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const roomId = searchParams.get('room_id');
+  const checkIn = searchParams.get('check_in');
+  const checkOut = searchParams.get('check_out');
+
+  if (!roomId || !checkIn || !checkOut) {
+    return NextResponse.json(
+      { error: 'Missing required parameters: room_id, check_in, check_out' },
+      { status: 400 }
+    );
+  }
+
   try {
-    const { roomId, checkIn, checkOut } = await request.json();
+    // First, get room details to check if it exists
+    const roomResponse = await fetch(`${DJANGO_API_URL}/hotelroom/rooms/${roomId}/`);
     
-    if (!roomId || !checkIn || !checkOut) {
+    if (!roomResponse.ok) {
       return NextResponse.json(
-        { error: 'Missing required fields: roomId, checkIn, checkOut' },
-        { status: 400 }
+        { error: 'Room not found' },
+        { status: 404 }
       );
     }
 
-    // Get authorization header from the request
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
+    const room = await roomResponse.json();
+
+    // Check availability by querying rooms with date filters
+    const availabilityResponse = await fetch(
+      `${DJANGO_API_URL}/hotelroom/rooms/?check_in=${checkIn}&check_out=${checkOut}`
+    );
+
+    if (!availabilityResponse.ok) {
       return NextResponse.json(
-        { error: 'Authorization header required' },
-        { status: 401 }
+        { error: 'Failed to check availability' },
+        { status: 500 }
       );
     }
 
-    // Check room availability with backend
-    const response = await fetch(`${API}/hotelroom/rooms/${roomId}/check-availability/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': authHeader,
-      },
-      body: JSON.stringify({
-        check_in: checkIn,
-        check_out: checkOut,
-      }),
-    });
+    const availableRooms = await availabilityResponse.json();
+    const isAvailable = availableRooms.some((r: any) => r.id === parseInt(roomId));
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      return NextResponse.json(
-        { error: errorData?.detail || 'Failed to check availability' },
-        { status: response.status }
-      );
+    if (isAvailable) {
+      return NextResponse.json({
+        available: true,
+        message: 'Room is available for your selected dates!'
+      });
+    } else {
+      // Get booked ranges to show conflict details
+      const roomDetails = await fetch(`${DJANGO_API_URL}/hotelroom/rooms/${roomId}/`);
+      const roomData = await roomDetails.json();
+      
+      const conflictingBookings = roomData.booked_ranges || [];
+      const conflictMessage = conflictingBookings.length > 0 
+        ? `Room is already booked during your selected dates. Existing bookings: ${conflictingBookings.map((b: any) => `${b.check_in} to ${b.check_out}`).join(', ')}`
+        : 'Room is not available for the selected dates.';
+
+      return NextResponse.json({
+        available: false,
+        message: conflictMessage,
+        conflicting_bookings: conflictingBookings
+      });
     }
-
-    const data = await response.json();
-    return NextResponse.json(data);
   } catch (error) {
-    console.error('Room availability check error:', error);
+    console.error('Error checking availability:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
