@@ -178,7 +178,34 @@ export default function RoomDetailsPage() {
       return;
     }
 
-    // Simply proceed to booking page - date conflict check will happen there
+    try {
+      // Check room availability before proceeding to booking
+      const availabilityResponse = await fetch(`${API}/hotelroom/rooms/${room.id}/check-capacity/`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (availabilityResponse.ok) {
+        const availabilityData = await availabilityResponse.json();
+        const currentBookings = availabilityData.current_bookings || 0;
+        const maxBookings = availabilityData.max_bookings || room.capacity || 1;
+        
+        if (currentBookings >= maxBookings) {
+          setToast({
+            message: "This room is already fully booked. Please choose another room or check back later.",
+            type: 'warning'
+          });
+          setTimeout(() => setToast(null), 5000);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to check room availability:', error);
+      // Continue to booking page even if availability check fails
+    }
+
+    // Proceed to booking page if room is available
     router.push(`/booking/${room.id}`);
   };
 
