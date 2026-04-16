@@ -16,8 +16,10 @@ const ROOM_IMAGES: Record<string, string> = {
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 const GCASH_COMPANY_NAME = "PHINAS HOTEL";
 const GCASH_COMPANY_NUMBER = "0917 000 0000";
-const CHECK_IN_TIME = "2:00 PM";
-const CHECK_OUT_TIME = "12:00 PM";
+const CHECK_IN_TIME_OPTIONS = ["2:00 AM", "2:00 PM"] as const;
+const CHECK_OUT_TIME_OPTIONS = ["12:00 AM", "12:00 PM"] as const;
+const DEFAULT_CHECK_IN_TIME = CHECK_IN_TIME_OPTIONS[1];
+const DEFAULT_CHECK_OUT_TIME = CHECK_OUT_TIME_OPTIONS[1];
 
 interface Room {
   id: number;
@@ -118,6 +120,8 @@ export default function BookingPage() {
 
   const [checkIn, setCheckIn]   = useState("");
   const [checkOut, setCheckOut] = useState("");
+  const [checkInTime, setCheckInTime] = useState<(typeof CHECK_IN_TIME_OPTIONS)[number]>(DEFAULT_CHECK_IN_TIME);
+  const [checkOutTime, setCheckOutTime] = useState<(typeof CHECK_OUT_TIME_OPTIONS)[number]>(DEFAULT_CHECK_OUT_TIME);
   const [guests, setGuests]     = useState(1);
   const [mealCategory, setMealCategory] = useState("breakfast");
   const [agreeExtraFee, setAgreeExtraFee] = useState(false);
@@ -225,6 +229,8 @@ export default function BookingPage() {
           room: Number(id),
           check_in: checkIn,
           check_out: checkOut,
+          check_in_time: checkInTime,
+          check_out_time: checkOutTime,
           guests: Number(guests),
           meal_category: mealCategory,
           special_requests: "Booking confirmed from booking page",
@@ -253,6 +259,7 @@ export default function BookingPage() {
       sessionStorage.setItem("recent_booking_room_id", String(id));
       sessionStorage.setItem("recent_booking_id", String(data.id));
       setCheckIn(""); setCheckOut(""); setGuests(1); setMealCategory("breakfast");
+      setCheckInTime(DEFAULT_CHECK_IN_TIME); setCheckOutTime(DEFAULT_CHECK_OUT_TIME);
       setPromoApplied(""); setPromoDiscount(0);
       setPayReference("");
       setPayAmount("");
@@ -406,13 +413,29 @@ export default function BookingPage() {
                   <label className={labelCls}>CHECK-IN DATE</label>
                   <input type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)}
                     min={new Date().toISOString().split("T")[0]} className={inputCls} required />
-                  <p className="mt-2 text-xs text-[#71867e]">Check-in starts at {CHECK_IN_TIME} on your selected date.</p>
+                  <p className="mt-2 text-xs text-[#71867e]">Choose your check-in date, then select a check-in time below.</p>
+                </div>
+                <div>
+                  <label className={labelCls}>CHECK-IN TIME</label>
+                  <select value={checkInTime} onChange={e => setCheckInTime(e.target.value as (typeof CHECK_IN_TIME_OPTIONS)[number])} className={inputCls} required>
+                    {CHECK_IN_TIME_OPTIONS.map(option => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className={labelCls}>CHECK-OUT DATE</label>
                   <input type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)}
                     min={checkIn || new Date().toISOString().split("T")[0]} className={inputCls} required />
-                  <p className="mt-2 text-xs text-[#71867e]">Check-out is at {CHECK_OUT_TIME} on your selected date.</p>
+                  <p className="mt-2 text-xs text-[#71867e]">Choose your check-out date, then select a check-out time below.</p>
+                </div>
+                <div>
+                  <label className={labelCls}>CHECK-OUT TIME</label>
+                  <select value={checkOutTime} onChange={e => setCheckOutTime(e.target.value as (typeof CHECK_OUT_TIME_OPTIONS)[number])} className={inputCls} required>
+                    {CHECK_OUT_TIME_OPTIONS.map(option => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className={labelCls}>NUMBER OF GUESTS</label>
