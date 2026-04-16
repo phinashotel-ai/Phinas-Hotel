@@ -125,6 +125,7 @@ export default function BookingPage() {
   const [guests, setGuests]     = useState(1);
   const [mealCategory, setMealCategory] = useState("breakfast");
   const [agreeExtraFee, setAgreeExtraFee] = useState(false);
+  const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
 
   // Payment
   const [payMethod, setPayMethod]       = useState("cash");
@@ -140,6 +141,7 @@ export default function BookingPage() {
     if (!token) { router.push("/"); return; }
     if (!id) return;
 
+    // Load room details
     fetch(`${API}/hotelroom/rooms/${id}/`)
       .then(async res => {
         const result = await readApiResponse(res, "Room not found.");
@@ -148,6 +150,18 @@ export default function BookingPage() {
       })
       .then(data => { setRoom(data); setLoading(false); })
       .catch(err => { setError(err instanceof Error ? err.message : "Room not found."); setLoading(false); });
+
+    // Load unavailable dates for this room
+    fetch(`${API}/hotelroom/rooms/${id}/unavailable-dates/`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(async res => {
+        const result = await readApiResponse(res, "Failed to load availability.");
+        if (result.ok && Array.isArray(result.data)) {
+          setUnavailableDates(result.data);
+        }
+      })
+      .catch(err => console.error('Failed to load unavailable dates:', err));
   }, [id, router]);
 
   const nights      = checkIn && checkOut
@@ -181,6 +195,18 @@ export default function BookingPage() {
   const discountAmt = promoDiscount > 0 ? (subtotalBeforeDiscount * promoDiscount) / 100 : 0;
   const finalTotal  = subtotalBeforeDiscount - discountAmt;
 
+  // Helper function to check if a date is unavailable
+  const isDateUnavailable = (dateString: string) => {
+    return unavailableDates.includes(dateString);
+  };
+
+  // Helper function to get the maximum selectable date (today + 1 year)
+  const getMaxDate = () => {
+    const maxDate = new Date();
+    maxDate.setFullYear(maxDate.getFullYear() + 1);
+    return maxDate.toISOString().split('T')[0];
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(""); setSuccess("");
@@ -192,6 +218,27 @@ export default function BookingPage() {
       setTimeout(() => setToast(null), 4000);
       setError("Check-out must be after check-in."); 
       return; 
+    }
+    
+    // Check if any selected dates are unavailable
+    if (checkIn && isDateUnavailable(checkIn)) {
+      setToast({
+        message: "Selected check-in date is not available for this room.",
+        type: 'error'
+      });
+      setTimeout(() => setToast(null), 4000);
+      setError("Check-in date is not available.");
+      return;
+    }
+    
+    if (checkOut && isDateUnavailable(checkOut)) {
+      setToast({
+        message: "Selected check-out date is not available for this room.",
+        type: 'error'
+      });
+      setTimeout(() => setToast(null), 4000);
+      setError("Check-out date is not available.");
+      return;
     }
     if (room && guests > room.capacity) { 
       setToast({
@@ -411,9 +458,20 @@ export default function BookingPage() {
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 <div>
                   <label className={labelCls}>CHECK-IN DATE</label>
-                  <input type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)}
+                  <input type="date" value={checkIn} onChange={e => {
+                    const selectedDate = e.target.value;
+                    if (isDateUnavailable(selectedDate)) {
+                      setToast({
+                        message: "This date is not available for booking. Please select another date.",
+                        type: 'warning'
+                      });
+                      setTimeout(() => setToast(null), 4000);
+                      return;
+                    }
+                    setCheckIn(selectedDate);
+                  }}
                     min={new Date().toISOString().split("T")[0]} className={inputCls} required />
-                  <p className="mt-2 text-xs text-[#71867e]">Choose your check-in date, then select a check-in time below.</p>
+                  <p className="mt-2 text-xs text-[#71867e]">Choose your check-in date. Unavailable dates will show a warning.</p>
                 </div>
                 <div>
                   <label className={labelCls}>CHECK-IN TIME</label>
@@ -425,9 +483,20 @@ export default function BookingPage() {
                 </div>
                 <div>
                   <label className={labelCls}>CHECK-OUT DATE</label>
-                  <input type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)}
+                  <input type="date" value={checkOut} onChange={e => {
+                    const selectedDate = e.target.value;
+                    if (isDateUnavailable(selectedDate)) {
+                      setToast({
+                        message: "This date is not available for booking. Please select another date.",
+                        type: 'warning'
+                      });
+                      setTimeout(() => setToast(null), 4000);
+                      return;
+                    }
+                    setCheckOut(selectedDate);
+                  }}
                     min={checkIn || new Date().toISOString().split("T")[0]} className={inputCls} required />
-                  <p className="mt-2 text-xs text-[#71867e]">Choose your check-out date, then select a check-out time below.</p>
+                  <p className="mt-2 text-xs text-[#71867e]">Choose your check-out date. Unavailable dates will show a warning.</p>
                 </div>
                 <div>
                   <label className={labelCls}>CHECK-OUT TIME</label>

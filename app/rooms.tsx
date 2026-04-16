@@ -69,28 +69,13 @@ export default function RoomsComponent() {
       return;
     }
     
-    const room = rooms.find(r => r.id === roomId);
-    
-    // Always allow viewing details, just show warning if fully booked
-    const currentBookings = room?.current_bookings || 0;
-    const maxBookings = room?.max_bookings || room?.capacity || 1;
-    const isAtCapacity = currentBookings >= maxBookings;
-    
-    if (room && isAtCapacity) {
-      setToast({
-        message: `This room is already taken. You can still extend your stay if you have an existing booking.`,
-        type: 'warning'
-      });
-      setTimeout(() => setToast(null), 5000);
-      // Don't return here - still allow viewing details
-    }
-    
     // Check if user has any recent booking attempts for this room type
     const recentBookingRoomId = sessionStorage.getItem("recent_booking_room_id");
     const recentBookingId = sessionStorage.getItem("recent_booking_id");
     const isExtension = sessionStorage.getItem("is_extension") === "true";
     
     if (recentBookingRoomId && recentBookingId && !isExtension) {
+      const room = rooms.find(r => r.id === roomId);
       const recentRoom = rooms.find(r => r.id === Number(recentBookingRoomId));
       
       // Allow extension for same room or same room type
@@ -138,7 +123,7 @@ export default function RoomsComponent() {
       }
     }
     
-    // Always navigate to room details regardless of booking status
+    // Always navigate to room details
     router.push(`/roomdetails/${roomId}`);
   };
 
@@ -223,10 +208,6 @@ export default function RoomsComponent() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {rooms.map(room => {
             const img = room.image_url || TYPE_IMAGES[room.room_type] || "/che.jpg";
-            const currentBookings = room.current_bookings || 0;
-            const maxBookings = room.max_bookings || room.capacity || 1;
-            const isAtCapacity = currentBookings >= maxBookings;
-            const availableSpots = maxBookings - currentBookings;
             
             return (
               <div key={room.id} className="overflow-hidden shadow-md hover:shadow-xl transition-shadow" style={{ backgroundColor: "#fff" }}>
@@ -240,16 +221,6 @@ export default function RoomsComponent() {
                   <div className="absolute top-3 left-3 px-2 py-1 text-xs font-semibold tracking-wide capitalize bg-[#1c352c] text-white">
                     {room.room_type}
                   </div>
-                  {isAtCapacity && (
-                    <div className="absolute bottom-3 left-3 bg-red-600 text-white px-3 py-1 rounded text-xs font-semibold">
-                      FULLY BOOKED
-                    </div>
-                  )}
-                  {!isAtCapacity && availableSpots <= 2 && availableSpots > 0 && (
-                    <div className="absolute bottom-3 left-3 bg-orange-500 text-white px-2 py-1 rounded text-xs font-semibold">
-                      {availableSpots} spot{availableSpots > 1 ? 's' : ''} left
-                    </div>
-                  )}
                 </div>
 
                 {/* Info */}
@@ -259,23 +230,6 @@ export default function RoomsComponent() {
                     <span className="text-xs text-[#71867e]">Room {room.room_number}</span>
                   </div>
                   <p className="text-xs text-[#71867e] mb-3 capitalize">{room.room_type} · Floor {room.floor} · Up to {room.capacity} guests</p>
-                  
-                  {/* Capacity indicator */}
-                  <div className="mb-3">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs text-[#71867e]">Availability</span>
-                      <span className="text-xs text-[#71867e]">{currentBookings}/{maxBookings} booked</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          isAtCapacity ? 'bg-red-500' : 
-                          availableSpots <= 2 ? 'bg-orange-500' : 'bg-green-500'
-                        }`}
-                        style={{ width: `${Math.min(100, (currentBookings / maxBookings) * 100)}%` }}
-                      ></div>
-                    </div>
-                  </div>
                   
                   <div className="flex flex-wrap gap-2 mb-4">
                     {(room.amenities || []).slice(0, 3).map((a, i) => (
