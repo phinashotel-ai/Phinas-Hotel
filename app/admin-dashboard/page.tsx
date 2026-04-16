@@ -636,7 +636,7 @@ export default function AdminDashboard() {
     payload.append("room_type", roomForm.room_type);
     payload.append("price_per_night", roomForm.price_per_night);
     payload.append("capacity", roomForm.capacity);
-    payload.append("max_bookings", roomForm.max_bookings);
+    payload.append("max_bookings", roomForm.capacity);
     payload.append("description", roomForm.description.trim());
     payload.append("amenities", JSON.stringify(roomForm.amenities.split(",").map(item => item.trim()).filter(Boolean)));
     payload.append("image_url", roomForm.image_url.trim());
