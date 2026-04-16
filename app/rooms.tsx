@@ -71,7 +71,7 @@ export default function RoomsComponent() {
     
     const room = rooms.find(r => r.id === roomId);
     
-    // Check if room has reached its booking capacity
+    // Always allow viewing details, just show warning if fully booked
     const currentBookings = room?.current_bookings || 0;
     const maxBookings = room?.max_bookings || room?.capacity || 1;
     const isAtCapacity = currentBookings >= maxBookings;
@@ -82,7 +82,7 @@ export default function RoomsComponent() {
         type: 'warning'
       });
       setTimeout(() => setToast(null), 5000);
-      return;
+      // Don't return here - still allow viewing details
     }
     
     // Check if user has any recent booking attempts for this room type
@@ -138,6 +138,7 @@ export default function RoomsComponent() {
       }
     }
     
+    // Always navigate to room details regardless of booking status
     router.push(`/roomdetails/${roomId}`);
   };
 
@@ -228,7 +229,7 @@ export default function RoomsComponent() {
             const availableSpots = maxBookings - currentBookings;
             
             return (
-              <div key={room.id} className={`overflow-hidden shadow-md hover:shadow-xl transition-shadow ${isAtCapacity ? 'opacity-75' : ''}`} style={{ backgroundColor: "#fff" }}>
+              <div key={room.id} className="overflow-hidden shadow-md hover:shadow-xl transition-shadow" style={{ backgroundColor: "#fff" }}>
 
                 {/* Main image */}
                 <div className="relative h-52 overflow-hidden">
@@ -239,17 +240,16 @@ export default function RoomsComponent() {
                   <div className="absolute top-3 left-3 px-2 py-1 text-xs font-semibold tracking-wide capitalize bg-[#1c352c] text-white">
                     {room.room_type}
                   </div>
-                  {isAtCapacity ? (
-                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                      <div className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold tracking-wide">
-                        FULLY BOOKED
-                      </div>
+                  {isAtCapacity && (
+                    <div className="absolute bottom-3 left-3 bg-red-600 text-white px-3 py-1 rounded text-xs font-semibold">
+                      FULLY BOOKED
                     </div>
-                  ) : availableSpots <= 2 && availableSpots > 0 ? (
-                    <div className="absolute bottom-3 right-3 bg-orange-500 text-white px-2 py-1 rounded text-xs font-semibold">
+                  )}
+                  {!isAtCapacity && availableSpots <= 2 && availableSpots > 0 && (
+                    <div className="absolute bottom-3 left-3 bg-orange-500 text-white px-2 py-1 rounded text-xs font-semibold">
                       {availableSpots} spot{availableSpots > 1 ? 's' : ''} left
                     </div>
-                  ) : null}
+                  )}
                 </div>
 
                 {/* Info */}
@@ -263,8 +263,8 @@ export default function RoomsComponent() {
                   {/* Capacity indicator */}
                   <div className="mb-3">
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs text-[#71867e]">Bookings</span>
-                      <span className="text-xs text-[#71867e]">{currentBookings}/{maxBookings}</span>
+                      <span className="text-xs text-[#71867e]">Availability</span>
+                      <span className="text-xs text-[#71867e]">{currentBookings}/{maxBookings} booked</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
@@ -284,29 +284,18 @@ export default function RoomsComponent() {
                   </div>
                   <button
                     onClick={() => handleViewDetails(room.id)}
-                    className={`w-full text-center py-2 text-xs tracking-[0.3em] border transition ${
-                      isAtCapacity 
-                        ? 'cursor-pointer bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-                        : ''
-                    }`}
-                    style={!isAtCapacity ? { borderColor: "#1c352c", color: "#1c352c", backgroundColor: "transparent" } : {}}
+                    className="w-full text-center py-2 text-xs tracking-[0.3em] border transition"
+                    style={{ borderColor: "#1c352c", color: "#1c352c", backgroundColor: "transparent" }}
                     onMouseEnter={e => { 
-                      if (!isAtCapacity) {
-                        e.currentTarget.style.backgroundColor = "#1c352c"; 
-                        e.currentTarget.style.color = "#fff"; 
-                      }
+                      e.currentTarget.style.backgroundColor = "#1c352c"; 
+                      e.currentTarget.style.color = "#fff"; 
                     }}
                     onMouseLeave={e => { 
-                      if (!isAtCapacity) {
-                        e.currentTarget.style.backgroundColor = "transparent"; 
-                        e.currentTarget.style.color = "#1c352c"; 
-                      } else {
-                        e.currentTarget.style.backgroundColor = "#f3f4f6";
-                        e.currentTarget.style.color = "#374151";
-                      }
+                      e.currentTarget.style.backgroundColor = "transparent"; 
+                      e.currentTarget.style.color = "#1c352c"; 
                     }}
                   >
-                    {isAtCapacity ? 'FULLY BOOKED - VIEW DETAILS' : 'VIEW DETAILS'}
+                    VIEW DETAILS
                   </button>
                 </div>
               </div>
