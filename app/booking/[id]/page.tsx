@@ -120,7 +120,6 @@ export default function BookingPage() {
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests]     = useState(1);
   const [mealCategory, setMealCategory] = useState("breakfast");
-  const [special, setSpecial]   = useState("");
   const [agreeExtraFee, setAgreeExtraFee] = useState(false);
 
   // Payment
@@ -228,7 +227,7 @@ export default function BookingPage() {
           check_out: checkOut,
           guests: Number(guests),
           meal_category: mealCategory,
-          special_requests: special,
+          special_requests: "Booking confirmed from booking page",
           promo_code: promoApplied,
           payment_method: payMethod,
           payment_reference: payReference,
@@ -253,7 +252,7 @@ export default function BookingPage() {
       setSuccess(`Booking request submitted! #${data.id} is pending staff confirmation. Reference Number: ${data.reference_number || data.payment?.reference_number || "None"}. A confirmation email has been sent to your email address with booking details. The admin will review and send final confirmation after approval. ${String(data.meal_category || mealCategory).replace(/^./, (c: string) => c.toUpperCase())} meal selected. Total: PHP ${Number(data.total_price).toLocaleString()}. First ${data.free_food_guests ?? freeFoodGuests} guest(s) get free food.`);
       sessionStorage.setItem("recent_booking_room_id", String(id));
       sessionStorage.setItem("recent_booking_id", String(data.id));
-      setCheckIn(""); setCheckOut(""); setGuests(1); setMealCategory("breakfast"); setSpecial("");
+      setCheckIn(""); setCheckOut(""); setGuests(1); setMealCategory("breakfast");
       setPromoApplied(""); setPromoDiscount(0);
       setPayReference("");
       setPayAmount("");
@@ -497,13 +496,6 @@ export default function BookingPage() {
                   </div>
                 )}
 
-                <div>
-                  <label className={labelCls}>SPECIAL REQUESTS (OPTIONAL)</label>
-                  <textarea value={special} onChange={e => setSpecial(e.target.value)}
-                    rows={3} placeholder="Any special requests or notes..."
-                    className={`${inputCls} resize-none`} />
-                </div>
-
                 {error && <p className="text-xs text-red-500 tracking-wide">{error}</p>}
                 {success && <p className="text-xs text-green-600 tracking-wide">{success}</p>}
 
@@ -561,7 +553,7 @@ export default function BookingPage() {
                         check_out: checkOut,
                         guests: Number(guests),
                         meal_category: mealCategory,
-                        special_requests: special || "Booking confirmed from booking page",
+                        special_requests: "Booking confirmed from booking page",
                         payment_method: payMethod,
                         payment_reference: payReference,
                         payment_amount: payAmount
@@ -615,7 +607,7 @@ export default function BookingPage() {
                       setTimeout(() => setToast(null), 5000);
                       
                       // Reset form
-                      setCheckIn(""); setCheckOut(""); setGuests(1); setMealCategory("breakfast"); setSpecial("");
+                      setCheckIn(""); setCheckOut(""); setGuests(1); setMealCategory("breakfast");
                       setPayReference(""); setPayAmount(""); setAgreeExtraFee(false);
                       
                       // Navigate to rooms page

@@ -74,8 +74,8 @@ export default function RoomsComponent() {
     // Check if room is fully booked
     if (room && (room.is_fully_booked || room.status === 'fully_booked' || room.status === 'occupied')) {
       setToast({
-        message: `${room.name} is already fully booked. Please choose another room or check back later.`,
-        type: 'error'
+        message: `This room is already taken. You can still extend your stay if you have an existing booking.`,
+        type: 'warning'
       });
       setTimeout(() => setToast(null), 5000);
       return;
