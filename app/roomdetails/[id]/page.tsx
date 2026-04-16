@@ -329,10 +329,35 @@ export default function RoomDetailsPage() {
 
                   <button
                     onClick={handleBookNow}
-                    className="w-full border border-[#1c352c] bg-[#1c352c] px-6 py-4 text-sm tracking-[0.3em] text-white transition hover:bg-[#0e2419]"
+                    disabled={isFullyBooked || room.status === "maintenance"}
+                    className={`w-full border px-6 py-4 text-sm tracking-[0.3em] transition ${
+                      isFullyBooked || room.status === "maintenance"
+                        ? "border-gray-400 bg-gray-400 text-white cursor-not-allowed opacity-70"
+                        : "border-[#1c352c] bg-[#1c352c] text-white hover:bg-[#0e2419]"
+                    }`}
                   >
-                    BOOK THIS ROOM
+                    {room.status === "maintenance" 
+                      ? "ROOM UNDER MAINTENANCE" 
+                      : isFullyBooked 
+                        ? "ROOM FULLY BOOKED" 
+                        : "BOOK THIS ROOM"}
                   </button>
+
+                  {(isFullyBooked || room.status === "maintenance") && (
+                    <div className="mt-3 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
+                      <p className="font-medium">
+                        {room.status === "maintenance" ? "🔧 Room Under Maintenance" : "⚠️ Room Fully Booked"}
+                      </p>
+                      <p className="mt-1">
+                        {room.status === "maintenance" 
+                          ? "This room is currently under maintenance and cannot be booked."
+                          : "This room has reached its maximum booking capacity. You can only book this room once existing guests have checked out."}
+                      </p>
+                      <p className="mt-2 text-[10px] text-red-600">
+                        Please choose another room or check back later.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

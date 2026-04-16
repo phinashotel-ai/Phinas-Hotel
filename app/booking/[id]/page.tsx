@@ -126,6 +126,11 @@ export default function BookingPage() {
   const [mealCategory, setMealCategory] = useState("breakfast");
   const [agreeExtraFee, setAgreeExtraFee] = useState(false);
   const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
+  const [roomAvailability, setRoomAvailability] = useState<{
+    available: boolean;
+    message: string;
+    checked: boolean;
+  }>({ available: true, message: '', checked: false });
 
   // Payment
   const [payMethod, setPayMethod]       = useState("cash");
@@ -163,6 +168,43 @@ export default function BookingPage() {
       })
       .catch(err => console.error('Failed to load unavailable dates:', err));
   }, [id, router]);
+
+  // Check room availability when dates change
+  useEffect(() => {
+    if (checkIn && checkOut && id) {
+      const checkAvailability = async () => {
+        try {
+          const response = await fetch(`/api/check-room-availability?room_id=${id}&check_in=${checkIn}&check_out=${checkOut}`);
+          const result = await response.json();
+          
+          setRoomAvailability({
+            available: result.available || false,
+            message: result.message || '',
+            checked: true
+          });
+          
+          if (!result.available) {
+            setToast({
+              message: result.message || 'Room is not available for selected dates',
+              type: 'warning'
+            });
+            setTimeout(() => setToast(null), 5000);
+          }
+        } catch (error) {
+          console.error('Failed to check availability:', error);
+          setRoomAvailability({
+            available: false,
+            message: 'Unable to check availability',
+            checked: true
+          });
+        }
+      };
+      
+      checkAvailability();
+    } else {
+      setRoomAvailability({ available: true, message: '', checked: false });
+    }
+  }, [checkIn, checkOut, id]);
 
   const nights      = checkIn && checkOut
     ? Math.max(0, (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86400000)
@@ -292,9 +334,26 @@ export default function BookingPage() {
       const result = await readApiResponse(res, "Booking failed.");
       if (!result.ok) {
         const data = result.data;
+        let errorMessage = result.error;
+        
+        // Handle specific fully booked room error
+        if (errorMessage && errorMessage.includes("fully booked")) {
+          setToast({
+            message: "This room is fully booked for your selected dates. Please choose different dates or another room.",
+            type: 'error'
+          });
+          setTimeout(() => setToast(null), 6000);
+        } else {
+          setToast({
+            message: errorMessage || "Booking failed. Please try again.",
+            type: 'error'
+          });
+          setTimeout(() => setToast(null), 5000);
+        }
+        
         const msgs = data && typeof data === "object"
           ? Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`).join(" | ")
-          : result.error;
+          : errorMessage;
         throw new Error(msgs || "Booking failed.");
       }
       const data = result.data as BookingResponse;
@@ -605,11 +664,25 @@ export default function BookingPage() {
                 {/* Confirm Booking Button */}
                 <button
                   type="submit"
-                  disabled={submitting}
-                  className="w-full py-4 text-xs font-semibold tracking-[0.2em] text-white bg-[#1c352c] transition hover:bg-[#132222] disabled:cursor-not-allowed disabled:opacity-70"
+                  disabled={submitting || (roomAvailability.checked && !roomAvailability.available)}
+                  className={`w-full py-4 text-xs font-semibold tracking-[0.2em] text-white transition disabled:cursor-not-allowed disabled:opacity-70 ${
+                    roomAvailability.checked && !roomAvailability.available 
+                      ? 'bg-gray-500 hover:bg-gray-500' 
+                      : 'bg-[#1c352c] hover:bg-[#132222]'
+                  }`}
                 >
-                  {submitting ? "SUBMITTING..." : "CONFIRM BOOKING"}
+                  {submitting ? "SUBMITTING..." : 
+                   roomAvailability.checked && !roomAvailability.available ? "ROOM NOT AVAILABLE" :
+                   "CONFIRM BOOKING"}
                 </button>
+
+                {roomAvailability.checked && !roomAvailability.available && (
+                  <div className="mt-3 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
+                    <p className="font-medium">⚠️ Room Unavailable</p>
+                    <p className="mt-1">{roomAvailability.message}</p>
+                    <p className="mt-2 text-[10px] text-red-600">You can only book this room once existing guests have checked out. Please choose different dates or another room.</p>
+                  </div>
+                )}
 
                 {success && (
                   <p className="text-center text-xs text-[#71867e] tracking-widest">Redirecting to Men Food...</p>
