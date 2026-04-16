@@ -420,7 +420,7 @@ export default function Home() {
           <div>
             <h4 className="text-[#fff8ed] tracking-widest text-xs mb-4">CONTACT</h4>
             <ul className="space-y-2 text-[#71867e] text-xs">
-              <li>📞 +63 123 456 7890</li>
+              <li>📞 +639 702 230 263</li>
               <li>✉️ phinashotel@gmail.com</li>
             </ul>
           </div>

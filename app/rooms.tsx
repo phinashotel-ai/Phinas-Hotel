@@ -26,6 +26,9 @@ interface Room {
   image_url: string;
   status: string;
   floor: number;
+  current_bookings?: number;
+  max_bookings?: number;
+  is_fully_booked?: boolean;
 }
 
 export default function RoomsComponent() {
@@ -39,14 +42,16 @@ export default function RoomsComponent() {
   const fetchRooms = (type: string) => {
     setLoading(true);
     const query = type ? `&type=${type}` : "";
-    fetch(`${API}/hotelroom/rooms/?status=available${query}`)
+    // Fetch all rooms including fully booked ones
+    fetch(`${API}/hotelroom/rooms/?${query.replace('&', '')}`)
       .then(res => res.json())
       .then(data => { setRooms(data); setLoading(false); })
       .catch(() => { setError("Failed to load rooms."); setLoading(false); });
   };
 
   useEffect(() => {
-    fetch(`${API}/hotelroom/rooms/?status=available`)
+    // Fetch all rooms including fully booked ones
+    fetch(`${API}/hotelroom/rooms/`)
       .then(res => res.json())
       .then(data => { setRooms(data); setLoading(false); })
       .catch(() => { setError("Failed to load rooms."); setLoading(false); });
@@ -64,17 +69,64 @@ export default function RoomsComponent() {
       return;
     }
     
+    const room = rooms.find(r => r.id === roomId);
+    
+    // Check if room is fully booked
+    if (room && (room.is_fully_booked || room.status === 'fully_booked' || room.status === 'occupied')) {
+      setToast({
+        message: `${room.name} is already fully booked. Please choose another room or check back later.`,
+        type: 'error'
+      });
+      setTimeout(() => setToast(null), 5000);
+      return;
+    }
+    
     // Check if user has any recent booking attempts for this room type
     const recentBookingRoomId = sessionStorage.getItem("recent_booking_room_id");
     const recentBookingId = sessionStorage.getItem("recent_booking_id");
+    const isExtension = sessionStorage.getItem("is_extension") === "true";
     
-    if (recentBookingRoomId && recentBookingId) {
-      const room = rooms.find(r => r.id === roomId);
+    if (recentBookingRoomId && recentBookingId && !isExtension) {
       const recentRoom = rooms.find(r => r.id === Number(recentBookingRoomId));
       
-      if (room && recentRoom && room.room_type === recentRoom.room_type && roomId !== Number(recentBookingRoomId)) {
+      // Allow extension for same room or same room type
+      if (room && recentRoom && room.room_type === recentRoom.room_type) {
+        if (roomId === Number(recentBookingRoomId)) {
+          // Same room - allow automatic extension
+          sessionStorage.setItem("is_extension", "true");
+          sessionStorage.setItem("extend_booking_id", recentBookingId);
+          setToast({
+            message: `Extending your existing booking for ${room.name} (Booking #${recentBookingId}). You can add more days to your stay.`,
+            type: 'success'
+          });
+          setTimeout(() => setToast(null), 4000);
+          router.push(`/roomdetails/${roomId}`);
+          return;
+        } else {
+          // Different room but same type - offer extension option
+          const confirmExtension = confirm(
+            `You have an existing booking for a ${room.room_type} room (Booking #${recentBookingId}). \n\nWould you like to extend that booking instead of creating a new one?`
+          );
+          
+          if (confirmExtension) {
+            sessionStorage.setItem("is_extension", "true");
+            sessionStorage.setItem("extend_booking_id", recentBookingId);
+            sessionStorage.setItem("recent_booking_room_id", recentBookingRoomId);
+            setToast({
+              message: `Extending your existing ${room.room_type} room booking (Booking #${recentBookingId}).`,
+              type: 'success'
+            });
+            setTimeout(() => setToast(null), 4000);
+            router.push(`/roomdetails/${recentBookingRoomId}`);
+            return;
+          }
+        }
+      }
+      
+      // Different room type - show warning
+      if (room && recentRoom && room.room_type !== recentRoom.room_type) {
         setToast({
-          message: `You already have a pending booking for a ${room.room_type} room (Booking #${recentBookingId}). Please wait for admin confirmation before booking another ${room.room_type} room.`,
+          message: `You already have a pending booking for a ${recentRoom.room_type} room (Booking #${recentBookingId}). Please wait for admin confirmation before booking a different room type.`,
           type: 'warning'
         });
         setTimeout(() => setToast(null), 6000);
@@ -166,8 +218,10 @@ export default function RoomsComponent() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {rooms.map(room => {
             const img = room.image_url || TYPE_IMAGES[room.room_type] || "/che.jpg";
+            const isFullyBooked = room.is_fully_booked || room.status === 'fully_booked' || room.status === 'occupied';
+            
             return (
-              <div key={room.id} className="overflow-hidden shadow-md hover:shadow-xl transition-shadow" style={{ backgroundColor: "#fff" }}>
+              <div key={room.id} className={`overflow-hidden shadow-md hover:shadow-xl transition-shadow ${isFullyBooked ? 'opacity-75' : ''}`} style={{ backgroundColor: "#fff" }}>
 
                 {/* Main image */}
                 <div className="relative h-52 overflow-hidden">
@@ -178,6 +232,13 @@ export default function RoomsComponent() {
                   <div className="absolute top-3 left-3 px-2 py-1 text-xs font-semibold tracking-wide capitalize bg-[#1c352c] text-white">
                     {room.room_type}
                   </div>
+                  {isFullyBooked && (
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                      <div className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold tracking-wide">
+                        FULLY BOOKED
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Info */}
@@ -194,12 +255,27 @@ export default function RoomsComponent() {
                   </div>
                   <button
                     onClick={() => handleViewDetails(room.id)}
-                    className="w-full text-center py-2 text-xs tracking-[0.3em] border transition"
-                    style={{ borderColor: "#1c352c", color: "#1c352c", backgroundColor: "transparent" }}
-                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#1c352c"; e.currentTarget.style.color = "#fff"; }}
-                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#1c352c"; }}
+                    disabled={isFullyBooked}
+                    className={`w-full text-center py-2 text-xs tracking-[0.3em] border transition ${
+                      isFullyBooked 
+                        ? 'cursor-not-allowed opacity-50 bg-gray-200 text-gray-500 border-gray-300'
+                        : ''
+                    }`}
+                    style={!isFullyBooked ? { borderColor: "#1c352c", color: "#1c352c", backgroundColor: "transparent" } : {}}
+                    onMouseEnter={e => { 
+                      if (!isFullyBooked) {
+                        e.currentTarget.style.backgroundColor = "#1c352c"; 
+                        e.currentTarget.style.color = "#fff"; 
+                      }
+                    }}
+                    onMouseLeave={e => { 
+                      if (!isFullyBooked) {
+                        e.currentTarget.style.backgroundColor = "transparent"; 
+                        e.currentTarget.style.color = "#1c352c"; 
+                      }
+                    }}
                   >
-                    VIEW DETAILS
+                    {isFullyBooked ? 'FULLY BOOKED' : 'VIEW DETAILS'}
                   </button>
                 </div>
               </div>
