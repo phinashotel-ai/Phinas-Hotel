@@ -302,25 +302,27 @@ export default function RoomDetailsPage() {
 
                   <button
                     onClick={handleBookNow}
-                    disabled={room.status === "maintenance"}
+                    disabled={room.status === "maintenance" || room.status === "occupied"}
                     className={`w-full border px-6 py-4 text-sm tracking-[0.3em] transition ${
-                      room.status === "maintenance"
+                      room.status === "maintenance" || room.status === "occupied"
                         ? "border-gray-400 bg-gray-400 text-white cursor-not-allowed opacity-70"
                         : "border-[#1c352c] bg-[#1c352c] text-white hover:bg-[#0e2419]"
                     }`}
                   >
                     {room.status === "maintenance" 
                       ? "ROOM UNDER MAINTENANCE" 
+                      : room.status === "occupied"
+                        ? "ROOM OCCUPIED"
                       : isFullyBooked 
                         ? "CHECK AVAILABILITY" 
                         : "BOOK THIS ROOM"}
                   </button>
 
-                  {isFullyBooked && room.status !== "maintenance" && (
+                  {room.status === "occupied" && (
                     <div className="mt-3 rounded-sm border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900">
                       <p className="font-medium">⚠️ Currently occupied</p>
                       <p className="mt-1">
-                        This room is occupied right now, but you can still check future dates on the booking page.
+                        This room is already reserved and cannot be booked again until checkout.
                       </p>
                     </div>
                   )}
