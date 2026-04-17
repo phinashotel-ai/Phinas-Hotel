@@ -250,9 +250,6 @@ export default function RoomsPage() {
                   <p className="text-xs text-[#71867e] mb-3">{getRoomTypeLabel(room.room_type)} · Floor {room.floor} · Up to {room.capacity} guests</p>
                   <p className="mb-3 text-sm leading-6 text-[#4a6358]">{getRoomDescription(room)}</p>
                   <div className="mb-3">
-                    <div className="mb-1 text-xs text-[#71867e]">
-                      <span>Availability {currentBookings}/{maxBookings} booked</span>
-                    </div>
                     <div className="h-2 w-full rounded-full bg-gray-200">
                       <div
                         className={`h-2 rounded-full transition-all duration-300 ${
