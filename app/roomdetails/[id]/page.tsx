@@ -268,9 +268,8 @@ export default function RoomDetailsPage() {
                   </div>
 
                   <div className="mb-6 rounded-sm border border-[#d4d7c7] bg-[#faf9f6] px-4 py-4">
-                    <div className="mb-1 flex items-center justify-between text-xs uppercase tracking-[0.3em] text-[#71867e]">
-                      <span>Booking Capacity</span>
-                      <span>{currentBookings}/{maxBookings} booked</span>
+                    <div className="mb-1 text-xs uppercase tracking-[0.3em] text-[#71867e]">
+                      <span>Availability {currentBookings}/{maxBookings} booked</span>
                     </div>
                     <div className="h-2 w-full rounded-full bg-gray-200">
                       <div
