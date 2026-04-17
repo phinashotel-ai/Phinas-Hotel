@@ -114,9 +114,6 @@ function UserDashboardContent() {
   const [loadingUser, setLoadingUser]       = useState(true);
   const [loadingBookings, setLoadingBookings] = useState(false);
   const [selected, setSelected] = useState<Booking | null>(null);
-  const [cancelling, setCancelling] = useState<number | null>(null);
-  const [cancelConfirm, setCancelConfirm] = useState<number | null>(null);
-  const [cancelReason, setCancelReason] = useState("");
   const [cancelMsg, setCancelMsg] = useState("");
   const [bookingAction, setBookingAction] = useState<{ id: number; action: string } | null>(null);
   const [extendTarget, setExtendTarget] = useState<Booking | null>(null);
@@ -192,39 +189,6 @@ function UserDashboardContent() {
   useEffect(() => {
     setTab(initialTab);
   }, [initialTab]);
-
-  const handleCancel = async (id: number) => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return;
-    if (!cancelReason.trim()) {
-      setCancelMsg("Please add a cancellation comment before submitting.");
-      return;
-    }
-    setCancelling(id);
-    try {
-      const res = await fetch(`${API}/hotelroom/bookings/${id}/`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "request_cancellation", reason: cancelReason }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        const updated = data.booking || data;
-        setCancelMsg("Cancellation request submitted for approval.");
-        setBookings(prev => prev.map(b => b.id === id ? { ...b, ...updated } : b));
-        if (selected?.id === id) setSelected(prev => prev ? { ...prev, ...updated } : null);
-        setCancelReason("");
-      } else {
-        setCancelMsg(data.error || "Failed to submit cancellation request.");
-      }
-    } finally {
-      setCancelling(null);
-      setCancelConfirm(null);
-      setTimeout(() => setCancelMsg(""), 3000);
-    }
-  };
-
-
 
   const startEdit = () => {
     if (!u) return;
@@ -718,14 +682,6 @@ function UserDashboardContent() {
                           >
                             VIEW DETAILS
                           </button>
-                          {b.status !== "cancelled" && b.status !== "completed" && b.status !== "checked_in" && b.status !== "checked_out" && (
-                            <button
-                              onClick={() => { setCancelReason(""); setCancelConfirm(b.id); }}
-                              className="text-[10px] tracking-[0.25em] px-4 py-2 border border-red-400 text-red-500 hover:bg-red-500 hover:text-white transition"
-                            >
-                              CANCEL
-                            </button>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -957,19 +913,6 @@ function UserDashboardContent() {
               )}
 
               <div className="flex gap-3 pt-1">
-                {selected.status !== "cancelled" && selected.status !== "completed" && selected.status !== "checked_in" && selected.status !== "checked_out" && selected.cancel_request_status !== "requested" && (
-                  <button
-                    onClick={() => { setSelected(null); setCancelReason(""); setCancelConfirm(selected.id); }}
-                    className="flex-1 py-3 text-xs tracking-[0.25em] border border-red-400 text-red-500 hover:bg-red-500 hover:text-white transition"
-                  >
-                    CANCEL BOOKING
-                  </button>
-                )}
-                {selected.cancel_request_status === "requested" && (
-                  <div className="flex-1 py-3 text-center text-xs tracking-[0.25em] border border-amber-400 text-amber-700 bg-amber-50">
-                    CANCELLATION PENDING APPROVAL
-                  </div>
-                )}
                 <button
                   onClick={() => setSelected(null)}
                   className="flex-1 py-3 text-xs tracking-[0.25em] transition"
@@ -980,38 +923,6 @@ function UserDashboardContent() {
                   CLOSE
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* â”€â”€ CANCEL CONFIRM MODAL â”€â”€ */}
-      {cancelConfirm !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.7)" }}>
-          <div className="w-full max-w-lg bg-[#faf9f6] p-8 shadow-2xl">
-            <p className="text-xs tracking-[0.4em] uppercase text-[#71867e] mb-3">Confirm Cancellation</p>
-            <p className="text-sm text-[#4a6358] mb-4">Add a short comment for why you want to cancel Booking #{cancelConfirm}. The admin/staff team will review it.</p>
-            <textarea
-              value={cancelReason}
-              onChange={e => setCancelReason(e.target.value)}
-              rows={4}
-              placeholder="Example: We changed our travel plans."
-              className="w-full border border-[#d4d7c7] px-4 py-3 text-sm bg-white outline-none focus:border-[#1c352c] transition mb-6"
-            />
-            <div className="flex gap-3">
-              <button
-                onClick={() => { setCancelConfirm(null); setCancelReason(""); }}
-                className="flex-1 py-3 text-xs tracking-[0.25em] border border-[#d4d7c7] text-[#71867e] hover:border-[#1c352c] hover:text-[#1c352c] transition"
-              >
-                KEEP IT
-              </button>
-              <button
-                onClick={() => handleCancel(cancelConfirm)}
-                disabled={cancelling === cancelConfirm}
-                className="flex-1 py-3 text-xs tracking-[0.25em] bg-red-500 text-white hover:bg-red-600 transition disabled:opacity-50"
-              >
-                {cancelling === cancelConfirm ? "SUBMITTING..." : "SUBMIT REQUEST"}
-              </button>
             </div>
           </div>
         </div>
