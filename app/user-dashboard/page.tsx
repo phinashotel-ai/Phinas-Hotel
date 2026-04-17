@@ -58,6 +58,12 @@ interface Booking {
   created_at: string;
 }
 
+interface RatingPayload {
+  booking_id: number;
+  stars: number;
+  comment: string;
+}
+
 interface ContactMsg {
   id: number;
   name: string;
@@ -116,6 +122,11 @@ function UserDashboardContent() {
   const [extendTarget, setExtendTarget] = useState<Booking | null>(null);
   const [extendDays, setExtendDays] = useState(1);
   const [extendHours, setExtendHours] = useState(0);
+  const [reviewTarget, setReviewTarget] = useState<Booking | null>(null);
+  const [reviewStars, setReviewStars] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewSaving, setReviewSaving] = useState(false);
+  const [reviewMsg, setReviewMsg] = useState("");
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({ first_name: "", last_name: "", middle_name: "", contact: "", address: "", gender: "" });
   const [editLoading, setEditLoading] = useState(false);
@@ -362,6 +373,10 @@ function UserDashboardContent() {
         setCancelMsg("Check-in saved successfully.");
       } else if (action === "check_out") {
         setCancelMsg("Check-out saved successfully.");
+        setReviewTarget(updated);
+        setReviewStars(0);
+        setReviewComment("");
+        setReviewMsg("");
       } else {
         setCancelMsg("Stay extended successfully.");
       }
@@ -369,6 +384,58 @@ function UserDashboardContent() {
       return true;
     } finally {
       setBookingAction(null);
+    }
+  };
+
+  const submitReview = async () => {
+    if (!reviewTarget) return;
+    if (reviewStars < 1 || reviewStars > 5) {
+      setReviewMsg("Choose a star rating if you want to leave a review.");
+      return;
+    }
+
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+
+    setReviewSaving(true);
+    setReviewMsg("");
+    try {
+      const res = await fetch(`${API}/hotelroom/rooms/${reviewTarget.room}/ratings/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          booking_id: reviewTarget.id,
+          stars: reviewStars,
+          comment: reviewComment.trim(),
+        } as RatingPayload),
+      });
+
+      const raw = await res.text();
+      let data: Record<string, unknown> = {};
+      try {
+        data = raw ? JSON.parse(raw) : {};
+      } catch {
+        data = {};
+      }
+
+      if (!res.ok) {
+        setReviewMsg(typeof data.error === "string" ? data.error : "Could not submit your review.");
+        return;
+      }
+
+      window.dispatchEvent(new CustomEvent("room-ratings-updated", { detail: { roomId: reviewTarget.room } }));
+      setReviewMsg("Review submitted successfully.");
+      setTimeout(() => {
+        setReviewTarget(null);
+        setReviewStars(0);
+        setReviewComment("");
+        setReviewMsg("");
+      }, 1200);
+    } finally {
+      setReviewSaving(false);
     }
   };
 
@@ -997,6 +1064,75 @@ function UserDashboardContent() {
                 className="flex-1 py-3 text-xs tracking-[0.25em] bg-[#c48a3a] text-white hover:bg-[#ad7427] transition disabled:opacity-50"
               >
                 {bookingAction?.id === extendTarget.id && bookingAction.action === "extend_stay" ? "EXTENDING..." : "CONFIRM EXTENSION"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {reviewTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.72)" }}>
+          <div className="w-full max-w-lg bg-[#faf9f6] p-8 shadow-2xl">
+            <p className="text-xs tracking-[0.4em] uppercase text-[#71867e] mb-3">Rate Your Stay</p>
+            <p className="text-sm text-[#4a6358] mb-5">
+              Booking #{reviewTarget.id} for {reviewTarget.room_name}. Leave a rating and optional comment, or skip the review.
+            </p>
+
+            <div className="mb-4">
+              <label className="mb-2 block text-[10px] tracking-[0.3em] uppercase text-[#71867e]">Comment (Optional)</label>
+              <textarea
+                value={reviewComment}
+                onChange={e => setReviewComment(e.target.value)}
+                rows={4}
+                placeholder="Share how your stay went..."
+                className="w-full resize-none border border-[#d4d7c7] px-4 py-3 text-sm bg-white outline-none focus:border-[#1c352c] transition"
+              />
+            </div>
+
+            <div className="mb-4">
+              <p className="mb-2 text-[10px] tracking-[0.3em] uppercase text-[#71867e]">Choose a star rating</p>
+              <div className="grid grid-cols-5 gap-2">
+                {[1, 2, 3, 4, 5].map(n => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setReviewStars(n)}
+                    disabled={reviewSaving}
+                    className={`border px-2 py-3 text-center transition hover:-translate-y-0.5 hover:bg-[#f3ede2] disabled:opacity-50 ${
+                      reviewStars === n ? "border-[#1c352c] ring-2 ring-[#1c352c]" : "border-[#d4d7c7] bg-white"
+                    }`}
+                  >
+                    <span className="block text-lg leading-none text-[#c48a3a]">★</span>
+                    <span className="mt-1 block text-sm font-semibold text-[#1c352c]">{n}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {reviewMsg && (
+              <p className={`mb-4 text-xs ${reviewMsg.includes("success") ? "text-emerald-600" : "text-red-500"}`}>
+                {reviewMsg}
+              </p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setReviewTarget(null);
+                  setReviewStars(0);
+                  setReviewComment("");
+                  setReviewMsg("");
+                }}
+                className="flex-1 py-3 text-xs tracking-[0.25em] border border-[#d4d7c7] text-[#71867e] hover:border-[#1c352c] hover:text-[#1c352c] transition"
+              >
+                SKIP REVIEW
+              </button>
+              <button
+                onClick={submitReview}
+                disabled={reviewSaving || reviewStars < 1}
+                className="flex-1 py-3 text-xs tracking-[0.25em] bg-[#1c352c] text-white hover:bg-[#0e2419] transition disabled:opacity-50"
+              >
+                {reviewSaving ? "SAVING..." : "SUBMIT REVIEW"}
               </button>
             </div>
           </div>
