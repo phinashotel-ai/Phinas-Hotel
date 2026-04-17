@@ -244,11 +244,6 @@ export default function RoomsPage() {
                       FULLY BOOKED
                     </div>
                   )}
-                  {!isFullyBooked && availableSpots > 0 && availableSpots <= 2 && (
-                    <div className="absolute bottom-3 left-3 bg-orange-500 px-3 py-1 text-xs font-semibold text-white">
-                      {availableSpots} slot{availableSpots > 1 ? "s" : ""} left
-                    </div>
-                  )}
                 </div>
 
                 {/* Info */}
