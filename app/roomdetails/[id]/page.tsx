@@ -178,34 +178,8 @@ export default function RoomDetailsPage() {
       return;
     }
 
-    try {
-      // Check room availability before proceeding to booking
-      const availabilityResponse = await fetch(`${API}/hotelroom/rooms/${room.id}/check-capacity/`, {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
-
-      if (availabilityResponse.ok) {
-        const availabilityData = await availabilityResponse.json();
-        const currentBookings = availabilityData.current_bookings || 0;
-        const maxBookings = availabilityData.max_bookings || room.capacity || 1;
-        
-        if (currentBookings >= maxBookings) {
-          setToast({
-            message: "This room is already fully booked. Please choose another room or check back later.",
-            type: 'warning'
-          });
-          setTimeout(() => setToast(null), 5000);
-          return;
-        }
-      }
-    } catch (error) {
-      console.error('Failed to check room availability:', error);
-      // Continue to booking page even if availability check fails
-    }
-
-    // Proceed to booking page if room is available
+    // Availability is checked again on the booking page and during submission.
+    // We only block maintenance here so guests can still choose future dates.
     router.push(`/booking/${room.id}`);
   };
 
@@ -329,9 +303,9 @@ export default function RoomDetailsPage() {
 
                   <button
                     onClick={handleBookNow}
-                    disabled={isFullyBooked || room.status === "maintenance"}
+                    disabled={room.status === "maintenance"}
                     className={`w-full border px-6 py-4 text-sm tracking-[0.3em] transition ${
-                      isFullyBooked || room.status === "maintenance"
+                      room.status === "maintenance"
                         ? "border-gray-400 bg-gray-400 text-white cursor-not-allowed opacity-70"
                         : "border-[#1c352c] bg-[#1c352c] text-white hover:bg-[#0e2419]"
                     }`}
@@ -339,19 +313,26 @@ export default function RoomDetailsPage() {
                     {room.status === "maintenance" 
                       ? "ROOM UNDER MAINTENANCE" 
                       : isFullyBooked 
-                        ? "ROOM FULLY BOOKED" 
+                        ? "CHECK AVAILABILITY" 
                         : "BOOK THIS ROOM"}
                   </button>
 
-                  {(isFullyBooked || room.status === "maintenance") && (
+                  {isFullyBooked && room.status !== "maintenance" && (
+                    <div className="mt-3 rounded-sm border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900">
+                      <p className="font-medium">⚠️ Currently occupied</p>
+                      <p className="mt-1">
+                        This room is occupied right now, but you can still check future dates on the booking page.
+                      </p>
+                    </div>
+                  )}
+
+                  {room.status === "maintenance" && (
                     <div className="mt-3 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
                       <p className="font-medium">
-                        {room.status === "maintenance" ? "🔧 Room Under Maintenance" : "⚠️ Room Fully Booked"}
+                        🔧 Room Under Maintenance
                       </p>
                       <p className="mt-1">
-                        {room.status === "maintenance" 
-                          ? "This room is currently under maintenance and cannot be booked."
-                          : "This room has reached its maximum booking capacity. You can only book this room once existing guests have checked out."}
+                        This room is currently under maintenance and cannot be booked.
                       </p>
                       <p className="mt-2 text-[10px] text-red-600">
                         Please choose another room or check back later.
