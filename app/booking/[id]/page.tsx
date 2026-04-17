@@ -447,6 +447,26 @@ export default function BookingPage() {
               </div>
               <h2 className="text-xl font-light tracking-[0.2em] mb-1">{room.name}</h2>
               <p className="text-xs text-[#71867e] mb-4">Room {room.room_number} · Floor {room.floor} · Up to {room.capacity} guests</p>
+              
+              {/* Room Availability Status */}
+              {roomAvailability.checked && (
+                <div className={`mb-4 rounded-sm border px-4 py-3 text-sm ${
+                  roomAvailability.available 
+                    ? 'border-green-200 bg-green-50 text-green-800'
+                    : 'border-red-200 bg-red-50 text-red-800'
+                }`}>
+                  <p className={`text-[10px] uppercase tracking-[0.35em] mb-1 ${
+                    roomAvailability.available ? 'text-green-700' : 'text-red-700'
+                  }`}>Availability Status</p>
+                  <p className="font-medium">
+                    {roomAvailability.available ? '✅ Available' : '❌ Not Available'}
+                  </p>
+                  {roomAvailability.message && (
+                    <p className="mt-1 text-xs">{roomAvailability.message}</p>
+                  )}
+                </div>
+              )}
+              
               <div className="text-2xl font-light mb-4">
                 ₱{Number(room.price_per_night).toLocaleString()}
                 <span className="text-sm text-[#71867e] font-normal"> / night</span>
