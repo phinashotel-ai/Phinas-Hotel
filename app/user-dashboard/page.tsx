@@ -291,8 +291,7 @@ function UserDashboardContent() {
   };
 
   const canReviewBooking = (booking: Booking) => {
-    if (booking.status === "completed" || booking.status === "checked_out") return true;
-    return new Date(`${booking.check_out}T12:00:00`).getTime() <= Date.now();
+    return ["completed", "checked_out", "confirmed", "checked_in"].includes(booking.status);
   };
 
   const canCheckInBooking = (booking: Booking) => {
@@ -877,16 +876,27 @@ function UserDashboardContent() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (!canCheckOutBooking(selected)) {
-                      setCancelMsg("Check-out becomes available on or after your check-out date.");
+                    if (canCheckOutBooking(selected)) {
+                      void handleBookingAction(selected.id, "check_out");
                       return;
                     }
-                    void handleBookingAction(selected.id, "check_out");
+                    if (canReviewBooking(selected)) {
+                      setReviewTarget(selected);
+                      setReviewStars(0);
+                      setReviewComment("");
+                      setReviewMsg("");
+                      return;
+                    }
+                    setCancelMsg("This booking is not ready for checkout or review yet.");
                   }}
-                  disabled={!canCheckOutBooking(selected) || bookingAction?.id === selected.id}
+                  disabled={(!canCheckOutBooking(selected) && !canReviewBooking(selected)) || bookingAction?.id === selected.id}
                   className="flex-1 py-3 text-xs tracking-[0.25em] border border-emerald-400 text-emerald-700 hover:bg-emerald-500 hover:text-white transition disabled:opacity-50"
                 >
-                  {bookingAction?.id === selected.id && bookingAction.action === "check_out" ? "CHECKING OUT..." : "CHECK-OUT / RATE"}
+                  {bookingAction?.id === selected.id && bookingAction.action === "check_out"
+                    ? "CHECKING OUT..."
+                    : canCheckOutBooking(selected)
+                      ? "CHECK-OUT / RATE"
+                      : "RATE STAY"}
                 </button>
                 <button
                   type="button"
@@ -942,7 +952,7 @@ function UserDashboardContent() {
 
               {canReviewBooking(selected) && (
                 <div className="border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-                  Your stay is complete. You can now leave a room review.
+                  You can leave a room review during or after your stay.
                 </div>
               )}
 

@@ -9,6 +9,8 @@ const CHECK_IN_TIME = "2:00 PM";
 const CHECK_OUT_TIME = "12:00 PM";
 const REVIEWABLE_STATUSES = new Set([
   "completed",
+  "confirmed",
+  "checked_in",
   "checked_out",
   "checked-out",
   "checked out",
@@ -61,9 +63,7 @@ function isReviewableStatus(status: string) {
 }
 
 function isReviewableBooking(booking: Booking) {
-  if (isReviewableStatus(booking.status)) return true;
-  const checkout = new Date(`${booking.check_out}T12:00:00`);
-  return checkout.getTime() <= Date.now();
+  return isReviewableStatus(booking.status);
 }
 
 function parseApiError(raw: string, fallback: string) {
@@ -329,7 +329,7 @@ function MyRatesPageContent() {
               <div>
                 <h1 className="text-4xl font-thin tracking-[0.22em]">MY RATES</h1>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-[#4a6358]">
-                  After your stay is completed and checked out, choose the room here, add an optional comment, pick a star rating, and submit it straight to the localhost database.
+                  You can rate a booking once it is confirmed, checked in, or checked out. Add an optional comment, pick a star rating, and submit it straight to the localhost database.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
@@ -350,10 +350,10 @@ function MyRatesPageContent() {
             <div className="relative overflow-hidden border border-[#d9c2a1] bg-[#fffaf2] px-5 py-4">
               <p className="text-[10px] uppercase tracking-[0.35em] text-[#b07b2b]">After Checkout</p>
               <p className="mt-2 text-sm leading-6 text-[#5d4a2b]">
-                When your booking status becomes completed, it appears here ready for a star rating and an optional comment.
+                When your booking is confirmed or active, it appears here ready for a star rating and an optional comment.
               </p>
               <p className="mt-2 text-xs uppercase tracking-[0.28em] text-[#8c6631]">
-                {readyToReviewCount > 0 ? `${readyToReviewCount} stay(s) ready to rate` : "No completed stays ready yet"}
+                {readyToReviewCount > 0 ? `${readyToReviewCount} stay(s) ready to rate` : "No bookings ready yet"}
               </p>
             </div>
           </div>
@@ -365,10 +365,10 @@ function MyRatesPageContent() {
             <div className="mb-8 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
               <div className="bg-white/92 p-5 shadow-[0_18px_50px_rgba(28,53,44,0.08)]">
                   <div className="border-b border-[#ece5d7] pb-4">
-                    <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e]">Completed stays</p>
+                    <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e]">Reviewable stays</p>
                     <h2 className="mt-2 text-xl font-thin tracking-[0.16em]">Pick a room to review</h2>
                     <p className="mt-2 text-sm text-[#4a6358]">
-                      Choose a stay that has already checked out, then add stars and an optional comment.
+                      Choose a stay that is confirmed, checked in, or checked out, then add stars and an optional comment.
                     </p>
                   </div>
                   <div className="mt-5 grid gap-3">
@@ -402,9 +402,9 @@ function MyRatesPageContent() {
                     })
                   ) : (
                     <div className="border border-dashed border-[#d9c2a1] bg-[#fffaf2] p-6 text-center">
-                      <p className="text-xs uppercase tracking-[0.35em] text-[#b07b2b]">No stay ready yet</p>
+                      <p className="text-xs uppercase tracking-[0.35em] text-[#b07b2b]">No booking ready yet</p>
                       <p className="mt-3 text-sm text-[#5d4a2b]">
-                        Your room will appear here once checkout is completed. After that, you can rate it with stars and a comment.
+                        Your room will appear here once your booking is confirmed or active. After that, you can rate it with stars and a comment.
                       </p>
                     </div>
                   )}

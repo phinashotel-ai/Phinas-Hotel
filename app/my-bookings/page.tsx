@@ -95,9 +95,7 @@ function statusLabel(status: string) {
 }
 
 function canReviewBooking(booking: Booking) {
-  if (booking.status === "completed" || booking.status === "checked_out") return true;
-  const checkout = new Date(`${booking.check_out}T12:00:00`);
-  return checkout.getTime() <= Date.now();
+  return ["completed", "checked_out", "confirmed", "checked_in"].includes(booking.status);
 }
 
 function canCheckInBooking(booking: Booking) {
@@ -376,25 +374,33 @@ export default function MyBookingsPage() {
                       >
                         {actionLoading?.id === selected.id && actionLoading.action === "check_in" ? "Checking in..." : "Check-in"}
                       </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!canCheckOutBooking(selected)) {
-                          setActionMsg("Check-out becomes available on or after your check-out date.");
-                          return;
-                        }
-                        void handleBookingAction(selected.id, "check_out");
-                      }}
-                      disabled={!canCheckOutBooking(selected) || actionLoading?.id === selected.id}
-                      className="rounded-full border border-emerald-500 px-5 py-3 text-xs uppercase tracking-[0.28em] text-emerald-700 transition hover:bg-emerald-500 hover:text-white disabled:opacity-50"
-                    >
-                      {actionLoading?.id === selected.id && actionLoading.action === "check_out" ? "Checking out..." : "Check-out / Rate"}
-                    </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (canCheckOutBooking(selected)) {
+                      void handleBookingAction(selected.id, "check_out");
+                      return;
+                    }
+                    if (canReviewBooking(selected)) {
+                      router.push(`/my-rates?booking=${selected.id}`);
+                      return;
+                    }
+                    setActionMsg("This booking is not ready for checkout or review yet.");
+                  }}
+                  disabled={(!canCheckOutBooking(selected) && !canReviewBooking(selected)) || actionLoading?.id === selected.id}
+                  className="rounded-full border border-emerald-500 px-5 py-3 text-xs uppercase tracking-[0.28em] text-emerald-700 transition hover:bg-emerald-500 hover:text-white disabled:opacity-50"
+                >
+                  {actionLoading?.id === selected.id && actionLoading.action === "check_out"
+                    ? "Checking out..."
+                    : canCheckOutBooking(selected)
+                      ? "Check-out / Rate"
+                      : "Rate Stay"}
+                </button>
                       <button
                         type="button"
                   onClick={() => {
                     if (!canExtendBooking(selected)) {
-                      setActionMsg("You can only extend once the booking is confirmed.");
+                      setActionMsg("You can only extend once the booking is confirmed or checked in.");
                       return;
                     }
                     setExtendTarget(selected);
