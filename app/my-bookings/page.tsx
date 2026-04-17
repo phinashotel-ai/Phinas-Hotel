@@ -358,7 +358,9 @@ export default function MyBookingsPage() {
                   </div>
 
                   <div className="mt-6 grid gap-3 border-t border-[#d4d7c7] pt-6">
-                    <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e]">Stay Actions</p>
+                    <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e]">
+                      Check-in, check-out, extend stay, and rate/comment
+                    </p>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <button
                         type="button"
@@ -393,8 +395,8 @@ export default function MyBookingsPage() {
                   {actionLoading?.id === selected.id && actionLoading.action === "check_out"
                     ? "Checking out..."
                     : canCheckOutBooking(selected)
-                      ? "Check-out / Rate"
-                      : "Rate Stay"}
+                      ? "Check-out / Rate Comment"
+                      : "Rate Comment"}
                 </button>
                       <button
                         type="button"

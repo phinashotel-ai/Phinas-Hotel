@@ -814,7 +814,11 @@ function UserDashboardContent() {
                 ))}
               </div>
 
-              <div className="flex gap-3 pt-1">
+              <div className="mt-6 grid gap-3 border-t border-[#d4d7c7] pt-6">
+                <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e]">
+                  Check-in, check-out, extend stay, and rate/comment
+                </p>
+                <div className="flex gap-3 pt-1">
                 <button
                   type="button"
                   onClick={() => {
@@ -851,8 +855,8 @@ function UserDashboardContent() {
                   {bookingAction?.id === selected.id && bookingAction.action === "check_out"
                     ? "CHECKING OUT..."
                     : canCheckOutBooking(selected)
-                      ? "CHECK-OUT / RATE"
-                      : "RATE STAY"}
+                      ? "CHECK-OUT / RATE COMMENT"
+                      : "RATE COMMENT"}
                 </button>
                 <button
                   type="button"
@@ -947,6 +951,7 @@ function UserDashboardContent() {
                   onChange={e => setExtendDays(Math.max(0, Math.min(7, Number(e.target.value) || 0)))}
                   className="w-full border border-[#d4d7c7] px-4 py-3 text-sm bg-white outline-none focus:border-[#1c352c] transition"
                 />
+                </div>
               </div>
               <div>
                 <label className="mb-2 block text-[10px] tracking-[0.3em] uppercase text-[#71867e]">Extra Hours</label>
