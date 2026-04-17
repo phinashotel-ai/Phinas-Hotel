@@ -239,11 +239,6 @@ export default function RoomsPage() {
                   <div className="absolute top-3 left-3 px-2 py-1 text-xs font-semibold tracking-wide capitalize bg-[#1c352c] text-white">
                     {getRoomTypeLabel(room.room_type)}
                   </div>
-                  {isFullyBooked && (
-                    <div className="absolute bottom-3 left-3 bg-red-600 px-3 py-1 text-xs font-semibold text-white">
-                      FULLY BOOKED
-                    </div>
-                  )}
                 </div>
 
                 {/* Info */}

@@ -262,7 +262,7 @@ export default function RoomDetailsPage() {
                     <div>
                       <p className="text-xs uppercase tracking-[0.3em] text-[#71867e]">Status</p>
                       <p className="mt-1 text-xl font-light">
-                        {room.status === "maintenance" ? "Maintenance" : isFullyBooked ? "Fully Booked" : "Available"}
+                        {room.status === "maintenance" ? "Maintenance" : isFullyBooked ? "Occupied" : "Available"}
                       </p>
                     </div>
                   </div>
