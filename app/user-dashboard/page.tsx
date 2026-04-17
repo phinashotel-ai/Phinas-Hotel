@@ -291,7 +291,7 @@ function UserDashboardContent() {
   };
 
   const canReviewBooking = (booking: Booking) => {
-    return ["completed", "checked_out", "confirmed", "checked_in"].includes(booking.status);
+    return ["completed", "checked_out"].includes(booking.status);
   };
 
   const canCheckInBooking = (booking: Booking) => {
@@ -952,7 +952,7 @@ function UserDashboardContent() {
 
               {canReviewBooking(selected) && (
                 <div className="border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-                  You can leave a room review during or after your stay.
+                  You can leave a room review after checkout.
                 </div>
               )}
 

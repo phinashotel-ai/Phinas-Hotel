@@ -95,7 +95,7 @@ function statusLabel(status: string) {
 }
 
 function canReviewBooking(booking: Booking) {
-  return ["completed", "checked_out", "confirmed", "checked_in"].includes(booking.status);
+  return ["completed", "checked_out"].includes(booking.status);
 }
 
 function canCheckInBooking(booking: Booking) {
@@ -308,7 +308,7 @@ export default function MyBookingsPage() {
                       </div>
                       {canReviewBooking(booking) && (
                         <div className="mt-4 border border-emerald-200 bg-emerald-50 px-4 py-3">
-                          <p className="text-[10px] uppercase tracking-[0.35em] text-emerald-700">Ready to review</p>
+                          <p className="text-[10px] uppercase tracking-[0.35em] text-emerald-700">After checkout</p>
                           <p className="mt-2 text-xs text-emerald-900">
                             After checkout, rate the room with stars and leave a comment about your stay.
                           </p>

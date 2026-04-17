@@ -9,8 +9,6 @@ const CHECK_IN_TIME = "2:00 PM";
 const CHECK_OUT_TIME = "12:00 PM";
 const REVIEWABLE_STATUSES = new Set([
   "completed",
-  "confirmed",
-  "checked_in",
   "checked_out",
   "checked-out",
   "checked out",
@@ -329,7 +327,7 @@ function MyRatesPageContent() {
               <div>
                 <h1 className="text-4xl font-thin tracking-[0.22em]">MY RATES</h1>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-[#4a6358]">
-                  You can rate a booking once it is confirmed, checked in, or checked out. Add an optional comment, pick a star rating, and submit it straight to the localhost database.
+                  You can rate a booking once it is checked out. Add an optional comment, pick a star rating, and submit it straight to the localhost database.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
@@ -350,7 +348,7 @@ function MyRatesPageContent() {
             <div className="relative overflow-hidden border border-[#d9c2a1] bg-[#fffaf2] px-5 py-4">
               <p className="text-[10px] uppercase tracking-[0.35em] text-[#b07b2b]">After Checkout</p>
               <p className="mt-2 text-sm leading-6 text-[#5d4a2b]">
-                When your booking is confirmed or active, it appears here ready for a star rating and an optional comment.
+                When your booking is checked out, it appears here ready for a star rating and an optional comment.
               </p>
               <p className="mt-2 text-xs uppercase tracking-[0.28em] text-[#8c6631]">
                 {readyToReviewCount > 0 ? `${readyToReviewCount} stay(s) ready to rate` : "No bookings ready yet"}
@@ -368,7 +366,7 @@ function MyRatesPageContent() {
                     <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e]">Reviewable stays</p>
                     <h2 className="mt-2 text-xl font-thin tracking-[0.16em]">Pick a room to review</h2>
                     <p className="mt-2 text-sm text-[#4a6358]">
-                      Choose a stay that is confirmed, checked in, or checked out, then add stars and an optional comment.
+                      Choose a stay that is checked out, then add stars and an optional comment.
                     </p>
                   </div>
                   <div className="mt-5 grid gap-3">
@@ -404,7 +402,7 @@ function MyRatesPageContent() {
                     <div className="border border-dashed border-[#d9c2a1] bg-[#fffaf2] p-6 text-center">
                       <p className="text-xs uppercase tracking-[0.35em] text-[#b07b2b]">No booking ready yet</p>
                       <p className="mt-3 text-sm text-[#5d4a2b]">
-                        Your room will appear here once your booking is confirmed or active. After that, you can rate it with stars and a comment.
+                        Your room will appear here once your booking is checked out. After that, you can rate it with stars and a comment.
                       </p>
                     </div>
                   )}
