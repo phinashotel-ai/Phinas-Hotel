@@ -123,7 +123,7 @@ export default function BookingPage() {
   const [checkInTime, setCheckInTime] = useState<(typeof CHECK_IN_TIME_OPTIONS)[number]>(DEFAULT_CHECK_IN_TIME);
   const [checkOutTime, setCheckOutTime] = useState<(typeof CHECK_OUT_TIME_OPTIONS)[number]>(DEFAULT_CHECK_OUT_TIME);
   const [guests, setGuests]     = useState(1);
-  const [mealCategory, setMealCategory] = useState("breakfast");
+  const [mealCategory, setMealCategory] = useState("lunch");
   const [agreeExtraFee, setAgreeExtraFee] = useState(false);
   const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
   const [roomAvailability, setRoomAvailability] = useState<{
@@ -364,7 +364,7 @@ export default function BookingPage() {
       setSuccess(`Booking request submitted! #${data.id} is pending staff confirmation. Reference Number: ${data.reference_number || data.payment?.reference_number || "None"}. A confirmation email has been sent to your email address with booking details. The admin will review and send final confirmation after approval. ${String(data.meal_category || mealCategory).replace(/^./, (c: string) => c.toUpperCase())} meal selected. Total: PHP ${Number(data.total_price).toLocaleString()}. First ${data.free_food_guests ?? freeFoodGuests} guest(s) get free food.`);
       sessionStorage.setItem("recent_booking_room_id", String(id));
       sessionStorage.setItem("recent_booking_id", String(data.id));
-      setCheckIn(""); setCheckOut(""); setGuests(1); setMealCategory("breakfast");
+      setCheckIn(""); setCheckOut(""); setGuests(1); setMealCategory("lunch");
       setCheckInTime(DEFAULT_CHECK_IN_TIME); setCheckOutTime(DEFAULT_CHECK_OUT_TIME);
       setPromoApplied(""); setPromoDiscount(0);
       setPayReference("");
