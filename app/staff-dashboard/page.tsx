@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { sendBookingEmail } from "../../lib/send-booking-email";
+import RatingModal from "../components/admin-staff-rating";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
@@ -253,6 +254,7 @@ export default function StaffDashboard() {
   const [roomFormLoading, setRoomFormLoading] = useState(false);
   const [roomImageFile, setRoomImageFile] = useState<File | null>(null);
   const [roomActionId, setRoomActionId] = useState<number | null>(null);
+  const [ratingBooking, setRatingBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -985,6 +987,12 @@ export default function StaffDashboard() {
                                   COMPLETED
                                 </button>
                               ) : null}
+                              <button
+                                onClick={() => setRatingBooking(b)}
+                                className="text-[10px] tracking-widest px-3 py-1 border border-purple-400 text-purple-600 hover:bg-purple-500 hover:text-white transition whitespace-nowrap"
+                              >
+                                RATE
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -1392,6 +1400,10 @@ export default function StaffDashboard() {
                         COMPLETED
                       </button>
                     )}
+                  <button onClick={() => { setRatingBooking(selectedBooking); setSelectedBooking(null); }}
+                    className="flex-1 py-3 text-xs tracking-[0.25em] border border-purple-400 text-purple-600 hover:bg-purple-500 hover:text-white transition">
+                    RATE BOOKING
+                  </button>
                   </>
                 )}
                 <button onClick={() => setSelectedBooking(null)}
@@ -1403,6 +1415,18 @@ export default function StaffDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── RATING MODAL ── */}
+      {ratingBooking && (
+        <RatingModal
+          booking={ratingBooking}
+          onClose={() => setRatingBooking(null)}
+          onSuccess={(message) => {
+            setActionMsg(message);
+            setTimeout(() => setActionMsg(""), 3000);
+          }}
+        />
       )}
 
       {/* ── MESSAGE DETAIL MODAL ── */}
