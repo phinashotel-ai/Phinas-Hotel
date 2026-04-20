@@ -1418,11 +1418,13 @@ export default function StaffDashboard() {
                         COMPLETED
                       </button>
                     )}
-                  <button onClick={() => setSelectedBooking(null)}
-                    className="flex-1 py-3 text-xs tracking-[0.25em] transition"
-                    style={{ backgroundColor: "#1c352c", color: "#fff" }}>
-                    CLOSE
-                  </button>
+                  </>
+                )}
+                <button onClick={() => setSelectedBooking(null)}
+                  className="flex-1 py-3 text-xs tracking-[0.25em] transition"
+                  style={{ backgroundColor: "#1c352c", color: "#fff" }}>
+                  CLOSE
+                </button>
               </div>
             </div>
           </div>
