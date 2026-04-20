@@ -269,7 +269,7 @@ function UserDashboardContent() {
   };
 
   const canExtendBooking = (booking: Booking) => {
-    if (booking.status !== "checked_in") return false;
+    if (booking.status !== "confirmed" && booking.status !== "checked_in") return false;
     return new Date(`${booking.check_out}T12:00:00`).getTime() >= Date.now();
   };
 
@@ -291,7 +291,7 @@ function UserDashboardContent() {
     if (booking.status === "confirmed") {
       return {
         title: "Ready for Check-in",
-        body: `Your booking is confirmed. Check-in starts at ${CHECK_IN_TIME}, and check-out is at ${CHECK_OUT_TIME}.`,
+        body: `Your booking is confirmed. Check-in starts at ${CHECK_IN_TIME}, and check-out is at ${CHECK_OUT_TIME}. You can also extend your stay before checkout if you need more time.`,
         tone: "green",
       };
     }
@@ -951,7 +951,6 @@ function UserDashboardContent() {
                   onChange={e => setExtendDays(Math.max(0, Math.min(7, Number(e.target.value) || 0)))}
                   className="w-full border border-[#d4d7c7] px-4 py-3 text-sm bg-white outline-none focus:border-[#1c352c] transition"
                 />
-                </div>
               </div>
               <div>
                 <label className="mb-2 block text-[10px] tracking-[0.3em] uppercase text-[#71867e]">Extra Hours</label>
