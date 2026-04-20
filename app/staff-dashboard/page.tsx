@@ -1011,12 +1011,6 @@ export default function StaffDashboard() {
                                   COMPLETED
                                 </button>
                               ) : null}
-                              <button
-                                onClick={() => setRatingBooking(b)}
-                                className="text-[10px] tracking-widest px-3 py-1 border border-purple-400 text-purple-600 hover:bg-purple-500 hover:text-white transition whitespace-nowrap"
-                              >
-                                RATE
-                              </button>
                             </div>
                           </td>
                         </tr>
@@ -1424,17 +1418,11 @@ export default function StaffDashboard() {
                         COMPLETED
                       </button>
                     )}
-                  <button onClick={() => { setRatingBooking(selectedBooking); setSelectedBooking(null); }}
-                    className="flex-1 py-3 text-xs tracking-[0.25em] border border-purple-400 text-purple-600 hover:bg-purple-500 hover:text-white transition">
-                    RATE BOOKING
+                  <button onClick={() => setSelectedBooking(null)}
+                    className="flex-1 py-3 text-xs tracking-[0.25em] transition"
+                    style={{ backgroundColor: "#1c352c", color: "#fff" }}>
+                    CLOSE
                   </button>
-                  </>
-                )}
-                <button onClick={() => setSelectedBooking(null)}
-                  className="flex-1 py-3 text-xs tracking-[0.25em] transition"
-                  style={{ backgroundColor: "#1c352c", color: "#fff" }}>
-                  CLOSE
-                </button>
               </div>
             </div>
           </div>

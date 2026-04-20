@@ -1752,12 +1752,6 @@ export default function AdminDashboard() {
                                   COMPLETED
                                 </button>
                               ) : null}
-                              <button
-                                onClick={() => setRatingBooking(b)}
-                                className="text-[10px] tracking-widest px-3 py-1 border border-purple-400 text-purple-600 hover:bg-purple-500 hover:text-white transition whitespace-nowrap"
-                              >
-                                RATE
-                              </button>
                               {b.status !== "cancelled" && b.cancel_request_status !== "requested" && (
                                 <button
                                   onClick={() => setCancelConfirm(b.id)}
@@ -1961,12 +1955,6 @@ export default function AdminDashboard() {
                     DELETE BOOKING
                   </button>
                 )}
-                <button
-                  onClick={() => { setRatingBooking(selectedBooking); setSelectedBooking(null); }}
-                  className="flex-1 py-3 text-xs tracking-[0.25em] border border-purple-400 text-purple-600 hover:bg-purple-500 hover:text-white transition"
-                >
-                  RATE BOOKING
-                </button>
                 <button
                   onClick={() => setSelectedBooking(null)}
                   className="flex-1 py-3 text-xs tracking-[0.25em] transition"
