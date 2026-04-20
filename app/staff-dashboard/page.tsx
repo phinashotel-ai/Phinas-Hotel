@@ -963,11 +963,26 @@ export default function StaffDashboard() {
                                   CHECK OUT
                                 </button>
                               ) : b.status === "checked_out" ? (
+                                <>
+                                  <button
+                                    disabled={true}
+                                    className="text-[10px] tracking-widest px-3 py-1 border border-gray-400 text-gray-500 bg-gray-100 cursor-not-allowed whitespace-nowrap opacity-50"
+                                  >
+                                    CHECKED OUT
+                                  </button>
+                                  <button
+                                    onClick={() => handleBookingStatus(b.id, "completed")}
+                                    className="text-[10px] tracking-widest px-3 py-1 border border-emerald-400 text-emerald-600 hover:bg-emerald-500 hover:text-white transition whitespace-nowrap"
+                                  >
+                                    COMPLETE
+                                  </button>
+                                </>
+                              ) : b.status === "completed" ? (
                                 <button
-                                  onClick={() => handleBookingStatus(b.id, "completed")}
-                                  className="text-[10px] tracking-widest px-3 py-1 border border-emerald-400 text-emerald-600 hover:bg-emerald-500 hover:text-white transition whitespace-nowrap"
+                                  disabled={true}
+                                  className="text-[10px] tracking-widest px-3 py-1 border border-gray-400 text-gray-500 bg-gray-100 cursor-not-allowed whitespace-nowrap opacity-50"
                                 >
-                                  COMPLETE
+                                  COMPLETED
                                 </button>
                               ) : null}
                             </div>
@@ -1356,9 +1371,25 @@ export default function StaffDashboard() {
                       </button>
                     )}
                     {selectedBooking.status === "checked_out" && (
-                      <button onClick={() => handleBookingStatus(selectedBooking.id, "completed")}
-                        className="flex-1 py-3 text-xs tracking-[0.25em] border border-emerald-400 text-emerald-600 hover:bg-emerald-500 hover:text-white transition">
-                        COMPLETE
+                      <>
+                        <button
+                          disabled={true}
+                          className="flex-1 py-3 text-xs tracking-[0.25em] border border-gray-400 text-gray-500 bg-gray-100 cursor-not-allowed opacity-50"
+                        >
+                          CHECKED OUT
+                        </button>
+                        <button onClick={() => handleBookingStatus(selectedBooking.id, "completed")}
+                          className="flex-1 py-3 text-xs tracking-[0.25em] border border-emerald-400 text-emerald-600 hover:bg-emerald-500 hover:text-white transition">
+                          COMPLETE
+                        </button>
+                      </>
+                    )}
+                    {selectedBooking.status === "completed" && (
+                      <button
+                        disabled={true}
+                        className="flex-1 py-3 text-xs tracking-[0.25em] border border-gray-400 text-gray-500 bg-gray-100 cursor-not-allowed opacity-50"
+                      >
+                        COMPLETED
                       </button>
                     )}
                   </>

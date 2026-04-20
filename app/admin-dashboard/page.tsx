@@ -1702,12 +1702,27 @@ export default function AdminDashboard() {
                                   {cancelling === b.id ? "UPDATING..." : "CHECK OUT"}
                                 </button>
                               ) : b.status === "checked_out" ? (
+                                <>
+                                  <button
+                                    disabled={true}
+                                    className="text-[10px] tracking-widest px-3 py-1 border border-gray-400 text-gray-500 bg-gray-100 cursor-not-allowed whitespace-nowrap opacity-50"
+                                  >
+                                    CHECKED OUT
+                                  </button>
+                                  <button
+                                    onClick={() => handleBookingStatus(b.id, "completed")}
+                                    disabled={cancelling === b.id}
+                                    className="text-[10px] tracking-widest px-3 py-1 border border-emerald-400 text-emerald-600 hover:bg-emerald-500 hover:text-white transition whitespace-nowrap disabled:opacity-50"
+                                  >
+                                    {cancelling === b.id ? "UPDATING..." : "COMPLETE"}
+                                  </button>
+                                </>
+                              ) : b.status === "completed" ? (
                                 <button
-                                  onClick={() => handleBookingStatus(b.id, "completed")}
-                                  disabled={cancelling === b.id}
-                                  className="text-[10px] tracking-widest px-3 py-1 border border-emerald-400 text-emerald-600 hover:bg-emerald-500 hover:text-white transition whitespace-nowrap disabled:opacity-50"
+                                  disabled={true}
+                                  className="text-[10px] tracking-widest px-3 py-1 border border-gray-400 text-gray-500 bg-gray-100 cursor-not-allowed whitespace-nowrap opacity-50"
                                 >
-                                  {cancelling === b.id ? "UPDATING..." : "COMPLETE"}
+                                  COMPLETED
                                 </button>
                               ) : null}
                               {b.status !== "cancelled" && b.cancel_request_status !== "requested" && (
@@ -1882,12 +1897,27 @@ export default function AdminDashboard() {
                   >
                     CHECK OUT
                   </button>
-                ) : selectedBooking.status === "checked_out" && (
+                ) : selectedBooking.status === "checked_out" ? (
+                  <>
+                    <button
+                      disabled={true}
+                      className="flex-1 py-3 text-xs tracking-[0.25em] border border-gray-400 text-gray-500 bg-gray-100 cursor-not-allowed opacity-50"
+                    >
+                      CHECKED OUT
+                    </button>
+                    <button
+                      onClick={() => handleBookingStatus(selectedBooking.id, "completed")}
+                      className="flex-1 py-3 text-xs tracking-[0.25em] border border-emerald-400 text-emerald-600 hover:bg-emerald-500 hover:text-white transition"
+                    >
+                      COMPLETE
+                    </button>
+                  </>
+                ) : selectedBooking.status === "completed" && (
                   <button
-                    onClick={() => handleBookingStatus(selectedBooking.id, "completed")}
-                    className="flex-1 py-3 text-xs tracking-[0.25em] border border-emerald-400 text-emerald-600 hover:bg-emerald-500 hover:text-white transition"
+                    disabled={true}
+                    className="flex-1 py-3 text-xs tracking-[0.25em] border border-gray-400 text-gray-500 bg-gray-100 cursor-not-allowed opacity-50"
                   >
-                    COMPLETE
+                    COMPLETED
                   </button>
                 )}
                 {currentRole === "admin" && selectedBooking.status !== "cancelled" && selectedBooking.cancel_request_status !== "requested" && (

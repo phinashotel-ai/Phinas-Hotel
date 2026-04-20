@@ -726,7 +726,7 @@ function UserDashboardContent() {
                   <p className="text-[10px] tracking-[0.4em] uppercase text-[#71867e]">Admin Reply</p>
                   <p className="text-white font-light tracking-[0.15em]">{selectedNotif.subject}</p>
                 </div>
-                <button onClick={() => setSelectedNotif(null)} className="text-[#71867e] hover:text-white text-xl transition">âœ•</button>
+                <button onClick={() => setSelectedNotif(null)} className="text-[#71867e] hover:text-white text-xl transition">x</button>
               </div>
               <div className="p-6 flex flex-col gap-5">
                 <div>
@@ -769,7 +769,7 @@ function UserDashboardContent() {
               <button
                 onClick={() => setSelected(null)}
                 className="absolute top-4 right-4 text-white text-xl leading-none hover:opacity-70 transition"
-              >âœ•</button>
+              >x</button>
             </div>
 
             <div className="p-6 flex flex-col gap-4">
