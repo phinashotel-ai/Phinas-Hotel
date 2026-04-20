@@ -95,7 +95,8 @@ function statusLabel(status: string) {
 }
 
 function canReviewBooking(booking: Booking) {
-  return ["completed", "checked_out"].includes(booking.status);
+  // Allow rating for any booking status
+  return true;
 }
 
 function canCheckInBooking(booking: Booking) {
@@ -127,6 +128,10 @@ export default function MyBookingsPage() {
   const [extendTarget, setExtendTarget] = useState<Booking | null>(null);
   const [extendDays, setExtendDays] = useState(1);
   const [extendHours, setExtendHours] = useState(0);
+  const [ratingTarget, setRatingTarget] = useState<Booking | null>(null);
+  const [ratingStars, setRatingStars] = useState(0);
+  const [ratingComment, setRatingComment] = useState("");
+  const [ratingLoading, setRatingLoading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -245,6 +250,42 @@ export default function MyBookingsPage() {
     }
   };
 
+  const handleRating = async () => {
+    if (!ratingTarget || ratingStars < 1) return;
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+
+    setRatingLoading(true);
+    try {
+      const res = await fetch(`${API}/hotelroom/rooms/${ratingTarget.room}/ratings/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          booking_id: ratingTarget.id,
+          stars: ratingStars,
+          comment: ratingComment.trim(),
+        }),
+      });
+
+      if (res.ok) {
+        setActionMsg("Rating submitted successfully!");
+        setRatingTarget(null);
+        setRatingStars(0);
+        setRatingComment("");
+        setTimeout(() => setActionMsg(""), 3000);
+      } else {
+        setActionMsg("Failed to submit rating.");
+      }
+    } catch {
+      setActionMsg("Failed to submit rating.");
+    } finally {
+      setRatingLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#faf9f6] text-[#1c352c] font-sans">
       <SiteHeader
@@ -307,11 +348,25 @@ export default function MyBookingsPage() {
                         <span className="rounded-full bg-[#eef0e8] px-3 py-1">Total: ₱{money(booking.total_price)}</span>
                       </div>
                       {canReviewBooking(booking) && (
-                        <div className="mt-4 border border-emerald-200 bg-emerald-50 px-4 py-3">
-                          <p className="text-[10px] uppercase tracking-[0.35em] text-emerald-700">After checkout</p>
-                          <p className="mt-2 text-xs text-emerald-900">
-                            After checkout, rate the room with stars and leave a comment about your stay.
-                          </p>
+                        <div className="mt-4 border border-blue-200 bg-blue-50 px-4 py-3">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-[10px] uppercase tracking-[0.35em] text-blue-700">Rate & Comment</p>
+                              <p className="mt-1 text-xs text-blue-900">
+                                Rate this booking experience
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setRatingTarget(booking);
+                                setRatingStars(0);
+                                setRatingComment("");
+                              }}
+                              className="rounded-full bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700 transition"
+                            >
+                              Rate Now
+                            </button>
+                          </div>
                         </div>
                       )}
                     </button>
@@ -396,7 +451,7 @@ export default function MyBookingsPage() {
                     ? "Checking out..."
                     : canCheckOutBooking(selected)
                       ? "Check-out / Rate Comment"
-                      : "Rate Comment"}
+                      : "Rate & Comment"}
                 </button>
                       <button
                         type="button"
@@ -506,6 +561,64 @@ export default function MyBookingsPage() {
                 className="flex-1 py-3 text-xs tracking-[0.25em] bg-[#c48a3a] text-white hover:bg-[#ad7427] transition disabled:opacity-50"
               >
                 {actionLoading?.id === extendTarget.id && actionLoading.action === "extend_stay" ? "EXTENDING..." : "CONFIRM EXTENSION"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {ratingTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.7)" }}>
+          <div className="w-full max-w-lg bg-[#faf9f6] p-8 shadow-2xl">
+            <p className="text-xs tracking-[0.4em] uppercase text-[#71867e] mb-3">Rate Booking</p>
+            <p className="text-sm text-[#4a6358] mb-5">
+              Booking #{ratingTarget.id} for {ratingTarget.room_name}. Rate your experience.
+            </p>
+            
+            <div className="mb-4">
+              <label className="mb-2 block text-[10px] tracking-[0.3em] uppercase text-[#71867e]">Rating (1-5 stars)</label>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map(star => (
+                  <button
+                    key={star}
+                    onClick={() => setRatingStars(star)}
+                    className={`w-10 h-10 text-xl transition ${
+                      ratingStars >= star ? "text-yellow-500" : "text-gray-300"
+                    } hover:text-yellow-400`}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="mb-2 block text-[10px] tracking-[0.3em] uppercase text-[#71867e]">Comment (Optional)</label>
+              <textarea
+                value={ratingComment}
+                onChange={e => setRatingComment(e.target.value)}
+                rows={3}
+                placeholder="Share your experience..."
+                className="w-full border border-[#d4d7c7] px-4 py-3 text-sm bg-white outline-none focus:border-[#1c352c] transition resize-none"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setRatingTarget(null);
+                  setRatingStars(0);
+                  setRatingComment("");
+                }}
+                className="flex-1 py-3 text-xs tracking-[0.25em] border border-[#d4d7c7] text-[#71867e] hover:border-[#1c352c] hover:text-[#1c352c] transition"
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={handleRating}
+                disabled={ratingStars < 1 || ratingLoading}
+                className="flex-1 py-3 text-xs tracking-[0.25em] bg-[#1c352c] text-white hover:bg-[#0e2419] transition disabled:opacity-50"
+              >
+                {ratingLoading ? "SUBMITTING..." : "SUBMIT RATING"}
               </button>
             </div>
           </div>

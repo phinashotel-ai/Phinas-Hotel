@@ -8,11 +8,12 @@ const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 const CHECK_IN_TIME = "2:00 PM";
 const CHECK_OUT_TIME = "12:00 PM";
 const REVIEWABLE_STATUSES = new Set([
-  "completed",
+  "pending",
+  "confirmed",
+  "checked_in",
   "checked_out",
-  "checked-out",
-  "checked out",
-  "checkout",
+  "completed",
+  "cancelled"
 ]);
 
 interface RoomRating {
@@ -61,7 +62,8 @@ function isReviewableStatus(status: string) {
 }
 
 function isReviewableBooking(booking: Booking) {
-  return isReviewableStatus(booking.status);
+  // Allow rating for any booking status
+  return true;
 }
 
 function parseApiError(raw: string, fallback: string) {
@@ -327,7 +329,7 @@ function MyRatesPageContent() {
               <div>
                 <h1 className="text-4xl font-thin tracking-[0.22em]">MY RATES</h1>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-[#4a6358]">
-                  You can rate a booking once it is checked out. Add an optional comment, pick a star rating, and submit it straight to the localhost database.
+                  You can rate any booking immediately after booking. Add an optional comment, pick a star rating, and submit it to help other guests.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
@@ -346,12 +348,12 @@ function MyRatesPageContent() {
               </div>
             </div>
             <div className="relative overflow-hidden border border-[#d9c2a1] bg-[#fffaf2] px-5 py-4">
-              <p className="text-[10px] uppercase tracking-[0.35em] text-[#b07b2b]">After Checkout</p>
+              <p className="text-[10px] uppercase tracking-[0.35em] text-[#b07b2b]">After Booking</p>
               <p className="mt-2 text-sm leading-6 text-[#5d4a2b]">
-                When your booking is checked out, it appears here ready for a star rating and an optional comment.
+                When you make a booking, it appears here ready for a star rating and an optional comment, even before confirmation.
               </p>
               <p className="mt-2 text-xs uppercase tracking-[0.28em] text-[#8c6631]">
-                {readyToReviewCount > 0 ? `${readyToReviewCount} stay(s) ready to rate` : "No bookings ready yet"}
+                {readyToReviewCount > 0 ? `${readyToReviewCount} booking(s) ready to rate` : "No bookings ready yet"}
               </p>
             </div>
           </div>
@@ -363,10 +365,10 @@ function MyRatesPageContent() {
             <div className="mb-8 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
               <div className="bg-white/92 p-5 shadow-[0_18px_50px_rgba(28,53,44,0.08)]">
                   <div className="border-b border-[#ece5d7] pb-4">
-                    <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e]">Reviewable stays</p>
-                    <h2 className="mt-2 text-xl font-thin tracking-[0.16em]">Pick a room to review</h2>
+                    <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e]">All bookings</p>
+                    <h2 className="mt-2 text-xl font-thin tracking-[0.16em]">Pick a booking to review</h2>
                     <p className="mt-2 text-sm text-[#4a6358]">
-                      Choose a stay that is checked out, then add stars and an optional comment.
+                      Choose any booking you've made, then add stars and an optional comment.
                     </p>
                   </div>
                   <div className="mt-5 grid gap-3">
@@ -388,8 +390,8 @@ function MyRatesPageContent() {
                                 Room {booking.room_number} • Check-in {booking.check_in_time || CHECK_IN_TIME} • Check-out {booking.check_out_time || CHECK_OUT_TIME}
                               </p>
                             </div>
-                            <span className="rounded-full bg-emerald-100 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-emerald-700">
-                              Review Now
+                            <span className="rounded-full bg-blue-100 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-blue-700">
+                              Rate Now
                             </span>
                           </div>
                           <p className="mt-3 text-xs text-[#4a6358]">
@@ -400,9 +402,9 @@ function MyRatesPageContent() {
                     })
                   ) : (
                     <div className="border border-dashed border-[#d9c2a1] bg-[#fffaf2] p-6 text-center">
-                      <p className="text-xs uppercase tracking-[0.35em] text-[#b07b2b]">No booking ready yet</p>
+                      <p className="text-xs uppercase tracking-[0.35em] text-[#b07b2b]">No bookings yet</p>
                       <p className="mt-3 text-sm text-[#5d4a2b]">
-                        Your room will appear here once your booking is checked out. After that, you can rate it with stars and a comment.
+                        Your bookings will appear here once you make a reservation. You can then rate them immediately.
                       </p>
                     </div>
                   )}
@@ -424,7 +426,7 @@ function MyRatesPageContent() {
                       </div>
 
                       <div className="border border-[#d9c2a1] bg-[#fffaf2] px-4 py-3 text-sm text-[#5d4a2b]">
-                        Leave a star rating and, if you want, a short comment for this room. Your feedback updates the room average for everyone.
+                        Leave a star rating and, if you want, a short comment for this booking. Your feedback helps other guests make informed decisions.
                       </div>
 
                       {selectedRating && (
