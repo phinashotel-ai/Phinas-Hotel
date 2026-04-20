@@ -243,6 +243,7 @@ export default function StaffDashboard() {
   const [loadingDining, setLoadingDining]     = useState(false);
   const [loadingMsgs, setLoadingMsgs]         = useState(false);
   const [loadingRatings, setLoadingRatings]   = useState(false);
+  const [newRatingsCount, setNewRatingsCount] = useState(0);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [bookingRefQuery, setBookingRefQuery] = useState("");
   const [selectedMsg, setSelectedMsg]         = useState<ContactMsg | null>(null);
@@ -304,7 +305,14 @@ export default function StaffDashboard() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.json())
-      .then(d => { setRatings(Array.isArray(d) ? d : []); setLoadingRatings(false); })
+      .then(d => {
+        const incoming = Array.isArray(d) ? d : [];
+        setRatings(prev => {
+          if (incoming.length > prev.length) setNewRatingsCount(c => c + (incoming.length - prev.length));
+          return incoming;
+        });
+        setLoadingRatings(false);
+      })
       .catch(() => setLoadingRatings(false));
   };
 
@@ -327,6 +335,19 @@ export default function StaffDashboard() {
     window.addEventListener("room-ratings-updated", refreshRooms);
     return () => window.removeEventListener("room-ratings-updated", refreshRooms);
   }, [tab]);
+
+  useEffect(() => {
+    const onNewRating = () => fetchRatings();
+    window.addEventListener("room-ratings-updated", onNewRating);
+    return () => window.removeEventListener("room-ratings-updated", onNewRating);
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+    const id = window.setInterval(fetchRatings, 15000);
+    return () => window.clearInterval(id);
+  }, []);
 
   const fetchDiningData = () => {
     const token = localStorage.getItem("access_token");
@@ -354,7 +375,7 @@ export default function StaffDashboard() {
     if (nextTab === "rooms") fetchRooms();
     if (nextTab === "bookings") fetchBookings();
     if (nextTab === "messages") fetchMessages();
-    if (nextTab === "ratings") fetchRatings();
+    if (nextTab === "ratings") { fetchRatings(); setNewRatingsCount(0); }
   };
 
   const openCreateRoomModal = () => {
@@ -637,6 +658,9 @@ export default function StaffDashboard() {
               {t === "overview" ? "Overview" : t === "rooms" ? "Rooms" : t === "bookings" ? "Bookings" : t === "messages" ? "Messages" : "Ratings"}
               {t === "messages" && unreadCount > 0 && (
                 <span className="ml-2 inline-flex items-center justify-center w-4 h-4 text-[9px] rounded-full bg-red-500 text-white font-bold">{unreadCount}</span>
+              )}
+              {t === "ratings" && newRatingsCount > 0 && (
+                <span className="ml-2 inline-flex items-center justify-center w-4 h-4 text-[9px] rounded-full bg-purple-500 text-white font-bold">{newRatingsCount}</span>
               )}
             </button>
           ))}
