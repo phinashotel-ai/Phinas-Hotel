@@ -58,12 +58,6 @@ interface Booking {
   created_at: string;
 }
 
-interface RatingPayload {
-  booking_id: number;
-  stars: number;
-  comment: string;
-}
-
 interface ContactMsg {
   id: number;
   name: string;
@@ -114,16 +108,14 @@ function UserDashboardContent() {
   const [loadingUser, setLoadingUser]       = useState(true);
   const [loadingBookings, setLoadingBookings] = useState(false);
   const [selected, setSelected] = useState<Booking | null>(null);
+  const [cancelling, setCancelling] = useState<number | null>(null);
+  const [cancelConfirm, setCancelConfirm] = useState<number | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
   const [cancelMsg, setCancelMsg] = useState("");
   const [bookingAction, setBookingAction] = useState<{ id: number; action: string } | null>(null);
   const [extendTarget, setExtendTarget] = useState<Booking | null>(null);
   const [extendDays, setExtendDays] = useState(1);
   const [extendHours, setExtendHours] = useState(0);
-  const [reviewTarget, setReviewTarget] = useState<Booking | null>(null);
-  const [reviewStars, setReviewStars] = useState(0);
-  const [reviewComment, setReviewComment] = useState("");
-  const [reviewSaving, setReviewSaving] = useState(false);
-  const [reviewMsg, setReviewMsg] = useState("");
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({ first_name: "", last_name: "", middle_name: "", contact: "", address: "", gender: "" });
   const [editLoading, setEditLoading] = useState(false);
@@ -190,6 +182,39 @@ function UserDashboardContent() {
     setTab(initialTab);
   }, [initialTab]);
 
+  const handleCancel = async (id: number) => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+    if (!cancelReason.trim()) {
+      setCancelMsg("Please add a cancellation comment before submitting.");
+      return;
+    }
+    setCancelling(id);
+    try {
+      const res = await fetch(`${API}/hotelroom/bookings/${id}/`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "request_cancellation", reason: cancelReason }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const updated = data.booking || data;
+        setCancelMsg("Cancellation request submitted for approval.");
+        setBookings(prev => prev.map(b => b.id === id ? { ...b, ...updated } : b));
+        if (selected?.id === id) setSelected(prev => prev ? { ...prev, ...updated } : null);
+        setCancelReason("");
+      } else {
+        setCancelMsg(data.error || "Failed to submit cancellation request.");
+      }
+    } finally {
+      setCancelling(null);
+      setCancelConfirm(null);
+      setTimeout(() => setCancelMsg(""), 3000);
+    }
+  };
+
+
+
   const startEdit = () => {
     if (!u) return;
     setEditForm({
@@ -255,7 +280,8 @@ function UserDashboardContent() {
   };
 
   const canReviewBooking = (booking: Booking) => {
-    return ["completed", "checked_out"].includes(booking.status);
+    if (booking.status === "completed" || booking.status === "checked_out") return true;
+    return new Date(`${booking.check_out}T12:00:00`).getTime() <= Date.now();
   };
 
   const canCheckInBooking = (booking: Booking) => {
@@ -291,7 +317,7 @@ function UserDashboardContent() {
     if (booking.status === "confirmed") {
       return {
         title: "Ready for Check-in",
-        body: `Your booking is confirmed. Check-in starts at ${CHECK_IN_TIME}, and check-out is at ${CHECK_OUT_TIME}. You can also extend your stay before checkout if you need more time.`,
+        body: `Your booking is confirmed. Check-in starts at ${CHECK_IN_TIME}, and check-out is at ${CHECK_OUT_TIME}.`,
         tone: "green",
       };
     }
@@ -307,7 +333,11 @@ function UserDashboardContent() {
       const res = await fetch(`${API}/hotelroom/bookings/${id}/`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify(action === "extend_stay" ? { action, extend_days: days ?? extendDays, extend_hours: extendHours } : { action }),
+        body: JSON.stringify(
+          action === "extend_stay"
+            ? { action, extend_days: days ?? extendDays, extend_hours: extendHours }
+            : { action }
+        ),
       });
       const raw = await res.text();
       let data: Record<string, unknown> = {};
@@ -336,10 +366,6 @@ function UserDashboardContent() {
         setCancelMsg("Check-in saved successfully.");
       } else if (action === "check_out") {
         setCancelMsg("Check-out saved successfully.");
-        setReviewTarget(updated);
-        setReviewStars(0);
-        setReviewComment("");
-        setReviewMsg("");
       } else {
         setCancelMsg("Stay extended successfully.");
       }
@@ -347,58 +373,6 @@ function UserDashboardContent() {
       return true;
     } finally {
       setBookingAction(null);
-    }
-  };
-
-  const submitReview = async () => {
-    if (!reviewTarget) return;
-    if (reviewStars < 1 || reviewStars > 5) {
-      setReviewMsg("Choose a star rating if you want to leave a review.");
-      return;
-    }
-
-    const token = localStorage.getItem("access_token");
-    if (!token) return;
-
-    setReviewSaving(true);
-    setReviewMsg("");
-    try {
-      const res = await fetch(`${API}/hotelroom/rooms/${reviewTarget.room}/ratings/`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          booking_id: reviewTarget.id,
-          stars: reviewStars,
-          comment: reviewComment.trim(),
-        } as RatingPayload),
-      });
-
-      const raw = await res.text();
-      let data: Record<string, unknown> = {};
-      try {
-        data = raw ? JSON.parse(raw) : {};
-      } catch {
-        data = {};
-      }
-
-      if (!res.ok) {
-        setReviewMsg(typeof data.error === "string" ? data.error : "Could not submit your review.");
-        return;
-      }
-
-      window.dispatchEvent(new CustomEvent("room-ratings-updated", { detail: { roomId: reviewTarget.room } }));
-      setReviewMsg("Review submitted successfully.");
-      setTimeout(() => {
-        setReviewTarget(null);
-        setReviewStars(0);
-        setReviewComment("");
-        setReviewMsg("");
-      }, 1200);
-    } finally {
-      setReviewSaving(false);
     }
   };
 
@@ -682,6 +656,14 @@ function UserDashboardContent() {
                           >
                             VIEW DETAILS
                           </button>
+                          {b.status !== "cancelled" && b.status !== "completed" && b.status !== "checked_in" && b.status !== "checked_out" && (
+                            <button
+                              onClick={() => { setCancelReason(""); setCancelConfirm(b.id); }}
+                              className="text-[10px] tracking-[0.25em] px-4 py-2 border border-red-400 text-red-500 hover:bg-red-500 hover:text-white transition"
+                            >
+                              CANCEL
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -814,11 +796,7 @@ function UserDashboardContent() {
                 ))}
               </div>
 
-              <div className="mt-6 grid gap-3 border-t border-[#d4d7c7] pt-6">
-                <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e]">
-                  Check-in, check-out, extend stay, and rate/comment
-                </p>
-                <div className="flex gap-3 pt-1">
+              <div className="flex gap-3 pt-1">
                 <button
                   type="button"
                   onClick={() => {
@@ -836,33 +814,22 @@ function UserDashboardContent() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (canCheckOutBooking(selected)) {
-                      void handleBookingAction(selected.id, "check_out");
+                    if (!canCheckOutBooking(selected)) {
+                      setCancelMsg("Check-out becomes available on or after your check-out date.");
                       return;
                     }
-                    if (canReviewBooking(selected)) {
-                      setReviewTarget(selected);
-                      setReviewStars(0);
-                      setReviewComment("");
-                      setReviewMsg("");
-                      return;
-                    }
-                    setCancelMsg("This booking is not ready for checkout or review yet.");
+                    void handleBookingAction(selected.id, "check_out");
                   }}
-                  disabled={(!canCheckOutBooking(selected) && !canReviewBooking(selected)) || bookingAction?.id === selected.id}
+                  disabled={!canCheckOutBooking(selected) || bookingAction?.id === selected.id}
                   className="flex-1 py-3 text-xs tracking-[0.25em] border border-emerald-400 text-emerald-700 hover:bg-emerald-500 hover:text-white transition disabled:opacity-50"
                 >
-                  {bookingAction?.id === selected.id && bookingAction.action === "check_out"
-                    ? "CHECKING OUT..."
-                    : canCheckOutBooking(selected)
-                      ? "CHECK-OUT / RATE COMMENT"
-                      : "RATE COMMENT"}
+                  {bookingAction?.id === selected.id && bookingAction.action === "check_out" ? "CHECKING OUT..." : "CHECK-OUT / RATE"}
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     if (!canExtendBooking(selected)) {
-                      setCancelMsg("You can only extend once the booking is confirmed.");
+                      setCancelMsg("You can only extend once the booking is confirmed or checked in.");
                       return;
                     }
                     setExtendTarget(selected);
@@ -912,11 +879,24 @@ function UserDashboardContent() {
 
               {canReviewBooking(selected) && (
                 <div className="border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-                  You can leave a room review after checkout.
+                  Your stay is complete. You can now leave a room review.
                 </div>
               )}
 
               <div className="flex gap-3 pt-1">
+                {selected.status !== "cancelled" && selected.status !== "completed" && selected.status !== "checked_in" && selected.status !== "checked_out" && selected.cancel_request_status !== "requested" && (
+                  <button
+                    onClick={() => { setSelected(null); setCancelReason(""); setCancelConfirm(selected.id); }}
+                    className="flex-1 py-3 text-xs tracking-[0.25em] border border-red-400 text-red-500 hover:bg-red-500 hover:text-white transition"
+                  >
+                    CANCEL BOOKING
+                  </button>
+                )}
+                {selected.cancel_request_status === "requested" && (
+                  <div className="flex-1 py-3 text-center text-xs tracking-[0.25em] border border-amber-400 text-amber-700 bg-amber-50">
+                    CANCELLATION PENDING APPROVAL
+                  </div>
+                )}
                 <button
                   onClick={() => setSelected(null)}
                   className="flex-1 py-3 text-xs tracking-[0.25em] transition"
@@ -927,6 +907,38 @@ function UserDashboardContent() {
                   CLOSE
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* â”€â”€ CANCEL CONFIRM MODAL â”€â”€ */}
+      {cancelConfirm !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.7)" }}>
+          <div className="w-full max-w-lg bg-[#faf9f6] p-8 shadow-2xl">
+            <p className="text-xs tracking-[0.4em] uppercase text-[#71867e] mb-3">Confirm Cancellation</p>
+            <p className="text-sm text-[#4a6358] mb-4">Add a short comment for why you want to cancel Booking #{cancelConfirm}. The admin/staff team will review it.</p>
+            <textarea
+              value={cancelReason}
+              onChange={e => setCancelReason(e.target.value)}
+              rows={4}
+              placeholder="Example: We changed our travel plans."
+              className="w-full border border-[#d4d7c7] px-4 py-3 text-sm bg-white outline-none focus:border-[#1c352c] transition mb-6"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setCancelConfirm(null); setCancelReason(""); }}
+                className="flex-1 py-3 text-xs tracking-[0.25em] border border-[#d4d7c7] text-[#71867e] hover:border-[#1c352c] hover:text-[#1c352c] transition"
+              >
+                KEEP IT
+              </button>
+              <button
+                onClick={() => handleCancel(cancelConfirm)}
+                disabled={cancelling === cancelConfirm}
+                className="flex-1 py-3 text-xs tracking-[0.25em] bg-red-500 text-white hover:bg-red-600 transition disabled:opacity-50"
+              >
+                {cancelling === cancelConfirm ? "SUBMITTING..." : "SUBMIT REQUEST"}
+              </button>
             </div>
           </div>
         </div>
@@ -989,75 +1001,6 @@ function UserDashboardContent() {
                 className="flex-1 py-3 text-xs tracking-[0.25em] bg-[#c48a3a] text-white hover:bg-[#ad7427] transition disabled:opacity-50"
               >
                 {bookingAction?.id === extendTarget.id && bookingAction.action === "extend_stay" ? "EXTENDING..." : "CONFIRM EXTENSION"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {reviewTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.72)" }}>
-          <div className="w-full max-w-lg bg-[#faf9f6] p-8 shadow-2xl">
-            <p className="text-xs tracking-[0.4em] uppercase text-[#71867e] mb-3">Rate Your Stay</p>
-            <p className="text-sm text-[#4a6358] mb-5">
-              Booking #{reviewTarget.id} for {reviewTarget.room_name}. Leave a rating and optional comment, or skip the review.
-            </p>
-
-            <div className="mb-4">
-              <label className="mb-2 block text-[10px] tracking-[0.3em] uppercase text-[#71867e]">Comment (Optional)</label>
-              <textarea
-                value={reviewComment}
-                onChange={e => setReviewComment(e.target.value)}
-                rows={4}
-                placeholder="Share how your stay went..."
-                className="w-full resize-none border border-[#d4d7c7] px-4 py-3 text-sm bg-white outline-none focus:border-[#1c352c] transition"
-              />
-            </div>
-
-            <div className="mb-4">
-              <p className="mb-2 text-[10px] tracking-[0.3em] uppercase text-[#71867e]">Choose a star rating</p>
-              <div className="grid grid-cols-5 gap-2">
-                {[1, 2, 3, 4, 5].map(n => (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setReviewStars(n)}
-                    disabled={reviewSaving}
-                    className={`border px-2 py-3 text-center transition hover:-translate-y-0.5 hover:bg-[#f3ede2] disabled:opacity-50 ${
-                      reviewStars === n ? "border-[#1c352c] ring-2 ring-[#1c352c]" : "border-[#d4d7c7] bg-white"
-                    }`}
-                  >
-                    <span className="block text-lg leading-none text-[#c48a3a]">★</span>
-                    <span className="mt-1 block text-sm font-semibold text-[#1c352c]">{n}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {reviewMsg && (
-              <p className={`mb-4 text-xs ${reviewMsg.includes("success") ? "text-emerald-600" : "text-red-500"}`}>
-                {reviewMsg}
-              </p>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setReviewTarget(null);
-                  setReviewStars(0);
-                  setReviewComment("");
-                  setReviewMsg("");
-                }}
-                className="flex-1 py-3 text-xs tracking-[0.25em] border border-[#d4d7c7] text-[#71867e] hover:border-[#1c352c] hover:text-[#1c352c] transition"
-              >
-                SKIP REVIEW
-              </button>
-              <button
-                onClick={submitReview}
-                disabled={reviewSaving || reviewStars < 1}
-                className="flex-1 py-3 text-xs tracking-[0.25em] bg-[#1c352c] text-white hover:bg-[#0e2419] transition disabled:opacity-50"
-              >
-                {reviewSaving ? "SAVING..." : "SUBMIT REVIEW"}
               </button>
             </div>
           </div>
