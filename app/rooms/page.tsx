@@ -227,11 +227,11 @@ export default function RoomsPage() {
             const img = room.image_url || TYPE_IMAGES[room.room_type] || "/che.jpg";
             const currentBookings = room.current_bookings || 0;
             const maxBookings = 1; // Each room can only have 1 booking at a time
-            const isOccupied = room.status === 'occupied' || room.has_active_bookings || currentBookings >= maxBookings;
-            const isAvailable = room.status === 'available' && !isOccupied;
+            const isOccupied = room.status === 'occupied' || room.has_active_bookings || currentBookings >= 1;
+            const isAvailable = room.status === 'available' && !isOccupied && currentBookings === 0;
 
             return (
-              <div key={room.id} className={`flex flex-col h-full overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-[rgba(212,215,199,0.7)] ${!isAvailable ? 'opacity-75' : ''}`} style={panelStyle}>
+              <div key={room.id} className={`flex flex-col h-full overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-[rgba(212,215,199,0.7)] ${currentBookings >= 1 ? 'opacity-75' : ''}`} style={panelStyle}>
 
                 {/* Main image */}
                 <div className="relative h-52 overflow-hidden flex-shrink-0">
@@ -258,14 +258,14 @@ export default function RoomsPage() {
                   </div>
                   <div className="mb-3">
                     <div className="mb-1 text-xs text-[#71867e]">
-                      <span>{isAvailable ? 'Available' : 'Occupied'}</span>
+                      <span>{currentBookings === 0 ? 'Available' : 'Occupied - 1 Guest'}</span>
                     </div>
                     <div className="h-2 w-full rounded-full bg-gray-200">
                       <div
                         className={`h-2 rounded-full transition-all duration-300 ${
-                          !isAvailable ? "bg-red-500" : "bg-green-500"
+                          currentBookings >= 1 ? "bg-red-500" : "bg-green-500"
                         }`}
-                        style={{ width: isAvailable ? "0%" : "100%" }}
+                        style={{ width: currentBookings >= 1 ? "100%" : "0%" }}
                       />
                     </div>
                   </div>
@@ -287,25 +287,25 @@ export default function RoomsPage() {
                   <div className="mt-auto">
                     <button
                       onClick={() => handleViewDetails(room.id)}
-                      disabled={!isAvailable}
+                      disabled={currentBookings >= 1}
                       className={`w-full text-center py-2 text-xs tracking-[0.3em] border transition ${
-                        !isAvailable ? 'opacity-50 cursor-not-allowed bg-gray-300 text-gray-500 border-gray-400' : ''
+                        currentBookings >= 1 ? 'opacity-50 cursor-not-allowed bg-gray-300 text-gray-500 border-gray-400' : ''
                       }`}
-                      style={isAvailable ? { borderColor: "#1c352c", color: "#1c352c", backgroundColor: "transparent" } : {}}
+                      style={currentBookings === 0 ? { borderColor: "#1c352c", color: "#1c352c", backgroundColor: "transparent" } : {}}
                       onMouseEnter={e => { 
-                        if (isAvailable) {
+                        if (currentBookings === 0) {
                           e.currentTarget.style.backgroundColor = "#1c352c"; 
                           e.currentTarget.style.color = "#fff"; 
                         }
                       }}
                       onMouseLeave={e => { 
-                        if (isAvailable) {
+                        if (currentBookings === 0) {
                           e.currentTarget.style.backgroundColor = "transparent"; 
                           e.currentTarget.style.color = "#1c352c"; 
                         }
                       }}
                     >
-                      {isAvailable ? 'VIEW DETAILS' : 'NOT AVAILABLE'}
+                      {currentBookings === 0 ? 'VIEW DETAILS' : 'OCCUPIED'}
                     </button>
                   </div>
                 </div>
