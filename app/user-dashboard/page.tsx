@@ -115,7 +115,6 @@ function UserDashboardContent() {
   const [bookingAction, setBookingAction] = useState<{ id: number; action: string } | null>(null);
   const [extendTarget, setExtendTarget] = useState<Booking | null>(null);
   const [extendDays, setExtendDays] = useState(1);
-  const [extendHours, setExtendHours] = useState(0);
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({ first_name: "", last_name: "", middle_name: "", contact: "", address: "", gender: "" });
   const [editLoading, setEditLoading] = useState(false);
@@ -335,7 +334,7 @@ function UserDashboardContent() {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify(
           action === "extend_stay"
-            ? { action, extend_days: days ?? extendDays, extend_hours: extendHours }
+            ? { action, extend_days: days ?? extendDays }
             : { action }
         ),
       });
@@ -834,7 +833,6 @@ function UserDashboardContent() {
                     }
                     setExtendTarget(selected);
                     setExtendDays(1);
-                    setExtendHours(0);
                   }}
                   disabled={!canExtendBooking(selected) || bookingAction?.id === selected.id}
                   className="flex-1 py-3 text-xs tracking-[0.25em] border border-[#c48a3a] text-[#c48a3a] hover:bg-[#c48a3a] hover:text-white transition disabled:opacity-50"
@@ -949,9 +947,9 @@ function UserDashboardContent() {
           <div className="w-full max-w-lg bg-[#faf9f6] p-8 shadow-2xl">
             <p className="text-xs tracking-[0.4em] uppercase text-[#71867e] mb-3">Extend Stay</p>
             <p className="text-sm text-[#4a6358] mb-5">
-              Booking #{extendTarget.id} for {extendTarget.room_name}. Choose extra days or hours to add.
+              Booking #{extendTarget.id} for {extendTarget.room_name}. Choose extra days to add.
             </p>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4">
               <div>
                 <label className="mb-2 block text-[10px] tracking-[0.3em] uppercase text-[#71867e]">Extra Days</label>
                 <input
@@ -964,26 +962,13 @@ function UserDashboardContent() {
                   className="w-full border border-[#d4d7c7] px-4 py-3 text-sm bg-white outline-none focus:border-[#1c352c] transition"
                 />
               </div>
-              <div>
-                <label className="mb-2 block text-[10px] tracking-[0.3em] uppercase text-[#71867e]">Extra Hours</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={24}
-                  step={1}
-                  value={extendHours}
-                  onChange={e => setExtendHours(Math.max(0, Math.min(24, Number(e.target.value) || 0)))}
-                  className="w-full border border-[#d4d7c7] px-4 py-3 text-sm bg-white outline-none focus:border-[#1c352c] transition"
-                />
-              </div>
             </div>
-            <p className="mt-2 text-xs text-[#71867e]">You can extend by up to 7 days and 24 hours at a time.</p>
+            <p className="mt-2 text-xs text-[#71867e]">You can extend by up to 7 days at a time.</p>
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => {
                   setExtendTarget(null);
                   setExtendDays(1);
-                  setExtendHours(0);
                 }}
                 className="flex-1 py-3 text-xs tracking-[0.25em] border border-[#d4d7c7] text-[#71867e] hover:border-[#1c352c] hover:text-[#1c352c] transition"
               >
@@ -995,7 +980,6 @@ function UserDashboardContent() {
                   void handleBookingAction(extendTarget.id, "extend_stay", extendDays);
                   setExtendTarget(null);
                   setExtendDays(1);
-                  setExtendHours(0);
                 }}
                 disabled={bookingAction?.id === extendTarget.id}
                 className="flex-1 py-3 text-xs tracking-[0.25em] bg-[#c48a3a] text-white hover:bg-[#ad7427] transition disabled:opacity-50"
