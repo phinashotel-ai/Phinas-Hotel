@@ -263,7 +263,7 @@ export default function RoomsPage() {
                     <div className="h-2 w-full rounded-full bg-gray-200">
                       <div
                         className={`h-2 rounded-full transition-all duration-300 ${
-                          isFullyBooked ? "bg-red-500" : availableSpots <= 2 ? "bg-orange-500" : "bg-green-500"
+                          !isAvailable ? "bg-red-500" : "bg-green-500"
                         }`}
                         style={{ width: isAvailable ? "0%" : "100%" }}
                       />
