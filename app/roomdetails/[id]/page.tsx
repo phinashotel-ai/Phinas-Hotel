@@ -188,8 +188,7 @@ export default function RoomDetailsPage() {
   const imageGallery = [imageSrc, imageSrc, imageSrc];
   const ratingOutOfFive = hasRoomRating(room) ? getDisplayRating(room?.avg_rating) : 0;
   const currentBookings = room?.current_bookings || 0;
-  const maxBookings = room?.max_bookings || room?.capacity || 1;
-  const isFullyBooked = !!room && ((room.is_fully_booked || false) || currentBookings >= maxBookings);
+  const isFullyBooked = !!room && ((room.is_fully_booked || false) || currentBookings >= 1);
 
   return (
     <div className="min-h-screen font-sans" style={{ backgroundColor: "#faf9f6", color: "#1c352c" }}>
@@ -269,18 +268,18 @@ export default function RoomDetailsPage() {
 
                   <div className="mb-6 rounded-sm border border-[#d4d7c7] bg-[#faf9f6] px-4 py-4">
                     <div className="mb-1 text-xs uppercase tracking-[0.3em] text-[#71867e]">
-                      <span>Availability {currentBookings}/{maxBookings} booked</span>
+                      <span>Availability {currentBookings}/1 booked</span>
                     </div>
                     <div className="h-2 w-full rounded-full bg-gray-200">
                       <div
                         className={`h-2 rounded-full transition-all duration-300 ${isFullyBooked ? "bg-red-500" : "bg-green-500"}`}
-                        style={{ width: `${Math.min(100, (currentBookings / maxBookings) * 100)}%` }}
+                        style={{ width: `${currentBookings >= 1 ? 100 : 0}%` }}
                       />
                     </div>
                     <p className="mt-3 text-xs text-[#4a6358]">
                       {isFullyBooked
-                        ? "This room has reached its booking limit right now."
-                        : "This room stays visible and can still accept bookings until the booking limit is reached."}
+                        ? "This room is currently occupied by 1 guest."
+                        : "This room is available for booking (single occupancy only)."}
                     </p>
                   </div>
 
