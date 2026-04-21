@@ -75,6 +75,7 @@ interface Room {
   current_bookings?: number;
   max_bookings?: number;
   is_fully_booked?: boolean;
+  is_available?: boolean;
 }
 
 function hasRoomRating(room: Room) {
@@ -225,14 +226,15 @@ export default function RoomsPage() {
           {rooms.map(room => {
             const img = room.image_url || TYPE_IMAGES[room.room_type] || "/che.jpg";
             const currentBookings = room.current_bookings || 0;
-            const maxBookings = room.max_bookings || room.capacity || 1;
-            const isFullyBooked = room.is_fully_booked || currentBookings >= maxBookings;
-            const availableSpots = Math.max(0, maxBookings - currentBookings);
+            const maxBookings = 1; // Each room can only have 1 booking at a time
+            const isOccupied = room.status === 'occupied' || room.has_active_bookings || currentBookings >= maxBookings;
+            const isAvailable = room.status === 'available' && !isOccupied;
+
             return (
-              <div key={room.id} className="overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-[rgba(212,215,199,0.7)]" style={panelStyle}>
+              <div key={room.id} className={`flex flex-col h-full overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-[rgba(212,215,199,0.7)] ${!isAvailable ? 'opacity-75' : ''}`} style={panelStyle}>
 
                 {/* Main image */}
-                <div className="relative h-52 overflow-hidden">
+                <div className="relative h-52 overflow-hidden flex-shrink-0">
                   <img src={img} alt={room.name} className="absolute inset-0 h-full w-full object-cover transition-all duration-500" />
                   <div className="absolute top-3 right-3 px-3 py-1 text-xs tracking-widest font-semibold" style={{ backgroundColor: "#132222", color: "#fff8ed" }}>
                     ₱{Number(room.price_per_night).toLocaleString()}/night
@@ -243,23 +245,27 @@ export default function RoomsPage() {
                 </div>
 
                 {/* Info */}
-                <div className="p-5">
+                <div className="p-5 flex flex-col flex-grow">
                   <div className="flex justify-between items-start mb-1">
                     <h2 className="text-base font-light tracking-widest uppercase">{room.name}</h2>
                     <span className="text-xs text-[#71867e]">Room {room.room_number}</span>
                   </div>
                   <p className="text-xs text-[#71867e] mb-3">{getRoomTypeLabel(room.room_type)} · Floor {room.floor} · Up to {room.capacity} guests</p>
-                  <p className="mb-3 text-sm leading-6 text-[#4a6358]">{getRoomDescription(room)}</p>
+                  
+                  {/* Description with fixed height */}
+                  <div className="mb-3 h-20 overflow-hidden">
+                    <p className="text-sm leading-6 text-[#4a6358]">{getRoomDescription(room)}</p>
+                  </div>
                   <div className="mb-3">
                     <div className="mb-1 text-xs text-[#71867e]">
-                      <span>Availability {currentBookings}/{maxBookings} booked</span>
+                      <span>{isAvailable ? 'Available' : 'Occupied'}</span>
                     </div>
                     <div className="h-2 w-full rounded-full bg-gray-200">
                       <div
                         className={`h-2 rounded-full transition-all duration-300 ${
                           isFullyBooked ? "bg-red-500" : availableSpots <= 2 ? "bg-orange-500" : "bg-green-500"
                         }`}
-                        style={{ width: `${Math.min(100, (currentBookings / maxBookings) * 100)}%` }}
+                        style={{ width: isAvailable ? "0%" : "100%" }}
                       />
                     </div>
                   </div>
@@ -270,20 +276,38 @@ export default function RoomsPage() {
                       {room.rating_count ? ` (${room.rating_count} review${room.rating_count > 1 ? "s" : ""})` : ""}
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  {/* Amenities with fixed height */}
+                  <div className="flex flex-wrap gap-2 mb-4 h-8 overflow-hidden">
                     {(room.amenities || []).slice(0, 3).map((f, i) => (
                       <span key={i} className="text-xs px-2 py-1 tracking-wide" style={{ backgroundColor: "#d4d7c7", color: "#1c352c" }}>{f}</span>
                     ))}
                   </div>
-                  <button
-                    onClick={() => handleViewDetails(room.id)}
-                    className="w-full text-center py-2 text-xs tracking-[0.3em] border transition"
-                    style={{ borderColor: "#1c352c", color: "#1c352c", backgroundColor: "transparent" }}
-                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#1c352c"; e.currentTarget.style.color = "#fff"; }}
-                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#1c352c"; }}
-                  >
-                    VIEW DETAILS
-                  </button>
+                  
+                  {/* Button pushed to bottom */}
+                  <div className="mt-auto">
+                    <button
+                      onClick={() => handleViewDetails(room.id)}
+                      disabled={!isAvailable}
+                      className={`w-full text-center py-2 text-xs tracking-[0.3em] border transition ${
+                        !isAvailable ? 'opacity-50 cursor-not-allowed bg-gray-300 text-gray-500 border-gray-400' : ''
+                      }`}
+                      style={isAvailable ? { borderColor: "#1c352c", color: "#1c352c", backgroundColor: "transparent" } : {}}
+                      onMouseEnter={e => { 
+                        if (isAvailable) {
+                          e.currentTarget.style.backgroundColor = "#1c352c"; 
+                          e.currentTarget.style.color = "#fff"; 
+                        }
+                      }}
+                      onMouseLeave={e => { 
+                        if (isAvailable) {
+                          e.currentTarget.style.backgroundColor = "transparent"; 
+                          e.currentTarget.style.color = "#1c352c"; 
+                        }
+                      }}
+                    >
+                      {isAvailable ? 'VIEW DETAILS' : 'NOT AVAILABLE'}
+                    </button>
+                  </div>
                 </div>
               </div>
             );
