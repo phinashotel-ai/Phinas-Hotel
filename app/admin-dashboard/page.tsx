@@ -1018,7 +1018,7 @@ export default function AdminDashboard() {
       {/* Sidebar */}
       <Sidebar
         activeTab={tab}
-        onTabChange={handleTabChange}
+        onTabChange={(tabId: string) => handleTabChange(tabId as "overview" | "users" | "rooms" | "bookings" | "messages" | "ratings" | "dining")}
         userRole="admin"
         unreadCount={unreadCount}
         newRatingsCount={newRatingsCount}

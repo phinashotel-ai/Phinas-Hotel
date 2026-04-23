@@ -624,7 +624,7 @@ export default function StaffDashboard() {
       {/* Sidebar */}
       <Sidebar
         activeTab={tab}
-        onTabChange={handleTabChange}
+        onTabChange={(tabId: string) => handleTabChange(tabId as "overview" | "dining" | "rooms" | "bookings" | "messages" | "ratings")}
         userRole="staff"
         unreadCount={unreadCount}
         newRatingsCount={newRatingsCount}

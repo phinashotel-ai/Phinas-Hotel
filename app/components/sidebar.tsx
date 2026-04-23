@@ -100,27 +100,27 @@ export default function Sidebar({
         </ul>
       </nav>
 
-      {/* Action Buttons */}
-      {(activeTab === "users" || activeTab === "rooms") && (
-        <div className="p-4 border-t border-[#1c352c]">
-          {activeTab === "users" && userRole === "admin" && onCreateUser && (
-            <button
-              onClick={onCreateUser}
-              className="w-full mb-3 py-3 text-xs tracking-widest bg-[#1c352c] text-white hover:bg-[#0e2419] transition rounded"
-            >
-              CREATE STAFF
-            </button>
-          )}
-          {activeTab === "rooms" && onCreateRoom && (
-            <button
-              onClick={onCreateRoom}
-              className="w-full mb-3 py-3 text-xs tracking-widest bg-[#1c352c] text-white hover:bg-[#0e2419] transition rounded"
-            >
-              ADD ROOM
-            </button>
-          )}
-        </div>
-      )}
+        {/* Action Buttons */}
+        {(activeTab === "users" || activeTab === "rooms") && (
+          <div className="p-4 border-t border-[#1c352c]">
+            {activeTab === "users" && userRole === "admin" && onCreateUser && (
+              <button
+                onClick={onCreateUser}
+                className="w-full mb-3 py-3 text-xs tracking-widest bg-[#1c352c] text-white hover:bg-[#0e2419] transition rounded"
+              >
+                CREATE STAFF
+              </button>
+            )}
+            {activeTab === "rooms" && onCreateRoom && (
+              <button
+                onClick={onCreateRoom}
+                className="w-full mb-3 py-3 text-xs tracking-widest bg-[#1c352c] text-white hover:bg-[#0e2419] transition rounded"
+              >
+                ADD ROOM
+              </button>
+            )}
+          </div>
+        )}
 
       {/* Footer */}
       <div className="p-4 border-t border-[#1c352c]">
