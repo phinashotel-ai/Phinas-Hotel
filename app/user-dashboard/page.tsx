@@ -376,6 +376,7 @@ function UserDashboardContent() {
   };
 
   return (
+    <>
     <div className="min-h-screen font-sans" style={{ backgroundColor: "#faf9f6", color: "#1c352c" }}>
 
       {/* Navbar */}
@@ -990,10 +991,10 @@ function UserDashboardContent() {
           </div>
         </div>
       )}
+      </div>
     </div>
-  </div>
 
-      <footer className="bg-[#132222] px-8 py-14">
+    <footer className="bg-[#132222] px-8 py-14">
         <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-4">
           <div>
             <h3 className="mb-4 text-sm font-light tracking-[0.2em] text-[#fff8ed]">PHINAS HOTEL</h3>
@@ -1027,7 +1028,7 @@ function UserDashboardContent() {
           © PHINAS HOTEL. ALL RIGHTS RESERVED.
         </div>
       </footer>
-    </div>
+    </>
   );
 }
 
