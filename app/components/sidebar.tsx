@@ -9,6 +9,8 @@ interface SidebarProps {
   userRole: "admin" | "staff";
   unreadCount?: number;
   newRatingsCount?: number;
+  onCreateUser?: () => void;
+  onCreateRoom?: () => void;
 }
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
@@ -18,7 +20,9 @@ export default function Sidebar({
   onTabChange, 
   userRole, 
   unreadCount = 0, 
-  newRatingsCount = 0 
+  newRatingsCount = 0,
+  onCreateUser,
+  onCreateRoom
 }: SidebarProps) {
   const router = useRouter();
 
@@ -57,7 +61,7 @@ export default function Sidebar({
   const tabs = userRole === "admin" ? adminTabs : staffTabs;
 
   return (
-    <div className="fixed left-0 top-0 h-full w-64 z-40" style={{ backgroundColor: "#132222" }}>
+    <div className="fixed left-0 top-0 h-full w-64 z-40 flex flex-col" style={{ backgroundColor: "#132222" }}>
       {/* Header */}
       <div className="p-6 border-b border-[#1c352c]">
         <Link href={`/${userRole}-dashboard`} className="text-white tracking-[0.3em] text-lg font-light">
@@ -95,6 +99,28 @@ export default function Sidebar({
           ))}
         </ul>
       </nav>
+
+      {/* Action Buttons */}
+      {(activeTab === "users" || activeTab === "rooms") && (
+        <div className="p-4 border-t border-[#1c352c]">
+          {activeTab === "users" && userRole === "admin" && onCreateUser && (
+            <button
+              onClick={onCreateUser}
+              className="w-full mb-3 py-3 text-xs tracking-widest bg-[#1c352c] text-white hover:bg-[#0e2419] transition rounded"
+            >
+              CREATE STAFF
+            </button>
+          )}
+          {activeTab === "rooms" && onCreateRoom && (
+            <button
+              onClick={onCreateRoom}
+              className="w-full mb-3 py-3 text-xs tracking-widest bg-[#1c352c] text-white hover:bg-[#0e2419] transition rounded"
+            >
+              ADD ROOM
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Footer */}
       <div className="p-4 border-t border-[#1c352c]">

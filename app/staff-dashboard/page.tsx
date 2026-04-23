@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { sendBookingEmail } from "../../lib/send-booking-email";
 import RatingModal from "../components/admin-staff-rating";
+import Sidebar from "../components/sidebar";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
@@ -620,21 +621,18 @@ export default function StaffDashboard() {
         color: "#1c352c",
       }}
     >
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-8 md:px-16 py-5" style={{ backgroundColor: "#132222" }}>
-        <Link href="/staff-dashboard" className="text-white tracking-[0.3em] text-lg font-light">PHINAS HOTEL</Link>
-        <div className="flex gap-6 items-center">
-          <span className="text-[#71867e] text-xs tracking-widest uppercase">Staff Panel</span>
-          <button
-            onClick={handleLogout}
-            className="text-xs tracking-widest px-4 py-2 border border-[#71867e] text-[#d4d7c7] hover:bg-[#71867e] transition"
-          >
-            LOGOUT
-          </button>
-        </div>
-      </nav>
+      {/* Sidebar */}
+      <Sidebar
+        activeTab={tab}
+        onTabChange={handleTabChange}
+        userRole="staff"
+        unreadCount={unreadCount}
+        newRatingsCount={newRatingsCount}
+        onCreateRoom={openCreateRoomModal}
+      />
 
-      <div className="pt-28 pb-20 max-w-6xl mx-auto px-6">
+      {/* Main Content */}
+      <div className="ml-64 pt-8 pb-20 max-w-6xl mx-auto px-6">
 
         <div className="mb-10">
           <p className="text-[#71867e] tracking-[0.4em] text-xs uppercase mb-1">Staff</p>
@@ -644,27 +642,6 @@ export default function StaffDashboard() {
         {actionMsg && (
           <div className="mb-4 px-4 py-3 text-xs tracking-wide text-emerald-700 border border-emerald-200 bg-[rgba(236,253,245,0.75)]">{actionMsg}</div>
         )}
-
-        {/* Tabs */}
-        <div className="flex border-b border-[#d4d7c7] mb-8">
-          {(["overview", "rooms", "bookings", "messages", "ratings"] as const).map(t => (
-            <button
-              key={t}
-              onClick={() => handleTabChange(t)}
-              className={`relative px-6 py-3 text-xs tracking-[0.3em] uppercase transition border-b-2 -mb-px ${
-                tab === t ? "border-[#1c352c] text-[#1c352c] font-semibold" : "border-transparent text-[#71867e] hover:text-[#1c352c]"
-              }`}
-            >
-              {t === "overview" ? "Overview" : t === "rooms" ? "Rooms" : t === "bookings" ? "Bookings" : t === "messages" ? "Messages" : "Ratings"}
-              {t === "messages" && unreadCount > 0 && (
-                <span className="ml-2 inline-flex items-center justify-center w-4 h-4 text-[9px] rounded-full bg-red-500 text-white font-bold">{unreadCount}</span>
-              )}
-              {t === "ratings" && newRatingsCount > 0 && (
-                <span className="ml-2 inline-flex items-center justify-center w-4 h-4 text-[9px] rounded-full bg-purple-500 text-white font-bold">{newRatingsCount}</span>
-              )}
-            </button>
-          ))}
-        </div>
 
         {/* ── OVERVIEW ── */}
         {tab === "overview" && (
@@ -795,12 +772,6 @@ export default function StaffDashboard() {
               <div className="border border-[#d4d7c7]" style={PANEL_STYLE}>
                 <div className="px-6 py-4 border-b border-[#d4d7c7] flex items-center justify-between gap-4">
                   <p className="text-xs tracking-[0.3em] uppercase text-[#71867e]">Room Management — {rooms.length} total</p>
-                  <button
-                    onClick={openCreateRoomModal}
-                    className="text-[10px] tracking-widest px-3 py-2 border border-[#1c352c] text-[#1c352c] hover:bg-[#1c352c] hover:text-white transition"
-                  >
-                    ADD ROOM
-                  </button>
                 </div>
                 {rooms.length === 0 ? (
                   <div className="text-center py-20 border-t border-dashed border-[#d4d7c7]">
