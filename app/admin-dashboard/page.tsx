@@ -1048,25 +1048,6 @@ export default function AdminDashboard() {
               ))}
             </div>
 
-            {/* Quick actions */}
-            <div className="grid md:grid-cols-3 gap-4">
-              {[
-                { label: "Manage Users",    action: () => handleTabChange("users") },
-                { label: "Manage Rooms",    action: () => handleTabChange("rooms") },
-                { label: "View Bookings",   action: () => handleTabChange("bookings") },
-                { label: "Reply Messages",  action: () => handleTabChange("messages") },
-              ].map(a => (
-                <button
-                  key={a.label}
-                  onClick={a.action}
-                  className="py-5 text-xs tracking-[0.3em] border border-[#d4d7c7] text-[#1c352c] hover:border-[#1c352c] hover:bg-[#1c352c] hover:text-white transition"
-                  style={PANEL_STYLE}
-                >
-                  {a.label.toUpperCase()}
-                </button>
-              ))}
-            </div>
-
             {/* Recent users preview */}
             <div className="border border-[#d4d7c7]" style={PANEL_STYLE}>
               <div className="px-6 py-4 border-b border-[#d4d7c7] flex justify-between items-center">
