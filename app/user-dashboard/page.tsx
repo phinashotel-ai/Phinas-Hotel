@@ -757,9 +757,9 @@ function UserDashboardContent() {
         {/* â”€â”€ BOOKING DETAIL MODAL â”€â”€ */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.7)" }}>
-          <div className="w-full max-w-lg bg-[#faf9f6] overflow-hidden shadow-2xl">
+          <div className="w-full max-w-lg bg-[#faf9f6] overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
             {/* Modal header image */}
-            <div className="relative h-48">
+            <div className="relative h-48 flex-shrink-0">
               <Image src={ROOM_IMAGES[selected.room_type || ""] || "/che.jpg"} alt={selected.room_name} fill className="object-cover" />
               <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(19,34,34,0.7), transparent)" }} />
               <div className="absolute bottom-4 left-5 text-white">
@@ -772,7 +772,9 @@ function UserDashboardContent() {
               >x</button>
             </div>
 
-            <div className="p-6 flex flex-col gap-4">
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-6 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <p className="text-xs text-[#71867e] tracking-widest">
                   Room {selected.room_number} • Check-in {selected.check_in_time || CHECK_IN_TIME} • Check-out {selected.check_out_time || CHECK_OUT_TIME}
@@ -905,6 +907,7 @@ function UserDashboardContent() {
                 >
                   CLOSE
                 </button>
+              </div>
               </div>
             </div>
           </div>
