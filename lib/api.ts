@@ -195,6 +195,9 @@ class ApiClient {
     
     if (response.data?.token) {
       this.setToken(response.data.token);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user_data', JSON.stringify(response.data.user));
+      }
     }
     
     return response;
@@ -208,6 +211,9 @@ class ApiClient {
     
     if (response.data?.token) {
       this.setToken(response.data.token);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user_data', JSON.stringify(response.data.user));
+      }
     }
     
     return response;
@@ -215,6 +221,14 @@ class ApiClient {
 
   async logout(): Promise<void> {
     this.clearToken();
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('user_data');
+    }
+  }
+
+  // Get current user profile
+  async getCurrentUser(): Promise<ApiResponse<any>> {
+    return this.request<any>('/user/profile/');
   }
 }
 

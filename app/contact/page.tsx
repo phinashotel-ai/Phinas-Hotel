@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SiteHeader from "../components/site-header";
+import { useAuth } from "../../lib/auth-context";
+import AuthDemo from "../components/auth-demo";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
@@ -17,12 +19,24 @@ const subjects = [
 ];
 
 export default function ContactPage() {
+  const { user, isLoggedIn } = useAuth();
   const [form, setForm] = useState({
     name: "", email: "", phone: "", subject: "", message: "",
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError]     = useState("");
+
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      setForm(prev => ({
+        ...prev,
+        name: `${user.first_name} ${user.last_name}`,
+        email: user.email,
+        phone: user.contact
+      }));
+    }
+  }, [isLoggedIn, user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -212,6 +226,8 @@ export default function ContactPage() {
           © PHINAS HOTEL. ALL RIGHTS RESERVED.
         </div>
       </footer>
+      
+      <AuthDemo />
     </div>
   );
 }
