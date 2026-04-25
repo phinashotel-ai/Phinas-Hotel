@@ -622,10 +622,6 @@ function UserDashboardContent() {
                             <p>{fmtStay(b.check_in, b.check_in_time || CHECK_IN_TIME)}</p>
                           </div>
                           <div>
-                            <p className="text-[10px] tracking-widest text-[#71867e] uppercase mb-0.5">Check-out</p>
-                            <p>{fmtStay(b.check_out, b.check_out_time || CHECK_OUT_TIME)}</p>
-                          </div>
-                          <div>
                             <p className="text-[10px] tracking-widest text-[#71867e] uppercase mb-0.5">Nights</p>
                             <p>{n}</p>
                           </div>
@@ -812,20 +808,6 @@ function UserDashboardContent() {
                   className="flex-1 py-3 text-xs tracking-[0.25em] border border-[#d4d7c7] text-[#1c352c] hover:border-[#1c352c] transition disabled:opacity-50"
                 >
                   {bookingAction?.id === selected.id && bookingAction.action === "check_in" ? "CHECKING IN..." : "CHECK-IN"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!canCheckOutBooking(selected)) {
-                      setCancelMsg("Check-out becomes available on or after your check-out date.");
-                      return;
-                    }
-                    void handleBookingAction(selected.id, "check_out");
-                  }}
-                  disabled={!canCheckOutBooking(selected) || bookingAction?.id === selected.id}
-                  className="flex-1 py-3 text-xs tracking-[0.25em] border border-emerald-400 text-emerald-700 hover:bg-emerald-500 hover:text-white transition disabled:opacity-50"
-                >
-                  {bookingAction?.id === selected.id && bookingAction.action === "check_out" ? "CHECKING OUT..." : "CHECK-OUT / RATE"}
                 </button>
                 <button
                   type="button"
