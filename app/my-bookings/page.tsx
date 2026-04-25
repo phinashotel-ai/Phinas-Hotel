@@ -383,9 +383,9 @@ export default function MyBookingsPage() {
 
                   <div className="mt-6 grid gap-3 border-t border-[#d4d7c7] pt-6">
                     <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e]">
-                      Check-in, check-out, and extend stay
+                      Check-in, check-out, extend stay, and rate star/comment
                     </p>
-                    <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                       <button
                         type="button"
                         onClick={() => {
@@ -397,7 +397,7 @@ export default function MyBookingsPage() {
                         }}
                         disabled={!canCheckInBooking(selected) || actionLoading?.id === selected.id}
                         className="rounded-full border border-[#1c352c] px-5 py-3 text-xs uppercase tracking-[0.28em] text-[#1c352c] transition hover:bg-[#1c352c] hover:text-white disabled:opacity-50"
-                        >
+                      >
                         {actionLoading?.id === selected.id && actionLoading.action === "check_in" ? "Checking in..." : "Check-in"}
                       </button>
                       <button
@@ -411,7 +411,7 @@ export default function MyBookingsPage() {
                         }}
                         disabled={!canCheckOutBooking(selected) || actionLoading?.id === selected.id}
                         className="rounded-full border border-emerald-500 px-5 py-3 text-xs uppercase tracking-[0.28em] text-emerald-700 transition hover:bg-emerald-500 hover:text-white disabled:opacity-50"
-                      >
+                        >
                         {actionLoading?.id === selected.id && actionLoading.action === "check_out"
                           ? "Checking out..."
                           : "Check-out"}
@@ -430,6 +430,17 @@ export default function MyBookingsPage() {
                         className="rounded-full border border-[#c48a3a] px-5 py-3 text-xs uppercase tracking-[0.28em] text-[#c48a3a] transition hover:bg-[#c48a3a] hover:text-white disabled:opacity-50"
                       >
                         {actionLoading?.id === selected.id && actionLoading.action === "extend_stay" ? "Extending..." : "Extend Stay"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRatingTarget(selected);
+                          setRatingStars(0);
+                          setRatingComment("");
+                        }}
+                        className="rounded-full border border-[#1c352c] px-5 py-3 text-xs uppercase tracking-[0.28em] text-[#1c352c] transition hover:bg-[#1c352c] hover:text-white disabled:opacity-50"
+                      >
+                        Rate Star & Comment
                       </button>
                   </div>
                 </div>
