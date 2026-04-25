@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { sendBookingEmail } from "../../lib/send-booking-email";
 import { getRoomNightlyRate } from "../../lib/pricing";
@@ -247,7 +247,6 @@ export default function StaffDashboard() {
   const [loadingRatings, setLoadingRatings]   = useState(false);
   const [newRatingsCount, setNewRatingsCount] = useState(0);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const bookingDetailScrollRef = useRef<HTMLDivElement | null>(null);
   const [bookingRefQuery, setBookingRefQuery] = useState("");
   const [selectedMsg, setSelectedMsg]         = useState<ContactMsg | null>(null);
   const [actionMsg, setActionMsg] = useState("");
@@ -542,12 +541,6 @@ export default function StaffDashboard() {
     if (selectedBooking?.id === id) setSelectedBooking(data);
     setActionMsg(decision === "approve" ? "Cancellation request approved." : "Cancellation request rejected.");
     setTimeout(() => setActionMsg(""), 3000);
-  };
-
-  const scrollBookingDetailsDown = () => {
-    const el = bookingDetailScrollRef.current;
-    if (!el) return;
-    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   };
 
   const handleMsgStatus = async (id: number, status: string) => {
@@ -1233,22 +1226,14 @@ export default function StaffDashboard() {
       {selectedBooking && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.7)" }}>
           <div className="w-full max-w-md shadow-2xl overflow-hidden max-h-[90vh] flex flex-col" style={{ backgroundColor: "rgba(250,249,246,0.95)", backdropFilter: "blur(12px)" }}>
-            <div className="px-6 py-5 border-b border-[#d4d7c7] flex justify-between items-center gap-3" style={{ backgroundColor: "#132222" }}>
+            <div className="px-6 py-5 border-b border-[#d4d7c7] flex justify-between items-center" style={{ backgroundColor: "#132222" }}>
               <div>
                 <p className="text-[10px] tracking-[0.4em] uppercase text-[#71867e]">Booking #{selectedBooking.id}</p>
                 <p className="text-white font-light tracking-[0.15em]">{selectedBooking.room_name}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={scrollBookingDetailsDown}
-                  className="text-[10px] tracking-[0.3em] uppercase px-3 py-2 border border-[#71867e] text-[#d4d7c7] hover:bg-[#1c352c] hover:text-white transition"
-                >
-                  Scroll Down
-                </button>
-                <button onClick={() => setSelectedBooking(null)} className="text-[#71867e] hover:text-white text-xl transition">✕</button>
-              </div>
+              <button onClick={() => setSelectedBooking(null)} className="text-[#71867e] hover:text-white text-xl transition">✕</button>
             </div>
-            <div ref={bookingDetailScrollRef} className="p-6 flex flex-col gap-4 overflow-y-auto">
+            <div className="p-6 flex flex-col gap-4 overflow-y-auto">
               <div className="flex justify-between items-center">
                 <p className="text-xs text-[#71867e]">Guest: <span className="text-[#1c352c] font-medium">{selectedBooking.user_name}</span></p>
                 <span className={`text-[10px] px-3 py-1 rounded-full font-semibold tracking-widest uppercase ${STATUS_STYLE[getBookingStatusBadge(selectedBooking).key] || "bg-gray-100 text-gray-600"}`}>
