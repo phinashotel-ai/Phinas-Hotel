@@ -455,6 +455,17 @@ export default function MyBookingsPage() {
                       >
                       {actionLoading?.id === selected.id && actionLoading.action === "extend_stay" ? "Extending..." : "Extend Stay"}
                     </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRatingTarget(selected);
+                          setRatingStars(0);
+                          setRatingComment("");
+                        }}
+                        className="rounded-full border border-[#1c352c] px-5 py-3 text-xs uppercase tracking-[0.28em] text-[#1c352c] transition hover:bg-[#1c352c] hover:text-white sm:col-span-2"
+                      >
+                        Rate Star & Comment
+                      </button>
                   </div>
                 </div>
 
@@ -538,7 +549,7 @@ export default function MyBookingsPage() {
           </div>
         </div>
       )}
-      {false && (
+      {ratingTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.7)" }}>
           <div className="w-full max-w-lg bg-[#faf9f6] p-8 shadow-2xl">
             <p className="text-xs tracking-[0.4em] uppercase text-[#71867e] mb-3">Rate Booking</p>
