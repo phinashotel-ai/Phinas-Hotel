@@ -383,9 +383,9 @@ export default function MyBookingsPage() {
 
                   <div className="mt-6 grid gap-3 border-t border-[#d4d7c7] pt-6">
                     <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e]">
-                      Check-in and extend stay
+                      Check-in, check-out, and extend stay
                     </p>
-                    <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="grid gap-3 sm:grid-cols-3">
                       <button
                         type="button"
                         onClick={() => {
@@ -397,34 +397,39 @@ export default function MyBookingsPage() {
                         }}
                         disabled={!canCheckInBooking(selected) || actionLoading?.id === selected.id}
                         className="rounded-full border border-[#1c352c] px-5 py-3 text-xs uppercase tracking-[0.28em] text-[#1c352c] transition hover:bg-[#1c352c] hover:text-white disabled:opacity-50"
-                      >
+                        >
                         {actionLoading?.id === selected.id && actionLoading.action === "check_in" ? "Checking in..." : "Check-in"}
                       </button>
                       <button
                         type="button"
-                  onClick={() => {
-                    if (!canExtendBooking(selected)) {
-                      setActionMsg("You can only extend once the booking is confirmed or checked in.");
-                      return;
-                    }
-                    setExtendTarget(selected);
-                    setExtendDays(1);
-                  }}
-                        disabled={!canExtendBooking(selected) || actionLoading?.id === selected.id}
-                        className="rounded-full border border-[#c48a3a] px-5 py-3 text-xs uppercase tracking-[0.28em] text-[#c48a3a] transition hover:bg-[#c48a3a] hover:text-white disabled:opacity-50 sm:col-span-2"
+                        onClick={() => {
+                          if (!canCheckOutBooking(selected)) {
+                            setActionMsg("Checkout becomes available on or after your scheduled checkout time.");
+                            return;
+                          }
+                          void handleBookingAction(selected.id, "check_out");
+                        }}
+                        disabled={!canCheckOutBooking(selected) || actionLoading?.id === selected.id}
+                        className="rounded-full border border-emerald-500 px-5 py-3 text-xs uppercase tracking-[0.28em] text-emerald-700 transition hover:bg-emerald-500 hover:text-white disabled:opacity-50"
                       >
-                      {actionLoading?.id === selected.id && actionLoading.action === "extend_stay" ? "Extending..." : "Extend Stay"}
-                    </button>
+                        {actionLoading?.id === selected.id && actionLoading.action === "check_out"
+                          ? "Checking out..."
+                          : "Check-out"}
+                      </button>
                       <button
                         type="button"
                         onClick={() => {
-                          setRatingTarget(selected);
-                          setRatingStars(0);
-                          setRatingComment("");
+                          if (!canExtendBooking(selected)) {
+                            setActionMsg("You can only extend once the booking is confirmed or checked in.");
+                            return;
+                          }
+                          setExtendTarget(selected);
+                          setExtendDays(1);
                         }}
-                        className="rounded-full border border-[#1c352c] px-5 py-3 text-xs uppercase tracking-[0.28em] text-[#1c352c] transition hover:bg-[#1c352c] hover:text-white sm:col-span-2"
+                        disabled={!canExtendBooking(selected) || actionLoading?.id === selected.id}
+                        className="rounded-full border border-[#c48a3a] px-5 py-3 text-xs uppercase tracking-[0.28em] text-[#c48a3a] transition hover:bg-[#c48a3a] hover:text-white disabled:opacity-50"
                       >
-                        Rate Star & Comment
+                        {actionLoading?.id === selected.id && actionLoading.action === "extend_stay" ? "Extending..." : "Extend Stay"}
                       </button>
                   </div>
                 </div>
