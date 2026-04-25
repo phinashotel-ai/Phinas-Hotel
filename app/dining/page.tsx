@@ -377,7 +377,7 @@ export default function DiningPage() {
 
       {/* ── FOOTER ── */}
       <footer className="py-14 px-8" style={{ backgroundColor: "#132222" }}>
-        <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-10">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10">
           <div>
             <h3 className="text-[#fff8ed] tracking-[0.3em] text-sm font-light mb-4">PHINAS HOTEL</h3>
             <p className="text-[#71867e] text-xs leading-relaxed">Experience PHINAS like never before.</p>
@@ -398,14 +398,6 @@ export default function DiningPage() {
               <li>📞 +63 123 456 7890</li>
               <li>✉️ info@phinashotel.com</li>
             </ul>
-          </div>
-          <div>
-            <h4 className="text-[#fff8ed] tracking-widest text-xs mb-4">FOLLOW US</h4>
-            <div className="flex gap-4 text-[#71867e] text-xl">
-              <a href="#" className="hover:text-[#d4d7c7] transition">📘</a>
-              <a href="#" className="hover:text-[#d4d7c7] transition">📸</a>
-              <a href="#" className="hover:text-[#d4d7c7] transition">🐦</a>
-            </div>
           </div>
         </div>
         <div className="text-center mt-10 pt-8 border-t border-[#1c352c] text-[#71867e] text-xs tracking-widest">

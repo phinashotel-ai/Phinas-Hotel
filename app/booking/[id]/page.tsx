@@ -715,7 +715,7 @@ export default function BookingPage() {
       </div>
 
       <footer className="bg-[#132222] px-8 py-14">
-        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-4">
+        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3">
           <div>
             <h3 className="mb-4 text-sm font-light tracking-[0.2em] text-[#fff8ed]">PHINAS HOTEL</h3>
             <p className="text-[#71867e] text-xs leading-relaxed">Experience PHINAS like never before.</p>
@@ -734,14 +734,6 @@ export default function BookingPage() {
               <li>📞 +639 702 230 263</li>
               <li>✉️ phinashotel@gmail.com</li>
             </ul>
-          </div>
-          <div>
-            <h4 className="text-[#fff8ed] tracking-widest text-xs mb-4">FOLLOW US</h4>
-            <div className="flex gap-4 text-[#71867e] text-xl">
-              <a href="#" className="hover:text-[#d4d7c7] transition">📘</a>
-              <a href="#" className="hover:text-[#d4d7c7] transition">📸</a>
-              <a href="#" className="hover:text-[#d4d7c7] transition">🐦</a>
-            </div>
           </div>
         </div>
         <div className="mt-10 border-t border-[#1c352c] pt-8 text-center text-xs tracking-[0.2em] text-[#71867e]">
