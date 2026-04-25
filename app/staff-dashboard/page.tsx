@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { sendBookingEmail } from "../../lib/send-booking-email";
+import { getRoomNightlyRate } from "../../lib/pricing";
 import RatingModal from "../components/admin-staff-rating";
 import Sidebar from "../components/sidebar";
 
@@ -811,7 +812,7 @@ export default function StaffDashboard() {
                               </select>
                             </td>
                             <td className="px-4 py-3 text-[#71867e]">{room.capacity}</td>
-                            <td className="px-4 py-3 whitespace-nowrap">₱{Number(room.price_per_night).toLocaleString()}</td>
+                            <td className="px-4 py-3 whitespace-nowrap">₱{getRoomNightlyRate(room, 1).toLocaleString()}</td>
                             <td className="px-4 py-3 whitespace-nowrap text-[#71867e]">
                               {room.avg_rating ? `${room.avg_rating.toFixed(1)}/5` : "New"}
                             </td>

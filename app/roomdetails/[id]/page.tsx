@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import SiteHeader from "../../components/site-header";
+import { getRoomNightlyRate } from "../../../lib/pricing";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
@@ -190,6 +191,7 @@ export default function RoomDetailsPage() {
   const ratingOutOfFive = hasRoomRating(room) ? getDisplayRating(room?.avg_rating) : 0;
   const currentBookings = room?.current_bookings || 0;
   const isFullyBooked = !!room && ((room.is_fully_booked || false) || currentBookings >= 1);
+  const nightlyRate = room ? getRoomNightlyRate(room, 1) : 0;
 
   return (
     <div className="min-h-screen font-sans" style={{ backgroundColor: "#faf9f6", color: "#1c352c" }}>
@@ -249,7 +251,7 @@ export default function RoomDetailsPage() {
                   <div className="mb-6 grid grid-cols-2 gap-4 border-y border-[#d4d7c7] py-5 text-sm">
                     <div>
                       <p className="text-xs uppercase tracking-[0.3em] text-[#71867e]">Price</p>
-                      <p className="mt-1 text-xl font-light">PHP {Number(room.price_per_night).toLocaleString()}/night</p>
+                      <p className="mt-1 text-xl font-light">PHP {nightlyRate.toLocaleString()}/night</p>
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-[0.3em] text-[#71867e]">Capacity</p>

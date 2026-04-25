@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import SiteHeader from "../../components/site-header";
 import { sendBookingEmail } from "../../../lib/send-booking-email";
+import { getRoomNightlyRate } from "../../../lib/pricing";
 
 const ROOM_IMAGES: Record<string, string> = {
   standard: "/che.jpg",
@@ -210,7 +211,8 @@ export default function BookingPage() {
   const nights      = checkIn && checkOut
     ? Math.max(0, (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86400000)
     : 0;
-  const baseTotal   = room ? nights * Number(room.price_per_night) : 0;
+  const nightlyRate = room ? getRoomNightlyRate(room, guests) : 0;
+  const baseTotal   = room ? nights * nightlyRate : 0;
   const freeFoodGuests = room?.free_food_guest_limit ?? 2;
   const extraGuestCount = Math.max(0, guests - freeFoodGuests);
   const extraGuestFeePerNight = Number(room?.extra_guest_fee_per_night || 0);
@@ -469,7 +471,7 @@ export default function BookingPage() {
               )}
               
               <div className="text-2xl font-light mb-4">
-                ₱{Number(room.price_per_night).toLocaleString()}
+                ₱{nightlyRate.toLocaleString()}
                 <span className="text-sm text-[#71867e] font-normal"> / night</span>
               </div>
               <div className="mb-6 rounded-sm border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-800">
@@ -492,7 +494,7 @@ export default function BookingPage() {
                 <div className="p-4 border border-[#d4d7c7]">
                   <p className="text-xs tracking-widest text-[#71867e] mb-3">PRICE SUMMARY</p>
                   <div className="flex justify-between text-sm mb-1">
-                    <span>₱{Number(room.price_per_night).toLocaleString()} × {nights} night{nights > 1 ? "s" : ""}</span>
+                    <span>₱{nightlyRate.toLocaleString()} × {nights} night{nights > 1 ? "s" : ""}</span>
                     <span>₱{baseTotal.toLocaleString()}</span>
                   </div>
                   {extraGuestFeeTotal > 0 && (

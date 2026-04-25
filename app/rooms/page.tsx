@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import SiteHeader from "../components/site-header";
+import { getRoomNightlyRate } from "../../lib/pricing";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
@@ -237,7 +238,7 @@ export default function RoomsPage() {
                 <div className="relative h-52 overflow-hidden flex-shrink-0">
                   <img src={img} alt={room.name} className="absolute inset-0 h-full w-full object-cover transition-all duration-500" />
                   <div className="absolute top-3 right-3 px-3 py-1 text-xs tracking-widest font-semibold" style={{ backgroundColor: "#132222", color: "#fff8ed" }}>
-                    ₱{Number(room.price_per_night).toLocaleString()}/night
+                    ₱{getRoomNightlyRate(room, 1).toLocaleString()}/night
                   </div>
                   <div className="absolute top-3 left-3 px-2 py-1 text-xs font-semibold tracking-wide capitalize bg-[#1c352c] text-white">
                     {getRoomTypeLabel(room.room_type)}

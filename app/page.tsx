@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import SiteHeader from "./components/site-header";
+import { getRoomNightlyRate } from "../lib/pricing";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -288,10 +289,10 @@ export default function Home() {
       <section className="px-6 py-16 text-center">
         <p className="mb-3 text-xs uppercase tracking-[0.2em] text-[#71867e]">Our Story</p>
         <h2 className="mb-5 text-3xl font-light md:text-4xl">
-          Welcome to <span className="font-semibold">Phinas Hotel</span>
+          Welcome to <span className="font-semibold">Our Hotel</span>
         </h2>
         <p className="mx-auto max-w-2xl text-sm leading-7 text-[#4a6358] md:text-base">
-          In the heart of the city is a Phinas hotel designed for the quintessential traveler whose lifestyle
+          In the heart of the city is a hotel designed for the quintessential traveler whose lifestyle
           encompasses comfort, proximity, aesthetics and efficiency.
           With its prime location just steps away from renowned landmarks, it&apos;s easy for guests to explore all
           that the city has to offer.
@@ -334,7 +335,7 @@ export default function Home() {
                     <img src={img} alt={room.name} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 hover:scale-105" />
                     <div className="absolute right-4 top-4 rounded-full bg-[#132222] px-3 py-1 text-xs font-semibold text-[#fff8ed]"
                     >
-                      ₱{Number(room.price_per_night).toLocaleString()}/night
+                      ₱{getRoomNightlyRate(room, 1).toLocaleString()}/night
                     </div>
                   </div>
                   <div className="p-6">

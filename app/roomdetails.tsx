@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { getRoomNightlyRate } from "../lib/pricing";
 
 export default function Home() {
   const [showAuth, setShowAuth] = useState(false);
@@ -44,7 +45,9 @@ export default function Home() {
     name: "Deluxe Ocean View Room",
     description:
       "Enjoy luxury and comfort in our Deluxe Ocean View Room featuring a private balcony, modern interior design, and breathtaking sea views.",
-    price: 4500,
+    price_per_night: 4500,
+    room_type: "deluxe",
+    capacity: 4,
     maxGuests: 4,
     amenities: [
       "Free WiFi",
@@ -79,7 +82,7 @@ export default function Home() {
 
   const calculateTotal = () => {
     const nights = calculateNights(checkIn, checkOut);
-    const subtotal = nights * room.price;
+    const subtotal = nights * getRoomNightlyRate(room, guests);
     const tax = subtotal * 0.12; // 12% tax
     return {
       nights,
@@ -372,7 +375,7 @@ export default function Home() {
 
               {/* Price */}
               <div className="text-2xl font-bold">
-                ₱{room.price.toLocaleString()} / night
+                ₱{getRoomNightlyRate(room, guests).toLocaleString()} / night
               </div>
 
               {/* Availability */}
@@ -563,7 +566,7 @@ function BookingModal({
               
               <div className="bg-zinc-100 dark:bg-zinc-800 p-4 rounded-xl mb-6">
                 <h3 className="font-semibold mb-2">{room.name}</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">₱{room.price.toLocaleString()} per night</p>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">₱{getRoomNightlyRate(room, guests).toLocaleString()} per night</p>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4 mb-6">
@@ -609,7 +612,7 @@ function BookingModal({
                   <h4 className="font-semibold mb-2">Booking Summary</h4>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <span>{total.nights} night{total.nights > 1 ? 's' : ''} × ₱{room.price.toLocaleString()}</span>
+                      <span>{total.nights} night{total.nights > 1 ? 's' : ''} × ₱{getRoomNightlyRate(room, guests).toLocaleString()}</span>
                       <span>₱{total.subtotal.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">

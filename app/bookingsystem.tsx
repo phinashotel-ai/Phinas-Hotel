@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { getRoomNightlyRate } from "../lib/pricing";
 
 export default function Home() {
   const [showAuth, setShowAuth] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
 
   // Booking States
-  const pricePerNight = 4500;
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [confirmation, setConfirmation] = useState("");
@@ -18,7 +18,7 @@ export default function Home() {
   const end = checkOut ? new Date(checkOut) : null;
   const diffTime = start && end ? end.getTime() - start.getTime() : 0;
   const nights = diffTime > 0 ? diffTime / (1000 * 3600 * 24) : 0;
-  const totalPrice = nights > 0 ? nights * pricePerNight : 0;
+  const totalPrice = nights > 0 ? nights * getRoomNightlyRate({ price_per_night: 4500, room_type: "standard", capacity: 2 }, 1) : 0;
   const available = nights > 0 ? true : null;
 
   // Generate Booking Reference
