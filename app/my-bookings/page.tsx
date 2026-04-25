@@ -94,11 +94,6 @@ function statusLabel(status: string) {
   return status;
 }
 
-function canReviewBooking(booking: Booking) {
-  // Allow rating for any booking status
-  return true;
-}
-
 function canCheckInBooking(booking: Booking) {
   if (booking.status !== "confirmed") return false;
   return isAfterCheckInWindow(booking.check_in);
@@ -324,19 +319,18 @@ export default function MyBookingsPage() {
                 {bookings.map(booking => {
                   const isActive = booking.id === selected?.id;
                   return (
-                    <button
+                    <div
                       key={booking.id}
-                      onClick={() => setSelectedId(booking.id)}
                       className={`w-full text-left border p-4 shadow-sm transition ${isActive ? "border-[#1c352c] bg-white" : "border-[#e8e0d3] bg-white/70 hover:border-[#71867e]"}`}
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <div>
+                        <button type="button" onClick={() => setSelectedId(booking.id)} className="text-left">
                           <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e]">Booking #{booking.id}</p>
                           <h2 className="mt-1 text-lg font-light tracking-[0.15em] uppercase">{booking.room_name}</h2>
                           <p className="mt-1 text-xs text-[#71867e]">
                             Room {booking.room_number} · {fmtStay(booking.check_in, booking.check_in_time)} to {fmtStay(booking.check_out, booking.check_out_time)}
                           </p>
-                        </div>
+                        </button>
                         <span className={`rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.25em] ${STATUS_STYLE[booking.status] || "bg-gray-100 text-gray-700"}`}>
                           {statusLabel(booking.status)}
                         </span>
@@ -346,29 +340,29 @@ export default function MyBookingsPage() {
                         <span className="rounded-full bg-[#eef0e8] px-3 py-1">Meal: {booking.meal_category}</span>
                         <span className="rounded-full bg-[#eef0e8] px-3 py-1">Total: ₱{money(booking.total_price)}</span>
                       </div>
-                      {canReviewBooking(booking) && (
-                        <div className="mt-4 border border-blue-200 bg-blue-50 px-4 py-3">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-[10px] uppercase tracking-[0.35em] text-blue-700">Rate & Comment</p>
-                              <p className="mt-1 text-xs text-blue-900">
-                                Rate this booking experience
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => {
-                                setRatingTarget(booking);
-                                setRatingStars(0);
-                                setRatingComment("");
-                              }}
-                              className="rounded-full bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700 transition"
-                            >
-                              Rate Now
-                            </button>
-                          </div>
+                      <div className="mt-4 flex items-center justify-between gap-3 border border-blue-200 bg-blue-50 px-4 py-3">
+                        <div>
+                          <p className="text-[10px] uppercase tracking-[0.35em] text-blue-700">Checkout</p>
+                          <p className="mt-1 text-xs text-blue-900">
+                            {canCheckOutBooking(booking) ? "You can check out this stay now." : "Checkout becomes available after your scheduled checkout time."}
+                          </p>
                         </div>
-                      )}
-                    </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!canCheckOutBooking(booking)) {
+                              setActionMsg("Checkout becomes available on or after your scheduled checkout time.");
+                              return;
+                            }
+                            void handleBookingAction(booking.id, "check_out");
+                          }}
+                          disabled={!canCheckOutBooking(booking) || actionLoading?.id === booking.id}
+                          className="rounded-full bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700 transition disabled:opacity-50"
+                        >
+                          {actionLoading?.id === booking.id && actionLoading.action === "check_out" ? "Checking out..." : "Check-out"}
+                        </button>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
@@ -413,7 +407,7 @@ export default function MyBookingsPage() {
 
                   <div className="mt-6 grid gap-3 border-t border-[#d4d7c7] pt-6">
                     <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e]">
-                      Check-in, check-out, extend stay, and rate/comment
+                      Check-in, check-out, and extend stay
                     </p>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <button
@@ -430,28 +424,22 @@ export default function MyBookingsPage() {
                       >
                         {actionLoading?.id === selected.id && actionLoading.action === "check_in" ? "Checking in..." : "Check-in"}
                       </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (canCheckOutBooking(selected)) {
-                      void handleBookingAction(selected.id, "check_out");
-                      return;
-                    }
-                    if (canReviewBooking(selected)) {
-                      router.push(`/my-rates?booking=${selected.id}`);
-                      return;
-                    }
-                    setActionMsg("This booking is not ready for checkout or review yet.");
-                  }}
-                  disabled={(!canCheckOutBooking(selected) && !canReviewBooking(selected)) || actionLoading?.id === selected.id}
-                  className="rounded-full border border-emerald-500 px-5 py-3 text-xs uppercase tracking-[0.28em] text-emerald-700 transition hover:bg-emerald-500 hover:text-white disabled:opacity-50"
-                >
-                  {actionLoading?.id === selected.id && actionLoading.action === "check_out"
-                    ? "Checking out..."
-                    : canCheckOutBooking(selected)
-                      ? "Check-out / Rate Comment"
-                      : "Rate & Comment"}
-                </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!canCheckOutBooking(selected)) {
+                            setActionMsg("Checkout becomes available on or after your scheduled checkout time.");
+                            return;
+                          }
+                          void handleBookingAction(selected.id, "check_out");
+                        }}
+                        disabled={!canCheckOutBooking(selected) || actionLoading?.id === selected.id}
+                        className="rounded-full border border-emerald-500 px-5 py-3 text-xs uppercase tracking-[0.28em] text-emerald-700 transition hover:bg-emerald-500 hover:text-white disabled:opacity-50"
+                      >
+                        {actionLoading?.id === selected.id && actionLoading.action === "check_out"
+                          ? "Checking out..."
+                          : "Check-out"}
+                      </button>
                       <button
                         type="button"
                   onClick={() => {
@@ -550,12 +538,12 @@ export default function MyBookingsPage() {
           </div>
         </div>
       )}
-      {ratingTarget && (
+      {false && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ backgroundColor: "rgba(19,34,34,0.7)" }}>
           <div className="w-full max-w-lg bg-[#faf9f6] p-8 shadow-2xl">
             <p className="text-xs tracking-[0.4em] uppercase text-[#71867e] mb-3">Rate Booking</p>
             <p className="text-sm text-[#4a6358] mb-5">
-              Booking #{ratingTarget.id} for {ratingTarget.room_name}. Rate your experience.
+              Booking #{ratingTarget!.id} for {ratingTarget!.room_name}. Rate your experience.
             </p>
             
             <div className="mb-4">
