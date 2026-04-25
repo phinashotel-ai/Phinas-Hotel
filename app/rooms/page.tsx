@@ -248,8 +248,8 @@ export default function RoomsPage() {
                 {/* Info */}
                 <div className="p-5 flex flex-col flex-grow">
                   <div className="flex justify-between items-start mb-1">
-                    <h2 className="text-base font-light tracking-widest uppercase">{room.name}</h2>
-                    <span className="text-xs text-[#71867e]">Room {room.room_number}</span>
+                    <h2 className="text-2xl font-light tracking-[0.18em] uppercase leading-none">Room {room.room_number}</h2>
+                    <span className="mt-1 text-[10px] uppercase tracking-[0.3em] text-[#71867e]">Floor {room.floor}</span>
                   </div>
                   <p className="text-xs text-[#71867e] mb-3">{getRoomTypeLabel(room.room_type)} · Floor {room.floor} · Up to {room.capacity} guests</p>
                   

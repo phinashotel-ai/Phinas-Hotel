@@ -233,19 +233,19 @@ export default function RoomDetailsPage() {
             <>
               <div className="mb-12 grid gap-8 md:grid-cols-[1.3fr_1fr]">
                 <div className="relative h-[420px] overflow-hidden">
-                  <img src={imageSrc} alt={room.name} className="absolute inset-0 h-full w-full object-cover" />
+                  <img src={imageSrc} alt={`Room ${room.room_number}`} className="absolute inset-0 h-full w-full object-cover" />
                   <div className="absolute left-6 top-6 bg-[#1c352c] px-3 py-1 text-xs font-semibold tracking-wide text-white">
                     {getRoomTypeLabel(room.room_type)}
                   </div>
-                  <div className="absolute bottom-6 left-6 bg-[rgba(19,34,34,0.82)] px-4 py-3 text-[#fff8ed]">
-                    <p className="text-xs tracking-[0.35em]">ROOM {room.room_number}</p>
-                    <p className="mt-1 text-2xl font-light tracking-[0.15em]">{room.name}</p>
+                  <div className="absolute bottom-6 left-6 bg-[rgba(19,34,34,0.82)] px-5 py-4 text-[#fff8ed]">
+                    <p className="text-[10px] tracking-[0.4em] uppercase text-[#d4d7c7]">Room Number</p>
+                    <p className="mt-1 text-4xl font-light tracking-[0.22em] leading-none">{room.room_number}</p>
                   </div>
                 </div>
 
                 <div className="border border-[#d4d7c7] bg-white p-8 shadow-sm">
                   <p className="mb-2 text-xs uppercase tracking-[0.35em] text-[#71867e]">Room Details</p>
-                  <h1 className="mb-3 text-3xl font-thin tracking-[0.18em]">{room.name}</h1>
+                  <h1 className="mb-3 text-5xl font-thin tracking-[0.22em] uppercase leading-tight">Room {room.room_number}</h1>
                   <p className="mb-6 text-sm leading-7 text-[#4a6358]">{getRoomDescription(room)}</p>
 
                   <div className="mb-6 grid grid-cols-2 gap-4 border-y border-[#d4d7c7] py-5 text-sm">

@@ -443,13 +443,13 @@ export default function BookingPage() {
             {/* Room Summary */}
             <div>
               <div className="relative h-64 overflow-hidden mb-5">
-                <img src={img} alt={room.name} className="absolute inset-0 h-full w-full object-cover" />
+                <img src={img} alt={`Room ${room.room_number}`} className="absolute inset-0 h-full w-full object-cover" />
                 <div className="absolute top-4 left-4 px-3 py-1 text-xs font-semibold tracking-wide capitalize bg-[#1c352c] text-white">
                   {room.room_type}
                 </div>
               </div>
-              <h2 className="text-xl font-light tracking-[0.2em] mb-1">{room.name}</h2>
-              <p className="text-xs text-[#71867e] mb-4">Room {room.room_number} · Floor {room.floor} · Up to {room.capacity} guests</p>
+              <h2 className="text-4xl md:text-5xl font-thin tracking-[0.22em] uppercase mb-2 leading-tight">Room {room.room_number}</h2>
+              <p className="text-[10px] uppercase tracking-[0.35em] text-[#71867e] mb-4">Floor {room.floor} · Up to {room.capacity} guests</p>
               
               {/* Room Availability Status */}
               {roomAvailability.checked && (

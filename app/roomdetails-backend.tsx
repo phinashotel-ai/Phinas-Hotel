@@ -210,7 +210,7 @@ export default function RoomDetailsWithBackend() {
       } else if (response.data) {
         const confirmation = {
           bookingId: response.data.reference_number,
-          room: room.name,
+          room: `Room ${room.room_number}`,
           checkIn,
           checkOut,
           guests,
@@ -351,7 +351,7 @@ export default function RoomDetailsWithBackend() {
             {/* Room Info */}
             <div className="flex flex-col gap-6">
 
-              <h3 className="text-3xl font-semibold">{room.name}</h3>
+              <h3 className="text-3xl font-semibold">Room {room.room_number}</h3>
 
               <p className="text-zinc-600 dark:text-zinc-300">
                 {room.description}
@@ -564,7 +564,7 @@ function BookingModal({
               <h2 className="text-3xl font-bold mb-6">Book Your Stay</h2>
               
               <div className="bg-zinc-100 dark:bg-zinc-800 p-4 rounded-xl mb-6">
-                <h3 className="font-semibold mb-2">{room.name}</h3>
+                <h3 className="font-semibold mb-2">Room {room.room_number}</h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">₱{getRoomNightlyRate(room, guests).toLocaleString()} per night</p>
               </div>
 
@@ -663,7 +663,7 @@ function BookingModal({
               <div className="bg-zinc-100 dark:bg-zinc-800 p-4 rounded-xl mb-6">
                 <h4 className="font-semibold mb-2">Booking Summary</h4>
                 <div className="text-sm space-y-1">
-                  <p><strong>Room:</strong> {room.name}</p>
+                  <p><strong>Room:</strong> {room.room_number}</p>
                   <p><strong>Dates:</strong> {checkIn} to {checkOut}</p>
                   <p><strong>Guests:</strong> {guests}</p>
                   <p><strong>Total:</strong> ₱{total.total.toLocaleString()}</p>
