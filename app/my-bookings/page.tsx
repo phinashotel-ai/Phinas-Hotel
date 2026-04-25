@@ -372,6 +372,8 @@ export default function MyBookingsPage() {
                   <div className="mt-6 grid gap-4 sm:grid-cols-2">
                     <Detail label="Check-in" value={fmt(selected.check_in)} />
                     <Detail label="Check-in Time" value={selected.check_in_time || CHECK_IN_TIME} />
+                    <Detail label="Check-out" value={fmt(selected.check_out)} />
+                    <Detail label="Check-out Time" value={selected.check_out_time || CHECK_OUT_TIME} />
                     <Detail label="Reference Number" value={selected.reference_number || selected.payment?.reference_number || "None"} />
                     <Detail label="Nights" value={String(nights(selected.check_in, selected.check_out))} />
                     <Detail label="Guests" value={String(selected.guests)} />
