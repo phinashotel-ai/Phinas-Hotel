@@ -794,7 +794,7 @@ function UserDashboardContent() {
                 ))}
               </div>
 
-              <div className="flex gap-3 pt-1">
+              <div className="grid gap-3 pt-1 sm:grid-cols-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -808,6 +808,20 @@ function UserDashboardContent() {
                   className="flex-1 py-3 text-xs tracking-[0.25em] border border-[#d4d7c7] text-[#1c352c] hover:border-[#1c352c] transition disabled:opacity-50"
                 >
                   {bookingAction?.id === selected.id && bookingAction.action === "check_in" ? "CHECKING IN..." : "CHECK-IN"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!canCheckOutBooking(selected)) {
+                      setCancelMsg("Check-out becomes available on or after your check-out date.");
+                      return;
+                    }
+                    void handleBookingAction(selected.id, "check_out");
+                  }}
+                  disabled={!canCheckOutBooking(selected) || bookingAction?.id === selected.id}
+                  className="flex-1 py-3 text-xs tracking-[0.25em] border border-emerald-400 text-emerald-700 hover:bg-emerald-500 hover:text-white transition disabled:opacity-50"
+                >
+                  {bookingAction?.id === selected.id && bookingAction.action === "check_out" ? "CHECKING OUT..." : "CHECK-OUT"}
                 </button>
                 <button
                   type="button"
