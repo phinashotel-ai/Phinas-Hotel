@@ -317,29 +317,30 @@ export default function RoomsPage() {
       </div>
 
       {/* ── FOOTER ── */}
-      <footer className="bg-[#132222] px-8 py-14">
-        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3">
+      <footer className="relative overflow-hidden bg-[#132222] px-8 py-16">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(212,215,199,0.14),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(196,138,58,0.14),transparent_30%)]" />
+        <div className="relative mx-auto grid max-w-6xl gap-12 md:grid-cols-3">
           <div>
-            <h3 className="mb-4 text-sm font-light tracking-[0.2em] text-[#fff8ed]">PHINAS HOTEL</h3>
-            <p className="text-[#71867e] text-xs leading-relaxed">Experience PHINAS like never before.</p>
+            <h3 className="mb-5 text-2xl font-light tracking-[0.28em] text-[#fff8ed] md:text-3xl">PHINAS HOTEL</h3>
+            <p className="max-w-xs text-sm leading-8 text-[#c7cec2] md:text-base">Experience PHINAS like never before with a stay that feels calm, polished, and memorable.</p>
           </div>
           <div>
-            <h4 className="text-[#fff8ed] tracking-widest text-xs mb-4">QUICK LINKS</h4>
-            <ul className="space-y-2 text-[#71867e] text-xs">
-              <li><Link href="/rooms" className="hover:text-[#d4d7c7] transition">Our Rooms</Link></li>
-              <li><Link href="/about" className="hover:text-[#d4d7c7] transition">About Us</Link></li>
-              <li><Link href="/contact" className="hover:text-[#d4d7c7] transition">Contact</Link></li>
+            <h4 className="mb-5 text-sm tracking-[0.35em] text-[#fff8ed]">QUICK LINKS</h4>
+            <ul className="space-y-3 text-sm text-[#c7cec2] md:text-base">
+              <li><Link href="/rooms" className="transition hover:text-[#fff8ed]">Our Rooms</Link></li>
+              <li><Link href="/about" className="transition hover:text-[#fff8ed]">About Us</Link></li>
+              <li><Link href="/contact" className="transition hover:text-[#fff8ed]">Contact</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-[#fff8ed] tracking-widest text-xs mb-4">CONTACT</h4>
-            <ul className="space-y-2 text-[#71867e] text-xs">
+            <h4 className="mb-5 text-sm tracking-[0.35em] text-[#fff8ed]">CONTACT</h4>
+            <ul className="space-y-3 text-sm text-[#c7cec2] md:text-base">
               <li>📞 +639 702 230 263</li>
               <li>✉️ phinashotel@gmail.com</li>
             </ul>
           </div>
         </div>
-        <div className="mt-10 border-t border-[#1c352c] pt-8 text-center text-xs tracking-[0.2em] text-[#71867e]">
+        <div className="relative mt-12 border-t border-white/10 pt-8 text-center text-xs tracking-[0.3em] text-[#9aac9f]">
           © PHINAS HOTEL. ALL RIGHTS RESERVED.
         </div>
       </footer>

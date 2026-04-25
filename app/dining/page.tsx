@@ -376,31 +376,32 @@ export default function DiningPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="py-14 px-8" style={{ backgroundColor: "#132222" }}>
-        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10">
+      <footer className="relative overflow-hidden px-8 py-16" style={{ backgroundColor: "#132222" }}>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(212,215,199,0.14),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(196,138,58,0.14),transparent_30%)]" />
+        <div className="relative max-w-6xl mx-auto grid md:grid-cols-3 gap-12">
           <div>
-            <h3 className="text-[#fff8ed] tracking-[0.3em] text-sm font-light mb-4">PHINAS HOTEL</h3>
-            <p className="text-[#71867e] text-xs leading-relaxed">Experience PHINAS like never before.</p>
+            <h3 className="mb-5 text-2xl font-light tracking-[0.28em] text-[#fff8ed] md:text-3xl">PHINAS HOTEL</h3>
+            <p className="max-w-xs text-sm leading-8 text-[#c7cec2] md:text-base">Experience PHINAS like never before with a stay that feels calm, polished, and memorable.</p>
           </div>
           <div>
-            <h4 className="text-[#fff8ed] tracking-widest text-xs mb-4">QUICK LINKS</h4>
-            <ul className="space-y-2 text-[#71867e] text-xs">
-              <li><Link href="/rooms"      className="hover:text-[#d4d7c7] transition">Our Rooms</Link></li>
-              <li><Link href="/about"      className="hover:text-[#d4d7c7] transition">About Us</Link></li>
-              <li><Link href="/dining"     className="hover:text-[#d4d7c7] transition">Dining</Link></li>
-              <li><Link href="/roomsearch" className="hover:text-[#d4d7c7] transition">Book a Room</Link></li>
+            <h4 className="mb-5 text-sm tracking-[0.35em] text-[#fff8ed]">QUICK LINKS</h4>
+            <ul className="space-y-3 text-sm text-[#c7cec2] md:text-base">
+              <li><Link href="/rooms"      className="transition hover:text-[#fff8ed]">Our Rooms</Link></li>
+              <li><Link href="/about"      className="transition hover:text-[#fff8ed]">About Us</Link></li>
+              <li><Link href="/dining"     className="transition hover:text-[#fff8ed]">Dining</Link></li>
+              <li><Link href="/roomsearch" className="transition hover:text-[#fff8ed]">Book a Room</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-[#fff8ed] tracking-widest text-xs mb-4">CONTACT</h4>
-            <ul className="space-y-2 text-[#71867e] text-xs">
+            <h4 className="mb-5 text-sm tracking-[0.35em] text-[#fff8ed]">CONTACT</h4>
+            <ul className="space-y-3 text-sm text-[#c7cec2] md:text-base">
               <li>📍 123 Hotel Street, City</li>
               <li>📞 +63 123 456 7890</li>
               <li>✉️ info@phinashotel.com</li>
             </ul>
           </div>
         </div>
-        <div className="text-center mt-10 pt-8 border-t border-[#1c352c] text-[#71867e] text-xs tracking-widest">
+        <div className="relative text-center mt-12 pt-8 border-t border-white/10 text-[#9aac9f] text-xs tracking-[0.3em]">
           © 2024 PHINAS HOTEL. ALL RIGHTS RESERVED.
         </div>
       </footer>
