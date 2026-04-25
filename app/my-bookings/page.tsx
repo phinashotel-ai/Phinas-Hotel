@@ -340,28 +340,6 @@ export default function MyBookingsPage() {
                         <span className="rounded-full bg-[#eef0e8] px-3 py-1">Meal: {booking.meal_category}</span>
                         <span className="rounded-full bg-[#eef0e8] px-3 py-1">Total: ₱{money(booking.total_price)}</span>
                       </div>
-                      <div className="mt-4 flex items-center justify-between gap-3 border border-blue-200 bg-blue-50 px-4 py-3">
-                        <div>
-                          <p className="text-[10px] uppercase tracking-[0.35em] text-blue-700">Checkout</p>
-                          <p className="mt-1 text-xs text-blue-900">
-                            {canCheckOutBooking(booking) ? "You can check out this stay now." : "Checkout becomes available after your scheduled checkout time."}
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!canCheckOutBooking(booking)) {
-                              setActionMsg("Checkout becomes available on or after your scheduled checkout time.");
-                              return;
-                            }
-                            void handleBookingAction(booking.id, "check_out");
-                          }}
-                          disabled={!canCheckOutBooking(booking) || actionLoading?.id === booking.id}
-                          className="rounded-full bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700 transition disabled:opacity-50"
-                        >
-                          {actionLoading?.id === booking.id && actionLoading.action === "check_out" ? "Checking out..." : "Check-out"}
-                        </button>
-                      </div>
                     </div>
                   );
                 })}
@@ -423,22 +401,6 @@ export default function MyBookingsPage() {
                         className="rounded-full border border-[#1c352c] px-5 py-3 text-xs uppercase tracking-[0.28em] text-[#1c352c] transition hover:bg-[#1c352c] hover:text-white disabled:opacity-50"
                       >
                         {actionLoading?.id === selected.id && actionLoading.action === "check_in" ? "Checking in..." : "Check-in"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (!canCheckOutBooking(selected)) {
-                            setActionMsg("Checkout becomes available on or after your scheduled checkout time.");
-                            return;
-                          }
-                          void handleBookingAction(selected.id, "check_out");
-                        }}
-                        disabled={!canCheckOutBooking(selected) || actionLoading?.id === selected.id}
-                        className="rounded-full border border-emerald-500 px-5 py-3 text-xs uppercase tracking-[0.28em] text-emerald-700 transition hover:bg-emerald-500 hover:text-white disabled:opacity-50"
-                      >
-                        {actionLoading?.id === selected.id && actionLoading.action === "check_out"
-                          ? "Checking out..."
-                          : "Check-out"}
                       </button>
                       <button
                         type="button"
